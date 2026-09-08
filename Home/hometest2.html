@@ -1,0 +1,1600 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasi — Arrangements, elevated.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --noir:#0B0A0C;
+    --noir-soft:#100E11;
+    --emerald:#0F241C;
+    --emerald-soft:#152E23;
+    --gold:#C7A65C;
+    --gold-bright:#E4C687;
+    --gold-dim:#7C6636;
+    --silver:#A6ABB1;
+    --silver-bright:#D4D7DB;
+    --silver-dim:#5E6267;
+    --bordeaux:#4E1220;
+    --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF;
+    --smoke:#8D8579;
+    --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14);
+    --line-strong: rgba(199,166,92,0.30);
+    --font-display:'Libre Caslon Display', serif;
+    --font-serif:'Libre Caslon Text', serif;
+    --font-sans:'Inter', sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-sans); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  h1,h2,h3{ font-family:var(--font-display); font-weight:400; margin:0; letter-spacing:-0.01em; }
+  p{ margin:0; font-family:var(--font-serif); font-weight:400; }
+  a{ color:inherit; text-decoration:none; }
+  img{ max-width:100%; display:block; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+ 
+  .container{ max-width:1240px; margin:0 auto; padding:0 40px; }
+  .eyebrow{
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+  .rule{ width:40px; height:1px; background:var(--gold-dim); }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:15px 32px;
+    font-size:12px; letter-spacing:0.1em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); position:relative; overflow:hidden; isolation:isolate;
+    transition:transform .4s cubic-bezier(.2,.7,.2,1), background .4s ease, border-color .4s ease, color .4s ease;
+  }
+  .btn::before{
+    content:""; position:absolute; inset:0; z-index:-1;
+    background:linear-gradient(110deg, transparent 18%, rgba(255,255,255,0.18) 48%, transparent 76%);
+    transform:translateX(-120%); transition:transform .75s cubic-bezier(.2,.7,.2,1);
+  }
+  .btn:hover::before{ transform:translateX(120%); }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+ 
+  .luxury-divider{
+    display:flex; align-items:center; gap:22px; max-width:1240px; margin:0 auto; padding:15px 40px; opacity:0.8;
+  }
+  .luxury-divider span{ height:1px; flex:1; background:linear-gradient(90deg, transparent, var(--line-strong)); }
+  .luxury-divider span:last-child{ background:linear-gradient(90deg, var(--line-strong), transparent); }
+  .divider-mark{
+    width:34px; height:34px; border:1px solid var(--line-strong); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-serif); font-weight:500; color:var(--gold); font-size:15px;
+  }
+ 
+  /* ---------------- atmosphere: grain, ambient glow, scroll progress ---------------- */
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none;
+    opacity:0.045; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+  .ambient-light{
+    position:fixed; width:420px; height:420px; left:0; top:0; transform:translate(-50%,-50%);
+    pointer-events:none; z-index:9991; border-radius:50%;
+    background:radial-gradient(circle, rgba(199,166,92,0.075) 0%, rgba(199,166,92,0.025) 30%, transparent 70%);
+    mix-blend-mode:screen; opacity:0; transition:opacity .5s ease;
+  }
+  .scroll-progress{
+    position:fixed; top:0; left:0; width:100%; height:2px; z-index:10001; background:rgba(199,166,92,0.05);
+  }
+  .scroll-progress span{
+    display:block; width:0%; height:100%;
+    background:linear-gradient(90deg, var(--gold-dim), var(--gold-bright));
+    box-shadow:0 0 12px rgba(199,166,92,0.45);
+  }
+ 
+  /* ---------------- custom cursor ---------------- */
+  @media (hover:hover) and (pointer:fine){
+    body{ cursor:none; }
+    #cursor-dot, #cursor-ring{
+      position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+      transform:translate(-50%,-50%); border-radius:50%;
+    }
+    #cursor-dot{ width:5px; height:5px; background:var(--gold); transition:opacity .2s; }
+    #cursor-ring{
+      width:36px; height:36px; border:1px solid var(--gold);
+      transition:width .25s ease, height .25s ease, opacity .25s ease, background .25s ease;
+      opacity:0.55;
+    }
+    #cursor-ring.active{ width:64px; height:64px; background:rgba(199,166,92,0.08); opacity:1; }
+    #cursor-label{
+      position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+      font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--noir);
+      background:var(--gold); padding:5px 10px; border-radius:20px;
+      opacity:0; transition:opacity .2s ease; white-space:nowrap;
+      transform:translate(-50%, 22px);
+    }
+    #cursor-label.active{ opacity:1; }
+  }
+ 
+  /* ---------------- nav ---------------- */
+  header{ position:fixed; top:0; left:0; right:0; z-index:100; padding:28px 0; }
+  header .container{ display:flex; align-items:center; justify-content:space-between; padding-left:20px; }
+  .signet{ display:inline-flex; align-items:center; gap:14px; margin-left:-4px; }
+  .signet svg{ width:52px; height:52px; transition:width .5s cubic-bezier(.4,0,.2,1), height .5s cubic-bezier(.4,0,.2,1); }
+  .signet-logo{ height:85px; width:auto; display:block; transition:height .5s cubic-bezier(.4,0,.2,1); }
+  .signet-word{ font-family:var(--font-display); font-size:32px; letter-spacing:0.01em; color:var(--cream);
+    transition:font-size .5s cubic-bezier(.4,0,.2,1); }
+  header.scrolled .signet svg{ width:56px; height:56px; }
+  header.scrolled .signet-logo{ height:76px; }
+  header.scrolled .signet-word{ font-size:21px; }
+  .nav-links{ display:flex; gap:40px; font-size:12px; letter-spacing:0.06em; text-transform:uppercase;
+    opacity:0; pointer-events:none; transition:opacity .6s ease; }
+  .nav-links a:hover{ color:var(--gold-bright); }
+  .nav-cta{ display:flex; align-items:center; gap:20px; opacity:0; pointer-events:none; transition:opacity .6s ease; }
+  .nav-cta .sign-in{ font-size:12px; letter-spacing:0.05em; text-transform:uppercase; }
+  .nav-cta .sign-in:hover{ color:var(--gold-bright); }
+  header.scrolled{ background:rgba(11,10,12,0.86); backdrop-filter:blur(14px); border-bottom:1px solid var(--line); }
+  header.scrolled .nav-links, header.scrolled .nav-cta{ opacity:1; pointer-events:auto; }
+ 
+  /* ---------------- hero ---------------- */
+  .hero{ position:relative; height:100vh; min-height:640px; overflow:hidden; display:flex; align-items:center; }
+  .hero-media{
+    position:absolute; inset:0; z-index:1;
+    background:
+      radial-gradient(ellipse 70% 60% at 30% 20%, rgba(78,18,32,0.55), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(199,166,92,0.14), transparent 65%),
+      linear-gradient(160deg, #17110E 0%, #0B0A0C 55%, #0F241C 130%);
+    background-size:180% 180%;
+    animation:heroDrift 22s ease-in-out infinite alternate;
+  }
+  /* HERO VIDEO SLOT — point the <source> at your own footage when ready. Recommended 1920x1080+. */
+  .hero-media__video{
+    position:absolute; inset:0;
+    width:100%; height:100%; object-fit:cover;
+    object-position:center;
+    z-index:0;
+    animation:cinematicZoom 18s ease-in-out infinite alternate;
+    filter:saturate(0.82) contrast(1.08) brightness(0.72);
+  }
+  @keyframes cinematicZoom{
+    0%{ transform:scale(1); }
+    100%{ transform:scale(1.065); }
+  }
+  @keyframes heroDrift{
+    0%{ background-position:0% 20%; }
+    100%{ background-position:100% 80%; }
+  }
+  .hero-media::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(0deg, rgba(11,10,12,0.9) 0%, rgba(11,10,12,0.2) 45%, rgba(11,10,12,0.55) 100%);
+  }
+  .hero-media-note{
+    position:absolute; bottom:14px; right:16px; z-index:2; font-size:9px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--smoke-dim); font-family:var(--font-sans);
+  }
+  .hero-inner{ position:relative; z-index:2; width:100%; }
+  .hero-copy{ max-width:780px; position:relative; }
+  .hero-copy::before{
+    content:""; position:absolute; width:360px; height:360px; left:-170px; top:-150px;
+    border-radius:50%; background:radial-gradient(circle, rgba(199,166,92,0.07), transparent 70%);
+    pointer-events:none; z-index:-1;
+  }
+  .hero-status{
+    display:inline-flex; align-items:center; gap:9px; padding:8px 13px;
+    border:1px solid rgba(199,166,92,0.2); background:rgba(11,10,12,0.28); backdrop-filter:blur(12px);
+    color:var(--smoke); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; margin-bottom:24px;
+    opacity:0; animation:heroFadeUp .8s ease .05s forwards;
+  }
+  .status-dot{
+    width:5px; height:5px; border-radius:50%; background:var(--gold-bright);
+    animation:statusPulse 2.2s infinite;
+  }
+  @keyframes statusPulse{
+    0%{ box-shadow:0 0 0 0 rgba(228,198,135,0.45); }
+    70%{ box-shadow:0 0 0 7px rgba(228,198,135,0); }
+    100%{ box-shadow:0 0 0 0 rgba(228,198,135,0); }
+  }
+  .hero-copy .eyebrow{ opacity:0; animation:heroFadeUp .9s ease .2s forwards; }
+  .hero h1{
+    font-size:clamp(56px, 7.2vw, 92px); line-height:1.02; color:var(--cream); margin:20px 0 28px;
+    opacity:0; animation:heroFadeUp 1s ease .45s forwards;
+  }
+  .hero h1 em{ font-style:italic; color:var(--gold-bright); }
+  .hero .lede{
+    max-width:440px; color:var(--smoke); font-size:16px; line-height:1.8; margin-bottom:40px;
+    opacity:0; animation:heroFadeUp 1s ease .7s forwards;
+  }
+  .hero-actions{ display:flex; gap:16px; flex-wrap:wrap; opacity:0; animation:heroFadeUp 1s ease .95s forwards; }
+  @keyframes heroFadeUp{ from{ opacity:0; transform:translateY(18px); } to{ opacity:1; transform:translateY(0); } }
+  .scroll-cue{
+    position:absolute; bottom:36px; left:40px; z-index:2; display:flex; align-items:center; gap:10px;
+    font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--smoke);
+    opacity:0; animation:heroFadeUp 1s ease 1.3s forwards;
+  }
+  .scroll-cue .line{ width:24px; height:1px; background:var(--gold-dim); }
+ 
+  /* ---------------- image slots ----------------
+     Drop your own images in by replacing the src="" on the
+     matching <img class="img-slot__img"> tag in the HTML below.
+     Until an image is added, a placeholder frame + label is shown. */
+  .img-slot{
+    position:relative; overflow:hidden; background:var(--noir);
+  }
+  .img-slot__img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    position:absolute; inset:0; opacity:0; transition:opacity .5s ease;
+  }
+  .img-slot__img[src]:not([src=""]){ opacity:1; }
+  .img-slot__placeholder{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px; text-align:center; padding:20px;
+    background:linear-gradient(160deg, rgba(199,166,92,0.06), transparent 60%);
+  }
+  .img-slot__img[src]:not([src=""]) ~ .img-slot__placeholder{ display:none; }
+  .img-slot__placeholder .mark{
+    width:26px; height:26px; border:1px solid var(--line-strong); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; color:var(--gold-dim); font-size:14px;
+  }
+  .img-slot__placeholder .lbl{ font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--smoke-dim); }
+  .img-slot__placeholder .dim{ font-size:9px; letter-spacing:0.06em; color:var(--smoke-dim); opacity:.7; }
+ 
+  /* ---------------- reveal on scroll ---------------- */
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity 1s cubic-bezier(.2,.6,.2,1), transform 1s cubic-bezier(.2,.6,.2,1); }
+  .reveal.in-view{ opacity:1; transform:translateY(0); }
+  .reveal-delay-1.in-view{ transition-delay:.12s; }
+  .reveal-delay-2.in-view{ transition-delay:.24s; }
+  .reveal-delay-3.in-view{ transition-delay:.36s; }
+ 
+  /* drop-in: falls from above and settles */
+  .drop-in{
+    opacity:0; transform:translateY(-260px);
+    transition:opacity .8s ease, transform 1.15s cubic-bezier(.22,2.1,.5,1);
+  }
+  .drop-in.in-view{ opacity:1; transform:translateY(0); }
+  .drop-in-delay-1.in-view{ transition-delay:.25s; }
+ 
+  /* ---------------- meeting point (background toast, center copy) ---------------- */
+  .meeting{ padding:150px 0; position:relative; overflow:hidden; }
+  .meeting .container{ position:relative; z-index:2; }
+  .meeting-grid{ display:flex; justify-content:center; }
+  .meeting-copy{ text-align:center; max-width:560px; }
+  .meeting-copy .eyebrow{ display:block; margin-bottom:18px; }
+  .meeting-copy h2{ font-size:clamp(24px,2.6vw,32px); color:var(--cream); margin-bottom:20px; }
+  .meeting-copy p{ font-size:14px; color:var(--smoke); line-height:1.8; margin-top:14px; }
+  .meeting-copy .btn{ margin-top:26px; }
+  .meeting-legal{ margin-top:30px; font-size:11px; line-height:1.8; color:var(--smoke-dim); }
+  .meeting-legal a{ color:var(--smoke); text-decoration:underline; }
+  .meeting-legal a:hover{ color:var(--gold-bright); }
+ 
+  /* GLASSES — background layer, converges into a "clink" on scroll-into-view, then holds.
+     Recommended: transparent PNG cutout, hand + champagne glass, ~500x500. */
+  .toast-glass{
+    position:absolute; top:50%; z-index:0; width:min(30vw, 340px);
+    transition:transform 1.3s cubic-bezier(.22,1.6,.4,1), opacity .9s ease;
+    opacity:0; pointer-events:none;
+  }
+  .toast-glass .img-slot__img{ position:static; opacity:1; width:100%; height:auto; object-fit:contain; }
+  .toast-glass .img-slot__placeholder{ position:relative; aspect-ratio:1/1; background:none; }
+  .toast-glass.left{ left:4%; transform:translate(-90px,-50%) rotate(-8deg); }
+  .toast-glass.right{ right:4%; transform:translate(90px,-50%) rotate(8deg); }
+  .toast-glass.in-view{ opacity:1; }
+  .toast-glass.left.in-view{ transform:translate(30px,-50%) rotate(-3deg); }
+  .toast-glass.right.in-view{ transform:translate(-30px,-50%) rotate(3deg); }
+ 
+  /* ---------------- about (standalone mission statement) ---------------- */
+  .about{ padding:170px 0 60px; border-top:1px solid var(--line); position:relative; overflow:hidden; }
+ 
+  /* ABOUT BACKGROUND IMAGE — full-bleed vertically, but width-constrained to match .container.
+     Replace src="" on the <img class="about-img"> with your photo. */
+  .about-img{
+    position:absolute; top:0; bottom:0; left:50%; transform:translateX(-50%);
+    width:calc(100% - 80px); max-width:1160px;
+    object-fit:cover; object-position:center;
+    z-index:0; opacity:0; transition:opacity .6s ease;
+  }
+  .about-img[src]:not([src=""]){ opacity:1; }
+  .about::after{
+    content:""; position:absolute; inset:0; z-index:1;
+    background:linear-gradient(180deg, rgba(11,10,12,0.85) 0%, rgba(32,8,10,0.72) 50%, rgba(11,10,12,0.9) 100%);
+  }
+  .about .container{ position:relative; z-index:2; }
+ 
+  .about-inner{
+    max-width:640px;
+    background:rgba(11,10,12,0.55); backdrop-filter:blur(6px);
+    padding:48px 56px; border-radius:2px;
+  }
+  .about-inner .eyebrow{ display:block; margin-bottom:22px; }
+  .about-inner h2{ font-size:clamp(30px,3.6vw,46px); color:var(--cream); }
+  .about-inner p{ margin-top:24px; color:var(--smoke); font-size:15px; line-height:1.85; max-width:560px; }
+ 
+  /* ---------------- benefits (four points + portrait + closing statement) ---------------- */
+  .benefits{ padding:130px 0; border-top:1px solid var(--line); }
+  .benefits-head{ text-align:center; max-width:640px; margin:0 auto 70px; }
+  .benefits-head .eyebrow{ display:block; margin-bottom:18px; }
+  .benefits-head h2{ font-size:clamp(28px,3.4vw,42px); color:var(--cream); }
+ 
+  .benefits-grid{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:70px; align-items:center; }
+  .benefits-list{ display:flex; flex-direction:column; }
+  .benefit-item{ padding:26px 0; border-top:1px solid var(--line); }
+  .benefit-item:first-child{ border-top:none; padding-top:0; }
+  .benefit-item h3{ font-family:var(--font-serif); font-size:19px; font-weight:500; color:var(--cream); margin-bottom:10px; }
+  .benefit-item p{ font-size:14px; color:var(--smoke); line-height:1.8; }
+ 
+  .benefits-img{
+    aspect-ratio:3/4;
+    border-radius:50% 50% 0 0 / 37.5% 37.5% 0 0;
+  }
+ 
+  .benefits-closing{ text-align:center; max-width:600px; margin:80px auto 0; padding-top:60px; border-top:1px solid var(--line); }
+  .benefits-closing .lead{
+    font-family:var(--font-serif); font-style:italic; font-size:18px; color:var(--cream); margin-bottom:22px;
+  }
+  .benefits-closing h3{ font-size:clamp(24px,2.8vw,34px); color:var(--cream); line-height:1.3; margin-bottom:34px; }
+ 
+  /* ---------------- pillars / discretion (asymmetric, aligned list) ---------------- */
+  .pillars{ padding:60px 0 70px; position:relative; border-top:1px solid var(--line); }
+  .pillars-grid{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:80px; align-items:start; overflow:visible; }
+  .pillars-intro .eyebrow{ display:block; margin-bottom:22px; }
+  .pillars-intro h2{ font-size:clamp(30px,3.6vw,46px); color:var(--cream); }
+  .pillars-intro p{ margin-top:22px; color:var(--smoke); font-size:15px; line-height:1.8; max-width:400px; }
+  .pillars-intro p:first-of-type{ margin-top:26px; }
+  .pillar-list{ display:flex; flex-direction:column; }
+  .pillar-item{
+    display:grid; grid-template-columns:52px 1fr; gap:26px; padding:44px 0;
+    border-top:1px solid var(--line);
+  }
+  .pillar-item:last-child{ border-bottom:1px solid var(--line); }
+  .pillar-icon{ padding-top:4px; }
+  .pillar-item h3{ font-size:19px; font-weight:500; font-family:var(--font-serif); color:var(--cream); margin-bottom:10px; }
+  .pillar-item p{ font-size:14px; color:var(--smoke); line-height:1.8; max-width:420px; }
+ 
+  /* ---------------- values (sticky image + click-to-expand accordion) ---------------- */
+  .values{ padding:130px 0; border-top:1px solid var(--line); }
+  .values-head{ text-align:center; max-width:600px; margin:0 auto 70px; }
+  .values-head .eyebrow{ display:block; margin-bottom:18px; }
+  .values-head h2{ font-size:clamp(28px,3.4vw,42px); color:var(--cream); }
+ 
+  .values-grid{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:70px; align-items:start; }
+  .values-img-wrap{ position:sticky; top:120px; display:flex; justify-content:center; }
+  .values-img{
+    width:min(360px, 90%); aspect-ratio:1/1; border-radius:50%; position:relative;
+    overflow:hidden; border:1px solid var(--line-strong);
+  }
+  .value-photo{ position:absolute; inset:0; opacity:0; transition:opacity .7s ease; }
+  .value-photo.active{ opacity:1; z-index:1; }
+ 
+  .values-list{ border-top:1px solid var(--line); }
+  .value-row{ border-bottom:1px solid var(--line); }
+  .value-row-head{
+    width:100%; display:flex; align-items:center; gap:20px; padding:28px 0;
+    background:none; border:none; text-align:left;
+  }
+  .value-num{ font-family:var(--font-serif); font-weight:500; font-size:14px; color:var(--gold-dim); min-width:24px; }
+  .value-name{ font-family:var(--font-serif); font-weight:500; font-size:21px; color:var(--cream); flex:1; }
+  .value-toggle{ width:20px; height:20px; position:relative; flex-shrink:0; }
+  .value-toggle::before, .value-toggle::after{
+    content:""; position:absolute; top:50%; left:50%; background:var(--gold);
+    transition:transform .4s cubic-bezier(.4,0,.2,1);
+  }
+  .value-toggle::before{ width:12px; height:1px; transform:translate(-50%,-50%); }
+  .value-toggle::after{ width:1px; height:12px; transform:translate(-50%,-50%); }
+  .value-row.open .value-toggle::after{ transform:translate(-50%,-50%) rotate(90deg); opacity:0; }
+ 
+  .value-row-body{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .55s cubic-bezier(.2,.6,.2,1); }
+  .value-row-body-inner{ overflow:hidden; }
+  .value-row.open .value-row-body{ grid-template-rows:1fr; }
+  .value-row p{ font-size:14px; color:var(--smoke); line-height:1.8; padding:0 0 28px 44px; max-width:520px; }
+ 
+  /* ---------------- founder's note (envelope background + letter) ---------------- */
+  .founder-note{ padding:56px 0; position:relative; background:var(--noir); overflow:hidden; }
+  /* ENVELOPE BACKGROUND IMAGE — recommended landscape, ~1800x1100, wax seal roughly centered.
+     Replace src="" on the <img class="founder-note-bg"> below. */
+  .founder-note-bg{
+    position:absolute; inset:0; width:45%; height:100%;
+    object-fit:cover; object-position:center; z-index:0;
+    opacity:0; transition:opacity .6s ease;
+  }
+  .founder-note-bg[src]:not([src=""]){ opacity:1; }
+  .founder-note::before{
+    content:""; position:absolute; inset:0; z-index:0;
+    background:radial-gradient(ellipse 60% 60% at 50% 45%, rgba(11,10,12,0.55) 0%, rgba(11,10,12,0.88) 75%);
+  }
+  .founder-note .container{ max-width:760px; position:relative; z-index:1; }
+  .founder-note .eyebrow{ display:block; text-align:center; margin-bottom:28px; }
+ 
+  .letter-stack{ position:relative; padding:10px 14px 16px; }
+  .letter-backing{
+    position:absolute; inset:22px -16px -16px 22px; z-index:0;
+    background:var(--bordeaux); border:1px solid var(--line-strong);
+    transform:rotate(-1.4deg);
+  }
+  .letter-card{
+    position:relative; z-index:1;
+    background:var(--noir-soft); border:1px solid var(--line-strong);
+    padding:28px 32px 34px;
+    transform:rotate(0.6deg);
+    box-shadow:0 34px 64px rgba(0,0,0,0.55);
+    transition:transform .5s cubic-bezier(.2,.6,.2,1);
+  }
+  .letter-card:hover{ transform:rotate(0deg) translateY(-6px); }
+ 
+  .note-wrap{ display:flex; gap:32px; align-items:flex-start; }
+  .note-rule{ width:1px; align-self:stretch; background:var(--line-strong); flex-shrink:0; margin-top:6px; }
+  .note-body blockquote{
+    font-family:var(--font-serif); font-style:italic; font-weight:400;
+    font-size:15px; line-height:1.7; color:var(--cream); margin:0;
+  }
+  .note-dropcap{
+    font-family:var(--font-display); font-style:italic; font-size:44px; line-height:0.7;
+    color:var(--gold-bright); float:left; margin:6px 8px 0 0;
+  }
+ 
+  .note-signature{ display:flex; align-items:center; gap:18px; margin-top:38px; }
+  /* FOUNDER PORTRAIT — optional, recommended square ~200x200 */
+  .note-portrait{
+    width:52px; height:52px; border-radius:50%; flex-shrink:0; overflow:hidden;
+    position:relative; background:var(--noir-soft); border:1px solid var(--line-strong);
+  }
+  .note-portrait .img-slot__img{ position:absolute; inset:0; }
+  .note-portrait .img-slot__placeholder{ position:absolute; inset:0; }
+  .note-portrait .img-slot__placeholder .lbl, .note-portrait .img-slot__placeholder .dim{ display:none; }
+  .note-signature-text .name{
+    font-family:var(--font-display); font-style:italic; font-size:22px; color:var(--gold-bright); display:block;
+  }
+  .note-signature-text .title{
+    font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--smoke-dim); margin-top:4px; display:block;
+  }
+ 
+  /* ---------------- how it works (alternating rows with UX mockups) ---------------- */
+  .how{ padding:90px 0; border-top:1px solid var(--line); background:var(--emerald); position:relative; overflow:hidden; }
+  /* HOW-SECTION BACKGROUND IMAGE — recommended landscape, ~1800x1000. Replace src="" on the <img> below. */
+  .how-media__picture{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:center; z-index:0;
+    opacity:0; transition:opacity .6s ease;
+  }
+  .how-media__picture[src]:not([src=""]){ opacity:1; }
+  .how::after{
+    content:""; position:absolute; inset:0; z-index:1;
+    background:linear-gradient(180deg, rgba(15,36,28,0.88) 0%, rgba(15,36,28,0.7) 50%, rgba(15,36,28,0.9) 100%);
+  }
+  .how .container{ position:relative; z-index:2; }
+  .how-head{ display:grid; grid-template-columns:1fr auto; align-items:end; gap:40px; margin-bottom:60px; position:relative; }
+  .how-head .eyebrow{ display:block; margin-bottom:16px; }
+  .how-head .rule{ margin-bottom:20px; }
+  .how-head h2{ font-size:clamp(32px,4vw,54px); max-width:560px; line-height:1.05; position:relative; z-index:1; }
+  .how-head h2 em{ font-style:italic; color:var(--gold-bright); }
+  .how-head p{ color:var(--smoke); font-size:14px; max-width:280px; text-align:right; line-height:1.8; }
+  .how-head-watermark{
+    position:absolute; top:-60px; left:-30px; z-index:0; width:280px; height:280px;
+    opacity:0.06; pointer-events:none;
+  }
+ 
+  .how-flow{ display:flex; flex-direction:column; gap:70px; position:relative; }
+  .how-progress-line{
+    position:absolute; left:calc((100% - 48px) * 0.475 + 24px); top:0; bottom:0; width:1px;
+    background:rgba(199,166,92,0.08); transform:translateX(-50%); pointer-events:none;
+  }
+  .how-progress-line span{
+    display:block; width:100%; height:0%;
+    background:linear-gradient(180deg, var(--gold), var(--gold-bright));
+    box-shadow:0 0 12px rgba(199,166,92,0.3);
+    transition:height .15s linear;
+  }
+  .how-row{ display:grid; grid-template-columns:0.95fr 1.05fr; gap:48px; align-items:center; }
+  .how-row.reverse .how-row-text{ order:2; }
+  .how-row.reverse .how-row-mock{ order:1; }
+ 
+  .how-row-text .step-num{
+    font-family:var(--font-serif); font-weight:500; font-size:16px; color:var(--gold); display:block; margin-bottom:20px;
+  }
+  .how-row-text h3{ font-family:var(--font-serif); font-size:26px; font-weight:500; color:var(--cream); margin-bottom:16px; max-width:400px; }
+  .how-row-text p{ font-size:14px; color:var(--smoke); line-height:1.85; max-width:420px; }
+ 
+  /* ---- shared mockup card shell ---- */
+  .ux-card{
+    background:var(--noir-soft); border:1px solid var(--line-strong); border-radius:3px;
+    padding:24px 26px; box-shadow:0 30px 60px rgba(0,0,0,0.45);
+    position:relative; max-width:420px; overflow:hidden;
+    transform-style:preserve-3d; will-change:transform;
+    transition:transform .5s cubic-bezier(.2,.6,.2,1), box-shadow .5s ease;
+  }
+  .ux-card.tilting{ transition:box-shadow .5s ease; }
+  .ux-card:hover{ box-shadow:0 40px 80px rgba(0,0,0,0.55); }
+  .ux-card::after{
+    content:""; position:absolute; inset:0; z-index:5; pointer-events:none; border-radius:inherit;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(199,166,92,0.14), transparent 55%);
+    opacity:0; transition:opacity .4s ease;
+  }
+  .ux-card:hover::after{ opacity:1; }
+  .ux-card-label{
+    font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--smoke-dim); margin-bottom:22px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .ux-card-label::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--gold-dim); }
+ 
+  /* ---- mockup 1: profile builder ---- */
+  .ux-field{ margin-bottom:18px; }
+  .ux-field .fld-label{ font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke-dim); display:block; margin-bottom:7px; }
+  .ux-field .fld-value{
+    font-family:var(--font-serif); font-style:italic; font-size:15px; color:var(--cream);
+    padding-bottom:10px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px;
+  }
+  .ux-toggle-row{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:22px; padding-top:20px; border-top:1px solid var(--line);
+  }
+  .ux-toggle-row span{ font-size:12px; color:var(--cream); }
+  .ux-toggle{ width:36px; height:19px; border-radius:20px; background:var(--gold); position:relative; flex-shrink:0; }
+  .ux-toggle::after{ content:""; position:absolute; top:2px; right:2px; width:15px; height:15px; border-radius:50%; background:var(--noir); }
+ 
+  /* ---- mockup 2: match + verification ---- */
+  .ux-match{ display:flex; align-items:center; gap:18px; }
+  .ux-avatar-mask{
+    width:60px; height:60px; border-radius:50%; flex-shrink:0; position:relative;
+    background:linear-gradient(135deg, var(--emerald-soft), var(--noir));
+  }
+  .ux-verified-stamp{
+    position:absolute; bottom:-4px; right:-4px; width:24px; height:24px; border-radius:50%;
+    background:var(--gold); border:2px solid var(--noir-soft);
+    display:flex; align-items:center; justify-content:center;
+    transform:scale(0); transition:transform .6s cubic-bezier(.22,1.9,.4,1);
+  }
+  .ux-card.in-view .ux-verified-stamp{ transform:scale(1); }
+  .ux-match-name{ font-family:var(--font-serif); font-style:italic; font-size:17px; color:var(--cream); }
+  .ux-match-meta{ font-size:11px; color:var(--smoke-dim); margin-top:5px; }
+ 
+  .ux-check-list{
+    margin-top:22px; padding-top:20px; border-top:1px solid var(--line);
+    display:flex; flex-direction:column; gap:13px;
+  }
+  .ux-check-item{
+    display:flex; align-items:center; gap:10px; font-size:12px; color:var(--cream);
+    opacity:0; transform:translateX(-10px); transition:opacity .5s ease, transform .5s ease;
+  }
+  .ux-card.in-view .ux-check-item:nth-child(1){ opacity:1; transform:translateX(0); transition-delay:.15s; }
+  .ux-card.in-view .ux-check-item:nth-child(2){ opacity:1; transform:translateX(0); transition-delay:.32s; }
+  .ux-card.in-view .ux-check-item:nth-child(3){ opacity:1; transform:translateX(0); transition-delay:.49s; }
+  .ux-check-icon{
+    width:16px; height:16px; border-radius:50%; border:1px solid var(--line-strong); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ux-more-chip{
+    margin-top:18px; display:inline-flex; align-items:center; gap:7px;
+    font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--gold-dim);
+    border:1px dashed var(--line-strong); padding:7px 14px; border-radius:20px;
+    opacity:0; transition:opacity .6s ease; transition-delay:.68s;
+  }
+  .ux-card.in-view .ux-more-chip{ opacity:1; }
+ 
+  /* ---- mockup 3: terms agreement ---- */
+  .ux-term-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:15px 0; border-top:1px solid var(--line);
+  }
+  .ux-term-row:first-child{ border-top:none; padding-top:0; }
+  .ux-term-label{ font-size:13px; color:var(--cream); }
+  .ux-term-status{
+    font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--gold-bright);
+    display:flex; align-items:center; gap:6px;
+  }
+ 
+  /* ---------------- interests (tag teaser, fades to a join CTA) ---------------- */
+  .interests{ padding:140px 0 0; border-top:1px solid var(--line); }
+  .interests-head{ max-width:560px; margin-bottom:56px; }
+  .interests-head .eyebrow{ display:block; margin-bottom:18px; }
+  .interests-head h2{ font-size:clamp(28px,3.4vw,42px); color:var(--cream); }
+  .interests-head p{ margin-top:20px; color:var(--smoke); font-size:15px; line-height:1.8; max-width:520px; }
+  .interests-head .highlight{ color:var(--gold-bright); font-style:italic; font-family:var(--font-serif); }
+ 
+  .interests-wrap{ position:relative; overflow:hidden; max-height:480px; }
+  .interests-grid{ display:flex; flex-wrap:wrap; gap:14px; padding-bottom:40px; }
+  .interests-tag{
+    padding:16px 22px; border:1px solid var(--line-strong); border-radius:2px; background:var(--noir-soft);
+    transition:border-color .3s ease, background .3s ease;
+  }
+  .interests-tag:hover{ border-color:var(--gold); background:rgba(199,166,92,0.06); }
+  .interests-tag .name{
+    font-family:var(--font-sans); font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    font-weight:500; color:var(--cream);
+  }
+  .interests-tag .count{
+    display:block; margin-top:4px; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke-dim);
+  }
+  .interests-fade{
+    position:absolute; bottom:0; left:0; right:0; height:220px; z-index:2;
+    background:linear-gradient(0deg, var(--noir) 0%, rgba(11,10,12,0.75) 55%, transparent 100%);
+    display:flex; align-items:flex-end; justify-content:center; padding-bottom:56px;
+  }
+  .interests-fade .btn{ pointer-events:auto; }
+ 
+  /* ---------------- membership (three tiers: Silver, Gold, Black) ---------------- */
+  /* ---------------- membership (interactive tier selector) ---------------- */
+  .membership{ padding:120px 0; border-top:1px solid var(--line); }
+  .membership-head{ margin-bottom:56px; max-width:560px; }
+  .membership-head h2{ font-size:clamp(28px,3.4vw,44px); margin-top:20px; }
+ 
+  .tier-selector{ display:flex; border-bottom:1px solid var(--line-strong); }
+  .tier-tab{
+    flex:1; text-align:left; padding:22px 26px; background:none; border:none;
+    border-bottom:2px solid transparent; cursor:pointer; opacity:0.42;
+    transition:opacity .4s ease, border-color .4s ease;
+  }
+  .tier-tab.active{ opacity:1; border-bottom-color:var(--gold); }
+  .tier-tab:nth-child(1).active{ border-bottom-color:var(--silver-bright); }
+  .tier-tab:nth-child(1).active .tier-tab-name{ color:var(--silver-bright); }
+  .tier-tab:nth-child(3).active{ border-bottom-color:rgba(228,198,135,0.5); }
+  .tier-tab-name{ display:block; font-family:var(--font-serif); font-weight:500; font-size:21px; color:var(--cream); }
+  .tier-tab-sub{ display:block; margin-top:6px; font-size:10px; letter-spacing:0.07em; text-transform:uppercase; color:var(--smoke-dim); }
+  .tier-tab + .tier-tab{ border-left:1px solid var(--line); }
+ 
+  .tier-panel-wrap{ position:relative; min-height:440px; }
+  .tier-panel{
+    position:absolute; inset:0; opacity:0; pointer-events:none;
+    transform:translateY(14px) scale(0.985);
+    transition:opacity .5s ease, transform .5s cubic-bezier(.2,.6,.2,1);
+  }
+  .tier-panel.active{ opacity:1; pointer-events:auto; transform:translateY(0) scale(1); position:relative; }
+ 
+  .panel-inner{
+    display:grid; grid-template-columns:1.2fr 0.8fr; gap:0; margin-top:1px;
+    background:var(--noir-soft); border:1px solid var(--line-strong); border-top:none;
+    transform-style:preserve-3d; will-change:transform; overflow:hidden;
+    transition:transform .5s cubic-bezier(.2,.6,.2,1), box-shadow .5s ease;
+  }
+  .tier-panel[data-tier="silver"] .panel-inner{ box-shadow:inset 0 0 0 1px var(--silver-dim); }
+  .tier-panel[data-tier="gold"] .panel-inner{ box-shadow:inset 0 0 0 1px var(--gold-dim); }
+  .tier-panel[data-tier="black"] .panel-inner{ background:var(--noir); box-shadow:inset 0 0 0 1px rgba(228,198,135,0.22); }
+ 
+  .panel-left{ padding:56px 52px; }
+  .panel-tag{
+    font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;
+    display:inline-block; border:1px solid var(--line-strong); padding:5px 12px;
+  }
+  .panel-left h3{ font-family:var(--font-serif); font-size:30px; font-weight:500; color:var(--cream); margin-bottom:10px; }
+  .tier-panel[data-tier="silver"] .panel-left h3{ color:var(--silver-bright); }
+  .tier-panel[data-tier="gold"] .panel-left h3{ color:var(--gold-bright); }
+  .tier-panel[data-tier="black"] .panel-left h3{ color:#F5F5F0; }
+  .tier-panel[data-tier="silver"] .panel-tag{ color:var(--silver); border-color:var(--silver-dim); }
+  .tier-panel[data-tier="black"] .panel-tag{ color:var(--gold-bright); border-color:rgba(228,198,135,0.3); }
+  .panel-left .sub{ font-size:13px; color:var(--smoke); margin-bottom:32px; }
+ 
+  .panel-list{ display:flex; flex-direction:column; }
+  .panel-row{ display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-top:1px solid var(--line); }
+  .panel-row:first-child{ border-top:none; padding-top:0; }
+  .panel-row .rule-mark{ width:1px; height:16px; background:var(--gold-dim); margin-top:5px; flex-shrink:0; }
+  .tier-panel[data-tier="silver"] .rule-mark{ background:var(--silver-dim); }
+  .tier-panel[data-tier="black"] .rule-mark{ background:rgba(228,198,135,0.4); }
+  .panel-row span{ font-size:14px; color:var(--cream); line-height:1.6; }
+ 
+  .panel-right{
+    padding:56px 44px; display:flex; flex-direction:column; justify-content:center; align-items:center;
+    text-align:center; border-left:1px solid var(--line);
+    position:relative;
+  }
+  .panel-right::before{
+    content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(199,166,92,0.1), transparent 55%);
+    opacity:0; transition:opacity .4s ease;
+  }
+  .tier-panel[data-tier="silver"] .panel-right::before{
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(166,171,177,0.14), transparent 55%);
+  }
+  .panel-inner:hover .panel-right::before{ opacity:1; }
+  .panel-right-name{
+    position:relative; z-index:1; font-family:var(--font-display); font-style:italic; font-size:34px; color:var(--gold-bright);
+  }
+  .tier-panel[data-tier="silver"] .panel-right-name{ color:var(--silver-bright); }
+  .tier-panel[data-tier="black"] .panel-right-name{ color:#F5F5F0; }
+  .panel-right p{ position:relative; z-index:1; font-size:12px; color:var(--smoke-dim); margin-top:12px; max-width:220px; line-height:1.7; }
+  .panel-right .btn{ position:relative; z-index:1; margin-top:26px; width:100%; justify-content:center; }
+  .tier-panel[data-tier="silver"] .panel-right .btn-line{ border-color:var(--silver-dim); }
+  .tier-panel[data-tier="silver"] .panel-right .btn-line:hover{ border-color:var(--silver-bright); color:var(--silver-bright); }
+ 
+  /* ---------------- safety (compact teaser, links out to a dedicated page) ---------------- */
+  .safety{ padding:70px 0; border-top:1px solid var(--line); position:relative; overflow:hidden; background:var(--emerald); }
+  /* SAFETY BACKGROUND IMAGE — recommended landscape, ~1800x800. Replace src="" on the <img> below. */
+  .safety-bg{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:center; z-index:0;
+    opacity:0; transition:opacity .6s ease;
+  }
+  .safety-bg[src]:not([src=""]){ opacity:1; }
+  .safety::before{
+    content:""; position:absolute; inset:0; z-index:1;
+    background:linear-gradient(180deg, rgba(15,36,28,0.92) 0%, rgba(15,36,28,0.8) 50%, rgba(15,36,28,0.95) 100%);
+  }
+  .safety-watermark{
+    position:absolute; top:50%; right:-6%; z-index:1; width:320px; height:320px;
+    transform:translateY(-50%); opacity:0.05; pointer-events:none;
+  }
+  .safety .container{ position:relative; z-index:2; }
+ 
+  .safety-row{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:32px;
+  }
+  .safety-head{ max-width:440px; }
+  .safety-head .eyebrow{ display:block; margin-bottom:14px; }
+  .safety-head h2{ font-size:clamp(22px,2.6vw,30px); color:var(--cream); }
+ 
+  .safety-stats{ display:flex; gap:36px; flex-wrap:wrap; }
+  .safety-stat .num{ font-family:var(--font-display); font-size:24px; color:var(--gold-bright); line-height:1; }
+  .safety-stat .lbl{ margin-top:5px; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke-dim); }
+ 
+  /* ---------------- final cta / footer (background image + centered statement) ---------------- */
+  .final{ padding:0; position:relative; min-height:100vh; overflow:hidden; }
+  /* FINAL SECTION BACKGROUND IMAGE — recommended landscape, ~1920x1200. Replace src="" on the <img> below. */
+  .final-cont{ position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+  .final-cont img{
+    width:100%; height:100%; object-fit:cover; object-position:center; display:block;
+    opacity:0; transition:opacity .6s ease;
+  }
+  .final-cont img[src]:not([src=""]){ opacity:1; }
+  .final-cont::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(11,10,12,0.35) 0%, rgba(11,10,12,0.75) 75%, var(--noir) 100%);
+  }
+  .final-statement{
+    position:relative; z-index:1; min-height:80vh;
+    display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+    padding:120px 0 80px;
+  }
+  .final-statement .eyebrow{ display:block; margin-bottom:24px; }
+  .final-statement h2{ font-size:clamp(36px,5.6vw,72px); max-width:820px; line-height:1.05; }
+  .final-statement .btn{ margin-top:40px; }
+ 
+  footer{ position:relative; z-index:2; border-top:1px solid var(--line); padding:36px 0; background:var(--noir); }
+  .footer-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  .footer-links{ display:flex; gap:28px; flex-wrap:wrap; }
+  .footer-links a{ font-size:11px; letter-spacing:0.04em; color:var(--smoke); }
+  .footer-links a:hover{ color:var(--gold-bright); }
+  .footer-legal{ font-size:11px; color:var(--smoke-dim); }
+ 
+  @media (max-width:900px){
+    .pillars-grid, .how-head, .tier-grid, .how-row, .benefits-grid, .values-grid{ grid-template-columns:1fr; }
+    .values-img-wrap{ position:relative; top:auto; margin-bottom:20px; }
+    .how-head p{ text-align:left; }
+    .how-flow{ gap:70px; }
+    .how-progress-line{ display:none; }
+    .how-row.reverse .how-row-text{ order:1; }
+    .how-row.reverse .how-row-mock{ order:2; }
+    .ux-card{ max-width:100%; }
+    .interests-wrap{ max-height:400px; }
+    .safety-row{ flex-direction:column; align-items:flex-start; gap:24px; }
+    .safety-watermark{ display:none; }
+    .letter-card{ padding:40px 28px 60px; }
+    .letter-backing{ inset:14px -8px -8px 14px; }
+    .wax-seal{ width:64px; height:64px; right:22px; bottom:-20px; }
+    .how-step{ grid-template-columns:60px 1fr; }
+    .how-step-body{ margin-top:0 !important; padding-left:20px; }
+    .how-steps::before{ left:30px; }
+    .tier-selector{ flex-direction:column; }
+    .tier-tab + .tier-tab{ border-left:none; border-top:1px solid var(--line); }
+    .panel-inner{ grid-template-columns:1fr; }
+    .panel-right{ border-left:none; border-top:1px solid var(--line); }
+    .panel-left{ padding:40px 28px; }
+    .panel-right{ padding:40px 28px; }
+    .nav-links{ display:none; }
+    header.scrolled .nav-links{ display:none; }
+    .toast-glass{ width:36vw; opacity:.5 !important; }
+    .toast-glass.left.in-view{ transform:translate(-10px,-50%) rotate(-3deg); }
+    .toast-glass.right.in-view{ transform:translate(10px,-50%) rotate(3deg); }
+  }
+  @media (max-width:600px){
+    .container{ padding:0 22px; }
+    .hero h1{ font-size:clamp(40px, 11vw, 56px); }
+  }
+ 
+  @media (prefers-reduced-motion:reduce){
+    *, *::before, *::after{
+      scroll-behavior:auto !important;
+      animation-duration:.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;
+    }
+    .hero-media__video{ animation:none; }
+    .ambient-light{ display:none; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+<div class="ambient-light"></div>
+<div class="scroll-progress"><span></span></div>
+
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<div id="cursor-label"></div>
+
+<header id="site-header">
+  <div class="container">
+    <span class="signet">
+      <img src="videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
+    
+    </span>
+    <nav class="nav-links">
+      <a href="#about" data-cursor="View">About Us</a>
+      <a href="#discretion" data-cursor="View">Discretion</a>
+      <a href="#how" data-cursor="View">How it works</a>
+      <a href="#membership" data-cursor="View">Membership</a>
+      <a href="#safety" data-cursor="View">Safety</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="sign-in" href="#" data-cursor="Enter">Sign in</a>
+      <a class="btn btn-gold" href="#" data-cursor="Begin" style="padding:12px 26px;">Request invitation</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-media">
+    <!-- Point this <source> at your own footage when it's ready -->
+    <video class="hero-media__video" autoplay muted loop playsinline poster="images/hero-poster.jpg">
+      <source src="videos/sensual.mp4" type="video/mp4">
+    </video>
+    <div class="hero-media-note">Cinematic collage — placeholder pending final footage</div>
+  </div>
+  <div class="container hero-inner">
+    <div class="hero-copy">
+      <div class="hero-status"><span class="status-dot"></span>Private network · accepting invitations</div>
+      <div class="eyebrow">Invitation-grade introductions</div>
+      <h1>Arrangements,<br><em>elevated.</em></h1>
+      <p class="lede">A private, verified space where generous, discerning members meet on their own terms — candid about what they want, quiet about how they get it.</p>
+      <div class="hero-actions">
+        <a class="btn btn-gold" href="#" data-cursor="Begin">Request an invitation</a>
+        <a class="btn btn-line" href="#how" data-cursor="View">How it works</a>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span class="line"></span>Scroll</div>
+</section>
+
+<section class="meeting" id="meeting-section">
+  <!-- LEFT GLASS — replace src="" with a transparent PNG cutout (hand + champagne glass, ~500x500) -->
+  <div class="toast-glass left img-slot" id="toast-left">
+    <img class="img-slot__img" src="videos/cuffs 4.png" alt="">
+    <div class="img-slot__placeholder">
+      <div class="mark">+</div>
+      <div class="lbl">Image slot</div>
+      <div class="dim">Cutout · 500×500</div>
+    </div>
+  </div>
+  <!-- RIGHT GLASS — replace src="" with a transparent PNG cutout, mirrored angle -->
+  <div class="toast-glass right img-slot" id="toast-right">
+    <img class="img-slot__img" src="videos/whip_update.png" alt="">
+    <div class="img-slot__placeholder">
+      <div class="mark">+</div>
+      <div class="lbl">Image slot</div>
+      <div class="dim">Cutout · 500×500</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="meeting-grid">
+      <div class="meeting-copy reveal">
+        <div class="eyebrow">Two people, one understanding</div>
+        <h2>Every match starts with clarity.</h2>
+        <p>Fantasi is for adults who want to explore connection on their own terms. From casual exploration to established dynamics and power exchange, we believe clarity, consent, and mutual desire should come first. Our platform is a safe and welcoming space where you can embrace your desires, explore without judgment, and find the freedom to fulfil your wildest fantasies.</p>
+        <a class="btn btn-gold" href="#" data-cursor="Begin">Request an invitation</a>
+        <div class="meeting-legal">
+          For consenting adults 18 and older. Every arrangement is negotiated privately between members. <a href="#footer">Learn more</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="luxury-divider" aria-hidden="true">
+  <span></span>
+  <div class="divider-mark">F</div>
+  <span></span>
+</div>
+
+<section class="about" id="about">
+  <!-- Replace src="" below with your image -->
+  <img class="about-img" src="videos/heel.jpg" alt="">
+  <div class="container">
+    <div class="about-inner reveal">
+      <div class="eyebrow">About Fantasi</div>
+      <h2>Desire, beautifully curated.</h2>
+      <p>Fantasi is an invitation to experience connection differently. A refined space where generosity, attraction, and desire converge — where sugar relationships can become meaningful, companionship can become intoxicating, and curiosity can become something wonderfully unexpected. We provide the space. You define the desire.</p>
+    </div>
+  </div>
+</section>
+
+<section class="benefits">
+  <div class="container">
+    <div class="benefits-head reveal">
+      <div class="eyebrow">Why Fantasi</div>
+      <h2>The benefits of arranging on Fantasi</h2>
+    </div>
+
+    <div class="benefits-grid">
+      <div class="benefits-list">
+        <div class="benefit-item reveal">
+          <h3>Arrange with intention</h3>
+          <p>You've built something worth protecting — a career, a lifestyle, a certain way of moving through the world. What you're looking for is someone who fits into that, not someone who complicates it. Fantasi exists for exactly that kind of clarity.</p>
+        </div>
+        <div class="benefit-item reveal reveal-delay-1">
+          <h3>Meet someone who already understands</h3>
+          <p>Every member here is candid about what they're offering and what they expect in return. Finding someone aligned with that mindset isn't rare on Fantasi — it's the standard.</p>
+        </div>
+        <div class="benefit-item reveal reveal-delay-2">
+          <h3>Skip the guesswork</h3>
+          <p>No endless swiping, no mixed signals. Members are surfaced by compatibility and intent, so every introduction is one worth your time.</p>
+        </div>
+        <div class="benefit-item reveal reveal-delay-3">
+          <h3>Elevate what you've already built</h3>
+          <p>The right arrangement doesn't complicate your life — it adds to it. When both people are honest about what they want, everything moves easier.</p>
+        </div>
+      </div>
+
+      <!-- Replace src="" below with your image (recommended portrait, ~550x730) -->
+      <div class="benefits-img img-slot reveal reveal-delay-1">
+        <img class="img-slot__img" src="videos/girldom4.png" alt="">
+        <div class="img-slot__placeholder">
+          <div class="mark">+</div>
+          <div class="lbl">Image slot</div>
+          <div class="dim">Portrait · 550×730</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="benefits-closing reveal">
+      <div class="lead">Ready for dating that actually matches your standards?</div>
+      <h3>You know what you're offering.<br>Find someone worth offering it to.</h3>
+      <a class="btn btn-gold" href="#" data-cursor="Begin">Request an invitation</a>
+    </div>
+  </div>
+</section>
+
+<section class="pillars" id="discretion">
+  <div class="container">
+    <div class="pillars-grid">
+      <div class="pillars-intro reveal">
+        <div class="eyebrow">Designed for discretion</div>
+        <h2>Some things are better kept between you.</h2>
+        <p>From the first introduction to every connection that follows, Fantasi is designed with privacy at its core. Every interaction is approached with care, giving you the freedom to explore new connections without unnecessary exposure or attention.</p>
+      </div>
+      <div class="pillar-list">
+        <div class="pillar-item reveal">
+          <div class="pillar-icon"><svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="#C7A65C" stroke-width="1"/><path d="M10.5 15l3 3 6-6" stroke="#E4C687" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><h3>Verified, always</h3><p>Government ID and photo verification for every member, with optional income and background checks for added assurance.</p></div>
+        </div>
+        <div class="pillar-item reveal reveal-delay-1">
+          <div class="pillar-icon"><svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="#C7A65C" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="#C7A65C" stroke-width="1"/></svg></div>
+          <div><h3>Anonymous by default</h3><p>No photo, name, or exact location is shown until you choose to share it. Billing never mentions Fantasi by name.</p></div>
+        </div>
+        <div class="pillar-item reveal reveal-delay-2">
+          <div class="pillar-icon"><svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect x="8" y="14" width="14" height="11" rx="0.5" stroke="#C7A65C" stroke-width="1"/><path d="M11.5 14v-3a3.5 3.5 0 0 1 7 0v3" stroke="#C7A65C" stroke-width="1"/><circle cx="15" cy="19" r="1.4" fill="#E4C687"/></svg></div>
+          <div><h3>Secured by design</h3><p>Reviewed on an ongoing basis by cybersecurity professionals. Every piece of sensitive information you enter is encrypted end to end, in transit and at rest.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="values">
+  <div class="container">
+    <div class="values-head reveal">
+      <div class="eyebrow">Our values</div>
+      <h2>What we build every decision around</h2>
+    </div>
+
+    <div class="values-grid">
+      <!-- Replace src="" below with your image (recommended portrait, ~800x1000) -->
+      <div class="values-img-wrap reveal">
+        <div class="values-img">
+          <!-- Replace each src="" below with a photo for that value (recommended square, ~700x700) -->
+          <div class="value-photo img-slot active" data-value="clarity">
+            <img class="img-slot__img" src="videos/krivitskiy-body-6349505_1920.jpg" alt="">
+            <div class="img-slot__placeholder"><div class="mark">+</div><div class="lbl">Clarity</div><div class="dim">Square · 700×700</div></div>
+          </div>
+          <div class="value-photo img-slot" data-value="discretion">
+            <img class="img-slot__img" src="videos/krivitskiy-body-6349507_1920.jpg" alt="">
+            <div class="img-slot__placeholder"><div class="mark">+</div><div class="lbl">Discretion</div><div class="dim">Square · 700×700</div></div>
+          </div>
+          <div class="value-photo img-slot" data-value="generosity">
+            <img class="img-slot__img" src="videos/krivitskiy-couple-6349509_1920.jpg" alt="">
+            <div class="img-slot__placeholder"><div class="mark">+</div><div class="lbl">Generosity</div><div class="dim">Square · 700×700</div></div>
+          </div>
+          <div class="value-photo img-slot" data-value="curation">
+            <img class="img-slot__img" src="videos/andreaaltini-boudoir-4669596_1920.jpg" alt="">
+            <div class="img-slot__placeholder"><div class="mark">+</div><div class="lbl">Curation</div><div class="dim">Square · 700×700</div></div>
+          </div>
+          <div class="value-photo img-slot" data-value="safety">
+            <img class="img-slot__img" src="videos/krivitskiy-couple-6349513_1920.jpg" alt="">
+            <div class="img-slot__placeholder"><div class="mark">+</div><div class="lbl">Safety</div><div class="dim">Square · 700×700</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="values-list reveal reveal-delay-1">
+        <div class="value-row open" data-value="clarity">
+          <button class="value-row-head" data-cursor="Read">
+            <span class="value-num">01</span>
+            <span class="value-name">Clarity</span>
+            <span class="value-toggle"></span>
+          </button>
+          <div class="value-row-body"><div class="value-row-body-inner">
+            <p>Fantasi exists because too many people waste time guessing. Every connection here begins with honesty about what each person wants — and what they're offering in return.</p>
+          </div></div>
+        </div>
+        <div class="value-row" data-value="discretion">
+          <button class="value-row-head" data-cursor="Read">
+            <span class="value-num">02</span>
+            <span class="value-name">Discretion</span>
+            <span class="value-toggle"></span>
+          </button>
+          <div class="value-row-body"><div class="value-row-body-inner">
+            <p>Privacy isn't a setting here — it's the foundation. From anonymous profiles to unmarked billing, every detail is built around what you'd rather keep private.</p>
+          </div></div>
+        </div>
+        <div class="value-row" data-value="generosity">
+          <button class="value-row-head" data-cursor="Read">
+            <span class="value-num">03</span>
+            <span class="value-name">Generosity</span>
+            <span class="value-toggle"></span>
+          </button>
+          <div class="value-row-body"><div class="value-row-body-inner">
+            <p>An arrangement should feel mutual, not transactional. Generosity — of time, of resources, of attention — is what makes a connection worth having.</p>
+          </div></div>
+        </div>
+        <div class="value-row" data-value="curation">
+          <button class="value-row-head" data-cursor="Read">
+            <span class="value-num">04</span>
+            <span class="value-name">Curation</span>
+            <span class="value-toggle"></span>
+          </button>
+          <div class="value-row-body"><div class="value-row-body-inner">
+            <p>Quality over quantity, always. We'd rather introduce you to one person worth meeting than a hundred worth swiping past.</p>
+          </div></div>
+        </div>
+        <div class="value-row" data-value="safety">
+          <button class="value-row-head" data-cursor="Read">
+            <span class="value-num">05</span>
+            <span class="value-name">Safety</span>
+            <span class="value-toggle"></span>
+          </button>
+          <div class="value-row-body"><div class="value-row-body-inner">
+            <p>Verification, review, and support aren't afterthoughts — they're built into every step, so trust is never something you have to take on faith.</p>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="founder-note">
+  <!-- Replace src="" below with your envelope + wax seal image -->
+  <img class="founder-note-bg" src="videos/waxseal3.png" alt="">
+  <div class="container">
+    <div class="eyebrow reveal">A note from the founder</div>
+    <div class="letter-stack reveal">
+      <div class="letter-backing"></div>
+      <div class="letter-card">
+        <div class="note-wrap">
+          <div class="note-rule"></div>
+          <div class="note-body">
+            <blockquote><span class="note-dropcap">I</span> created Fantasi from a simple belief that our fantasies are part of who we truly are, and that they should be embraced rather than hidden.<br><br>Too often, people are made to feel ashamed or ridiculed for the things they desire. I wanted to create a safe and welcoming space where adults can explore their sexuality, curiosities, and desires openly, without fear of judgment.<br><br>Fantasi is about more than exploration. It is about connection. It is about finding someone who understands you, accepts you, and perhaps desires the same things you do. I believe there is no single way to love and no single path to fulfillment.<br><br>Fantasi is a place to discover what feels right for you, with the freedom to be unapologetically yourself.<br><br>Your desires are yours to embrace.</blockquote>
+            <div class="note-signature">
+              <!-- Replace src="" with a portrait, or leave blank for the plain signature -->
+              <div class="note-portrait img-slot">
+                <img class="img-slot__img" src="videos/p2.jpg" alt="">
+                <div class="img-slot__placeholder"><div class="mark">+</div></div>
+              </div>
+              <div class="note-signature-text">
+                <span class="name">A. Sterling</span>
+                <span class="title">Founder, Fantasi</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <!-- Replace src="" below with your image -->
+  <img class="how-media__picture" src="" alt="">
+  <div class="container">
+    <div class="how-head">
+      <div>
+        <div class="eyebrow reveal">The process</div>
+        <div class="rule reveal"></div>
+        <svg class="how-head-watermark" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="#E4C687" stroke-width="0.4"/><circle cx="15" cy="15" r="9" stroke="#E4C687" stroke-width="0.4"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="#E4C687">F</text></svg>
+        <h2 class="reveal">How an arrangement <em>begins</em></h2>
+      </div>
+      <p class="reveal">Three deliberate steps, each designed to protect your time and your privacy.</p>
+    </div>
+
+    <div class="how-flow">
+      <div class="how-progress-line"><span></span></div>
+
+      <!-- STEP ONE — profile builder -->
+      <div class="how-row reveal">
+        <div class="how-row-text">
+          <span class="step-num">One</span>
+          <h3>Build a private profile</h3>
+          <p>Describe what you're seeking and what you're offering — visible only to members you personally approve. Nothing is public until you decide it should be.</p>
+        </div>
+        <div class="how-row-mock">
+          <div class="ux-card">
+            <div class="ux-card-label">Your profile</div>
+            <div class="ux-field">
+              <span class="fld-label">Display name</span>
+              <span class="fld-value">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="2.5" y="5.5" width="7" height="5" rx="0.5" stroke="#C7A65C" stroke-width="0.9"/><path d="M4 5.5V3.8a2 2 0 0 1 4 0V5.5" stroke="#C7A65C" stroke-width="0.9"/></svg>
+                Kept private for now
+              </span>
+            </div>
+            <div class="ux-field">
+              <span class="fld-label">What you're seeking</span>
+              <span class="fld-value">Weekend travel companionship, ongoing</span>
+            </div>
+            <div class="ux-toggle-row">
+              <span>Visible to approved members only</span>
+              <div class="ux-toggle"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP TWO — matched and verified -->
+      <div class="how-row reverse reveal">
+        <div class="how-row-text">
+          <span class="step-num">Two</span>
+          <h3>Get matched and verified</h3>
+          <p>Our verification systems confirm identity, so you always know exactly who you're speaking with — before the first message is ever sent.</p>
+        </div>
+        <div class="how-row-mock">
+          <div class="ux-card">
+            <div class="ux-card-label">New introduction</div>
+            <div class="ux-match">
+              <div class="ux-avatar-mask">
+                <div class="ux-verified-stamp">
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2L9.5 3.6" stroke="#0B0A0C" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div>
+                <div class="ux-match-name">R. — Dubai</div>
+                <div class="ux-match-meta">92% compatibility · Patron</div>
+              </div>
+            </div>
+            <div class="ux-check-list">
+              <div class="ux-check-item">
+                <span class="ux-check-icon"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2L9.5 3.6" stroke="#E4C687" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                Identity confirmed
+              </div>
+              <div class="ux-check-item">
+                <span class="ux-check-icon"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2L9.5 3.6" stroke="#E4C687" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                Compatibility questionnaire reviewed
+              </div>
+              <div class="ux-check-item">
+                <span class="ux-check-icon"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2L9.5 3.6" stroke="#E4C687" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                Background check on file
+              </div>
+            </div>
+            <div class="ux-more-chip">+ much more</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP THREE — terms -->
+      <div class="how-row reveal">
+        <div class="how-row-text">
+          <span class="step-num">Three</span>
+          <h3>Set your own terms</h3>
+          <p>Every arrangement is negotiated privately between members. Fantasi never dictates the terms of your connection — only that both sides agree before anything begins.</p>
+        </div>
+        <div class="how-row-mock">
+          <div class="ux-card">
+            <div class="ux-card-label">Arrangement summary</div>
+            <div class="ux-term-row">
+              <span class="ux-term-label">Frequency</span>
+              <span class="ux-term-status">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2L9.5 3.6" stroke="#E4C687" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Agreed
+              </span>
+            </div>
+            <div class="ux-term-row">
+              <span class="ux-term-label">Travel included</span>
+              <span class="ux-term-status">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2L9.5 3.6" stroke="#E4C687" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Agreed
+              </span>
+            </div>
+            <div class="ux-term-row">
+              <span class="ux-term-label">Communication style</span>
+              <span class="ux-term-status">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2l2.2 2.2L9.5 3.6" stroke="#E4C687" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Agreed
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="interests">
+  <div class="container">
+    <div class="interests-head reveal">
+      <div class="eyebrow">What you'll find here</div>
+      <h2>Every kind of arrangement, on your terms.</h2>
+      <p>With <span class="highlight">over 40,000 active members</span>, Fantasi hosts every style of connection — here are some of the most requested.</p>
+    </div>
+    <div class="interests-wrap reveal">
+      <div class="interests-grid">
+        <div class="interests-tag"><span class="name">Mentorship</span><span class="count">6.2K members</span></div>
+        <div class="interests-tag"><span class="name">Travel Companionship</span><span class="count">9.8K members</span></div>
+        <div class="interests-tag"><span class="name">Long-Term Arrangement</span><span class="count">7.4K members</span></div>
+        <div class="interests-tag"><span class="name">Casual &amp; Flexible</span><span class="count">5.1K members</span></div>
+        <div class="interests-tag"><span class="name">Executive Companionship</span><span class="count">3.9K members</span></div>
+        <div class="interests-tag"><span class="name">Weekend Getaways</span><span class="count">8.6K members</span></div>
+        <div class="interests-tag"><span class="name">Intellectual Connection</span><span class="count">4.7K members</span></div>
+        <div class="interests-tag"><span class="name">Networking &amp; Introductions</span><span class="count">2.8K members</span></div>
+        <div class="interests-tag"><span class="name">Long-Distance Arrangements</span><span class="count">3.3K members</span></div>
+        <div class="interests-tag"><span class="name">Exclusive Companionship</span><span class="count">6.5K members</span></div>
+        <div class="interests-tag"><span class="name">Event &amp; Plus-One</span><span class="count">4.1K members</span></div>
+        <div class="interests-tag"><span class="name">Culture &amp; Language Exchange</span><span class="count">2.2K members</span></div>
+        <div class="interests-tag"><span class="name">Fitness &amp; Lifestyle Partner</span><span class="count">3.6K members</span></div>
+        <div class="interests-tag"><span class="name">Creative Collaboration</span><span class="count">1.9K members</span></div>
+        <div class="interests-tag"><span class="name">Mentorship for Founders</span><span class="count">2.4K members</span></div>
+        <div class="interests-tag"><span class="name">City Guide &amp; Local Introductions</span><span class="count">3.0K members</span></div>
+      </div>
+      <div class="interests-fade">
+        <a class="btn btn-gold" href="#" data-cursor="Begin">See all, request an invitation</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="membership" id="membership">
+  <div class="container">
+    <div class="membership-head reveal">
+      <div class="eyebrow">Membership</div>
+      <h2>Three ways to belong</h2>
+    </div>
+
+    <div class="tier-selector reveal">
+      <button class="tier-tab active" data-tier="silver">
+        <span class="tier-tab-name">Silver</span>
+        <span class="tier-tab-sub">Begin your search</span>
+      </button>
+      <button class="tier-tab" data-tier="gold">
+        <span class="tier-tab-name">Gold</span>
+        <span class="tier-tab-sub">Most requested</span>
+      </button>
+      <button class="tier-tab" data-tier="black">
+        <span class="tier-tab-name">Black</span>
+        <span class="tier-tab-sub">By invitation</span>
+      </button>
+    </div>
+
+    <div class="tier-panel-wrap reveal">
+      <div class="tier-panel active" data-tier="silver">
+        <div class="panel-inner">
+          <div class="panel-left">
+            <h3>Silver</h3>
+            <div class="sub">For those beginning their search</div>
+            <div class="panel-list">
+              <div class="panel-row"><div class="rule-mark"></div><span>Full profile and messaging</span></div>
+              <div class="panel-row"><div class="rule-mark"></div><span>ID verification badge</span></div>
+              <div class="panel-row"><div class="rule-mark"></div><span>Curated weekly introductions</span></div>
+            </div>
+          </div>
+          <div class="panel-right">
+            <div class="panel-right-name">Silver</div>
+            <p>Full access, at your own pace.</p>
+            <a class="btn btn-line" href="#" data-cursor="Join">Join as Silver</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="tier-panel" data-tier="gold">
+        <div class="panel-inner">
+          <div class="panel-left">
+            <span class="panel-tag">Most requested</span>
+            <h3>Gold</h3>
+            <div class="sub">For those ready to be generous</div>
+            <div class="panel-list">
+              <div class="panel-row"><div class="rule-mark"></div><span>Everything in Silver</span></div>
+              <div class="panel-row"><div class="rule-mark"></div><span>Priority placement in matches</span></div>
+              <div class="panel-row"><div class="rule-mark"></div><span>Dedicated concierge support</span></div>
+              <div class="panel-row"><div class="rule-mark"></div><span>Private travel companion planning</span></div>
+            </div>
+          </div>
+          <div class="panel-right">
+            <div class="panel-right-name">Gold</div>
+            <p>The membership most members choose.</p>
+            <a class="btn btn-gold" href="#" data-cursor="Join">Join as Gold</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="tier-panel" data-tier="black">
+        <div class="panel-inner">
+          <div class="panel-left">
+            <span class="panel-tag">By invitation</span>
+            <h3>Black</h3>
+            <div class="sub">For those who prefer not to be found</div>
+            <div class="panel-list">
+              <div class="panel-row"><div class="rule-mark"></div><span>Everything in Gold</span></div>
+              <div class="panel-row"><div class="rule-mark"></div><span>Personal relationship concierge</span></div>
+              <div class="panel-row"><div class="rule-mark"></div><span>Off-platform introductions, hand-selected</span></div>
+              <div class="panel-row"><div class="rule-mark"></div><span>Global priority access, every city</span></div>
+            </div>
+          </div>
+          <div class="panel-right">
+            <div class="panel-right-name">Black</div>
+            <p>Not purchased. Considered.</p>
+            <a class="btn btn-line" href="#" data-cursor="Begin" style="border-color:var(--gold);">Apply for consideration</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="safety" id="safety">
+  <!-- Replace src="" below with your image -->
+  <img class="safety-bg" src="" alt="">
+  <svg class="safety-watermark" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="#E4C687" stroke-width="0.4"/><circle cx="15" cy="15" r="9" stroke="#E4C687" stroke-width="0.4"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="#E4C687">F</text></svg>
+  <div class="container">
+    <div class="safety-row reveal">
+      <div class="safety-head">
+        <div class="eyebrow">Safety</div>
+        <h2>Your safety is part of the design, not an afterthought.</h2>
+      </div>
+      <div class="safety-stats">
+        <div class="safety-stat">
+          <div class="num">100%</div>
+          <div class="lbl">ID-verified</div>
+        </div>
+        <div class="safety-stat">
+          <div class="num">24/7</div>
+          <div class="lbl">Safety team</div>
+        </div>
+        <div class="safety-stat">
+          <div class="num">&lt;2hrs</div>
+          <div class="lbl">Report response</div>
+        </div>
+      </div>
+      <a class="btn btn-line" href="safety.html" data-cursor="View">Visit the Safety Center</a>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <!-- FINAL SECTION BACKGROUND IMAGE — replace src="" with your photo -->
+  <div class="final-cont"><img src="videos/p4.jpg" alt=""></div>
+  <div class="container final-statement">
+    <div class="eyebrow reveal">Fulfil your fantasies</div>
+    <h2 class="reveal reveal-delay-1">Your next connection begins with an invitation.</h2>
+    <a class="btn btn-gold reveal reveal-delay-2" href="#" data-cursor="Begin">Request an invitation</a>
+  </div>
+  <footer id="footer">
+    <div class="container footer-row">
+      <div class="footer-links">
+        <a href="#">Verification standards</a>
+        <a href="#">Community guidelines</a>
+        <a href="#">Terms &amp; privacy</a>
+        <a href="#">Support</a>
+      </div>
+      <div class="footer-legal">Fantasi is for consenting adults 18 and older only. © 2026 Fantasi.</div>
+    </div>
+  </footer>
+</section>
+
+<script>
+  // custom cursor
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  const label = document.getElementById('cursor-label');
+  let mx=0,my=0, rx=0, ry=0;
+  window.addEventListener('mousemove', e=>{
+    mx=e.clientX; my=e.clientY;
+    dot.style.left=mx+'px'; dot.style.top=my+'px';
+    label.style.left=mx+'px'; label.style.top=my+'px';
+  });
+  function loop(){
+    rx += (mx-rx)*0.18; ry += (my-ry)*0.18;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(loop);
+  }
+  loop();
+  document.querySelectorAll('a, button').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{
+      ring.classList.add('active');
+      const txt = el.getAttribute('data-cursor');
+      if(txt){ label.textContent = txt; label.classList.add('active'); }
+    });
+    el.addEventListener('mouseleave', ()=>{
+      ring.classList.remove('active');
+      label.classList.remove('active');
+    });
+  });
+
+  // ambient gold light — follows cursor
+  const ambientLight = document.querySelector('.ambient-light');
+  if (ambientLight && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    window.addEventListener('mousemove', e => {
+      ambientLight.style.left = e.clientX + 'px';
+      ambientLight.style.top = e.clientY + 'px';
+      ambientLight.style.opacity = '1';
+    });
+  }
+
+  // ---- consolidated scroll handling: nav reveal, progress bar, parallax, how-progress ----
+  // one rAF-throttled listener instead of four independent ones, to avoid redundant
+  // layout reads/writes on every scroll event.
+  const progressBar = document.querySelector('.scroll-progress span');
+  const header = document.getElementById('site-header');
+  const heroEl = document.querySelector('.hero');
+  const parallaxImages = document.querySelectorAll('.about-img, .founder-note-bg, .how-media__picture, .safety-bg, .final-cont img');
+  const howSection = document.querySelector('.how');
+  const howProgress = document.querySelector('.how-progress-line span');
+
+  let scrollTicking = false;
+
+  function runScrollUpdates(){
+    // progress bar
+    if(progressBar){
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      progressBar.style.width = (docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0) + '%';
+    }
+
+    // nav reveal
+    if(header && heroEl){
+      header.classList.toggle('scrolled', heroEl.getBoundingClientRect().bottom <= header.offsetHeight);
+    }
+
+    // background parallax
+    parallaxImages.forEach(img=>{
+      const rect = img.getBoundingClientRect();
+      if(rect.bottom < 0 || rect.top > window.innerHeight) return;
+      const offset = ((rect.top + rect.height / 2) - window.innerHeight / 2) * -0.035;
+      img.style.transform = `translate3d(0, ${offset}px, 0) scale(1.035)`;
+    });
+
+    // how-it-works progress line
+    if(howSection && howProgress){
+      const rect = howSection.getBoundingClientRect();
+      const start = window.innerHeight * 0.75;
+      const end = -rect.height * 0.15;
+      const progress = Math.max(0, Math.min(1, (start - rect.top) / (start - end)));
+      howProgress.style.height = progress * 100 + '%';
+    }
+
+    scrollTicking = false;
+  }
+
+  function onScroll(){
+    if(!scrollTicking){
+      requestAnimationFrame(runScrollUpdates);
+      scrollTicking = true;
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  runScrollUpdates();
+
+  // scroll reveals
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){ entry.target.classList.add('in-view'); }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal, .drop-in, .ux-card').forEach(el=>io.observe(el));
+
+  // 3D cursor-tracking tilt + moving glare, reusable across ux-cards and membership panels
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    function attachTilt(el, maxDeg){
+      el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const px = (x / rect.width) * 100;
+        const py = (y / rect.height) * 100;
+        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -maxDeg;
+        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * maxDeg;
+        el.style.transition = 'box-shadow .5s ease';
+        el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        el.style.setProperty('--mx', px + '%');
+        el.style.setProperty('--my', py + '%');
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.transition = 'transform .6s cubic-bezier(.2,.6,.2,1), box-shadow .5s ease';
+        el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+      });
+    }
+    document.querySelectorAll('.ux-card').forEach(card => attachTilt(card, 6));
+    document.querySelectorAll('.panel-inner').forEach(panel => attachTilt(panel, 2.5));
+  }
+
+  // membership tier selector — click a tab to morph the panel below
+  (function(){
+    const tabs = document.querySelectorAll('.tier-tab');
+    const panels = document.querySelectorAll('.tier-panel');
+    if(!tabs.length) return;
+    tabs.forEach(tab=>{
+      tab.addEventListener('click', ()=>{
+        const target = tab.getAttribute('data-tier');
+        tabs.forEach(t=> t.classList.toggle('active', t === tab));
+        panels.forEach(p=> p.classList.toggle('active', p.getAttribute('data-tier') === target));
+      });
+    });
+  })();
+
+  // champagne glasses — clink together on scroll-into-view, hold position after
+  (function(){
+    const section = document.getElementById('meeting-section');
+    const glasses = document.querySelectorAll('.toast-glass');
+    if(!section || !glasses.length) return;
+
+    const clinkObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          glasses.forEach(g=> g.classList.add('in-view'));
+          clinkObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.45 });
+
+    clinkObserver.observe(section);
+  })();
+
+  // magnetic buttons — subtle cursor-attraction, disabled on touch
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.querySelectorAll('.btn').forEach(button=>{
+      button.addEventListener('mousemove', e=>{
+        const rect = button.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        button.style.transform = `translate(${x * 0.08}px, ${y * 0.08}px)`;
+      });
+      button.addEventListener('mouseleave', ()=>{ button.style.transform = 'translate(0,0)'; });
+    });
+  }
+
+  // values accordion — click a value name to reveal its description, one open at a time
+  // also crossfades the matching circular photo
+  (function(){
+    const rows = document.querySelectorAll('.value-row');
+    const photos = document.querySelectorAll('.value-photo');
+    if(!rows.length) return;
+    rows.forEach(row=>{
+      const head = row.querySelector('.value-row-head');
+      head.addEventListener('click', ()=>{
+        const isOpen = row.classList.contains('open');
+        const target = row.getAttribute('data-value');
+        rows.forEach(r=> r.classList.remove('open'));
+        if(!isOpen){
+          row.classList.add('open');
+          photos.forEach(p=> p.classList.toggle('active', p.getAttribute('data-value') === target));
+        }
+      });
+    });
+  })();
+
+  // prevent empty "#" links from jumping to top
+  document.querySelectorAll('a[href="#"]').forEach(link=>{
+    link.addEventListener('click', e=> e.preventDefault());
+  });
+</script>
+
+</body>
+</html>
