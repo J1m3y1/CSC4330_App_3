@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request an Invitation — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    /* FIX: restored to the actual loaded font-face names.
+       --font-header was "seasons" (missing the "the-" prefix the real family uses)
+       and --font-sans was "calson" (doesn't exist in either kit at all) — both
+       silently failed to match any @font-face and fell back to plain sans-serif. */
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  /* h3 uses --font-display, which only has one loaded face: italic, weight 300.
+     Requesting any other weight/style silently fails and falls back to sans-serif. */
+  h1,h2{ font-family:var(--font-serif); font-weight:300; font-style:italic; margin:0; }
+  h3{ font-family:var(--font-serif); font-weight:300; font-style:italic; margin:0; }
+  p{ margin:0; font-family:var(--font-serif); }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:var(--font-sans); background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .container{ max-width:520px; margin:0 auto; padding:0 32px; width:100%; }
+
+  .eyebrow{
+    font-family:var(--font-header); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:15px 32px;
+    font-size:12px; letter-spacing:0.1em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); position:relative; overflow:hidden; isolation:isolate;
+    transition:transform .4s cubic-bezier(.2,.7,.2,1), background .4s ease, border-color .4s ease, color .4s ease;
+  }
+  .btn::before{
+    content:""; position:absolute; inset:0; z-index:-1;
+    background:linear-gradient(110deg, transparent 18%, rgba(255,255,255,0.18) 48%, transparent 76%);
+    transform:translateX(-120%); transition:transform .75s cubic-bezier(.2,.7,.2,1);
+  }
+  .btn:hover::before{ transform:translateX(120%); }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+
+  /* ---------------- atmosphere ---------------- */
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none;
+    opacity:0.045; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+  .ambient-light{
+    position:fixed; width:420px; height:420px; left:0; top:0; transform:translate(-50%,-50%);
+    pointer-events:none; z-index:9991; border-radius:50%;
+    background:radial-gradient(circle, rgba(199,166,92,0.075) 0%, rgba(199,166,92,0.025) 30%, transparent 70%);
+    mix-blend-mode:screen; opacity:0; transition:opacity .5s ease;
+  }
+  @media (hover:hover) and (pointer:fine){
+    body{ cursor:none; }
+    #cursor-dot, #cursor-ring{
+      position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+      transform:translate(-50%,-50%); border-radius:50%;
+    }
+    #cursor-dot{ width:5px; height:5px; background:var(--gold); }
+    #cursor-ring{
+      width:36px; height:36px; border:1px solid var(--gold);
+      transition:width .25s ease, height .25s ease, opacity .25s ease, background .25s ease; opacity:0.55;
+    }
+    #cursor-ring.active{ width:64px; height:64px; background:rgba(199,166,92,0.08); opacity:1; }
+  }
+
+  /* ---------------- minimal header (static, not the fixed/scrolling nav from the main site —
+     this page doesn't need that behavior since there's nothing to scroll past) ---------------- */
+  header{ padding:28px 0; border-bottom:1px solid var(--line); }
+  header .container{ display:flex; align-items:center; justify-content:space-between; max-width:1000px; }
+  .signet{ display:inline-flex; align-items:center; gap:12px; }
+  .signet-logo{ height:55px; width:auto; display:block; }
+  .back-link{ font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke); transition:color .3s ease; }
+  .back-link:hover{ color:var(--gold-bright); }
+
+  /* ---------------- main wizard ---------------- */
+  main{ flex:1; display:flex; align-items:center; padding:70px 0; }
+
+  /* the whole sign-up flow lives inside a bounded card, distinct from the page
+     background — not free-floating text, per the reference. */
+  .wizard-card{
+    position:relative;
+    background:var(--noir-soft);
+    border:1px solid var(--line-strong);
+    border-radius:10px;
+    padding:56px 48px;
+    box-shadow:0 30px 70px rgba(0,0,0,0.45);
+  }
+  .wizard-back{
+    position:absolute; top:24px; left:24px; color:var(--smoke);
+    transition:color .3s ease; display:none; z-index:2;
+  }
+  .wizard-back:hover{ color:var(--gold-bright); }
+  .wizard-back.show{ display:block; }
+
+  .progress{ display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:40px; }
+  .progress .dot{ width:6px; height:6px; border-radius:50%; background:var(--line-strong); transition:background .3s ease, transform .3s ease; }
+  .progress .dot.active{ background:var(--gold); transform:scale(1.3); }
+  .progress .dot.done{ background:var(--gold-dim); }
+
+  .step{ display:none; opacity:0; transition:opacity .4s ease; }
+  .step.active{ display:block; opacity:1; }
+
+  .step-mark{
+    width:44px; height:44px; border:1px solid var(--line-strong); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 24px; color:var(--gold);
+  }
+  .step-title{ font-size:30px; text-align:center; margin-bottom:10px; }
+  .step-sub{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); text-align:center; margin-bottom:40px; display:block; }
+
+  .field{ margin-bottom:22px; }
+  .field label{
+    display:block; font-family:var(--font-sans); font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--smoke-dim); margin-bottom:8px;
+  }
+  .field input, .field textarea{
+    width:100%; background:none; border:none; border-bottom:1px solid var(--line-strong);
+    padding:10px 0; color:var(--cream); font-family:var(--font-sans); font-size:16px;
+    outline:none; transition:border-color .3s ease; resize:none;
+  }
+  .field textarea{ line-height:1.6; }
+  .field-note{
+    font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); margin-top:8px; line-height:1.6;
+  }
+  .field input:focus, .field textarea:focus{ border-color:var(--gold); }
+  .field input::placeholder, .field textarea::placeholder{ color:var(--smoke-dim); }
+  .row{ display:flex; gap:20px; }
+  .row .field{ flex:1; }
+
+  .check-row{ display:flex; align-items:flex-start; gap:10px; margin-bottom:24px; }
+  .check-row input[type="checkbox"]{ margin-top:3px; accent-color:var(--gold); flex-shrink:0; }
+  .check-row label{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.6; }
+
+  /* spectrum sliders — the subtle preference questions */
+  .spectrum{ margin-bottom:30px; }
+  .spectrum-question{
+    font-family:var(--font-sans); font-size:15px; color:var(--cream); margin-bottom:14px;
+  }
+  .spectrum-track{ position:relative; margin-bottom:8px; }
+  .spectrum-track input[type="range"]{
+    -webkit-appearance:none; appearance:none; width:100%; height:2px;
+    background:var(--line-strong); border-radius:2px; outline:none; cursor:pointer;
+  }
+  .spectrum-track input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:var(--gold); cursor:grab; border:2px solid var(--noir-soft);
+    box-shadow:0 2px 6px rgba(0,0,0,0.4);
+  }
+  .spectrum-track input[type="range"]::-moz-range-thumb{
+    width:16px; height:16px; border-radius:50%; background:var(--gold);
+    cursor:grab; border:2px solid var(--noir-soft); box-shadow:0 2px 6px rgba(0,0,0,0.4);
+  }
+  .spectrum-labels{ display:flex; justify-content:space-between; }
+  .spectrum-labels span{
+    font-family:var(--font-sans); font-size:10.5px; letter-spacing:0.03em; color:var(--smoke-dim); max-width:45%;
+  }
+  .spectrum-labels span:last-child{ text-align:right; }
+
+  .optional-note{
+    font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--gold-dim); margin-bottom:10px; display:block;
+  }
+
+  /* birthday — three scrollable picker columns, same visual language as the
+     Weight/Height pickers on profile-setup.html rather than native <select>
+     dropdowns (whose popup can't be styled and breaks the dark theme). */
+  .dob-columns{ display:flex; gap:12px; }
+  .dob-col{ flex:1; min-width:0; }
+  .dob-col-label{
+    display:block; text-align:center; font-family:var(--font-sans); font-size:10px;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke-dim); margin-bottom:10px;
+  }
+  .dob-picker-wrap{ position:relative; }
+  .dob-picker-wrap::before, .dob-picker-wrap::after{
+    content:""; position:absolute; left:0; right:0; height:22px; z-index:2; pointer-events:none;
+  }
+  .dob-picker-wrap::before{ top:0; background:linear-gradient(var(--noir-soft), transparent); }
+  .dob-picker-wrap::after{ bottom:0; background:linear-gradient(transparent, var(--noir-soft)); }
+  .dob-picker{
+    height:190px; overflow-y:auto; scroll-snap-type:y proximity;
+    border:1px solid var(--line-strong); border-radius:6px;
+    padding:6px 0; scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent;
+  }
+  .dob-picker::-webkit-scrollbar{ width:5px; }
+  .dob-picker::-webkit-scrollbar-thumb{ background:var(--line-strong); border-radius:3px; }
+  .dob-item{
+    scroll-snap-align:center; text-align:center; padding:9px 6px; color:var(--smoke);
+    font-family:var(--font-sans); font-size:14px; cursor:pointer;
+    transition:color .2s ease, background .2s ease, font-size .2s ease, font-weight .2s ease;
+  }
+  .dob-item:hover{ color:var(--cream); background:rgba(199,166,92,0.05); }
+  .dob-item.selected{ color:var(--gold-bright); font-weight:500; font-size:16px; background:rgba(199,166,92,0.08); }
+
+  /* location dropdown */
+  .location-wrap{ position:relative; }
+  .location-wrap input{ padding-right:28px; }
+  .location-suggestions{
+    position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:200;
+    background:var(--noir-soft); border:1px solid var(--line-strong); border-radius:4px;
+    max-height:220px; overflow-y:auto; display:none;
+  }
+  .location-suggestions.open{ display:block; }
+  .location-suggestion{
+    padding:11px 14px; font-family:var(--font-sans); font-size:13px; color:var(--smoke);
+    cursor:pointer; transition:background .2s ease, color .2s ease;
+  }
+  .location-suggestion:hover, .location-suggestion.focused{ background:rgba(199,166,92,0.08); color:var(--cream); }
+  .location-suggestion mark{ background:none; color:var(--gold-bright); font-style:normal; }
+
+  /* SMS code entry */
+  .code-row{ display:flex; gap:10px; justify-content:center; margin-bottom:8px; }
+  .code-row input{
+    width:44px; height:54px; text-align:center; font-family:var(--font-serif); font-size:20px;
+    background:none; border:1px solid var(--line-strong); border-radius:6px; color:var(--cream);
+    outline:none; transition:border-color .3s ease;
+  }
+  .code-row input:focus{ border-color:var(--gold); }
+  .resend-link{
+    display:block; text-align:center; font-family:var(--font-sans); font-size:11px; color:var(--smoke);
+    margin-top:16px; margin-bottom:22px;
+  }
+  .resend-link a{ color:var(--gold); text-decoration:underline; }
+
+  .upload{
+    border:1px dashed var(--line-strong); border-radius:2px; padding:36px 20px; text-align:center;
+    margin-bottom:24px; transition:border-color .3s ease, background .3s ease; cursor:pointer;
+  }
+  .upload:hover{ border-color:var(--gold); background:rgba(199,166,92,0.04); }
+  .upload .mark{
+    width:32px; height:32px; border:1px solid var(--line-strong); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 14px; color:var(--gold-dim); font-size:16px;
+  }
+  .upload .lbl{ font-family:var(--font-sans); font-size:13px; color:var(--cream); margin-bottom:4px; }
+  .upload .dim{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; color:var(--smoke-dim); }
+
+  /* refer a friend */
+  .referral-link-row{ display:flex; gap:10px; align-items:center; }
+  .referral-link-row input{
+    flex:1; min-width:0; background:none; border:none; border-bottom:1px solid var(--line-strong);
+    padding:10px 0; color:var(--smoke); font-family:var(--font-sans); font-size:12.5px; outline:none;
+  }
+  .referral-copy{
+    flex-shrink:0; padding:9px 16px; font-family:var(--font-sans); font-size:10px; letter-spacing:0.08em;
+    text-transform:uppercase; border:1px solid var(--line-strong); border-radius:2px; color:var(--cream);
+    background:none; cursor:pointer; transition:border-color .3s ease, color .3s ease; min-width:64px;
+  }
+  .referral-copy:hover, .referral-copy.copied{ border-color:var(--gold); color:var(--gold-bright); }
+
+  .share-label{
+    display:block; text-align:center; font-family:var(--font-sans); font-size:10px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--smoke-dim); margin:30px 0 16px;
+  }
+  .share-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:8px; }
+  .share-btn{
+    width:46px; height:46px; border-radius:50%; border:1px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center; color:var(--smoke);
+    font-family:var(--font-sans); font-size:15px; letter-spacing:0.02em;
+    transition:border-color .3s ease, color .3s ease, transform .2s ease; cursor:pointer; background:none;
+    text-decoration:none;
+  }
+  .share-btn:hover{ border-color:var(--gold); color:var(--gold-bright); transform:translateY(-2px); }
+
+  .full-btn{ width:100%; justify-content:center; margin-top:6px; }
+  .legal{ font-family:var(--font-sans); font-size:10px; color:var(--smoke-dim); text-align:center; margin-top:20px; line-height:1.6; }
+
+  .processing{ text-align:center; padding:60px 0; }
+  .spinner{
+    width:44px; height:44px; border-radius:50%; margin:0 auto 26px;
+    border:2px solid var(--line-strong); border-top-color:var(--gold);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .processing p{ font-family:var(--font-sans); color:var(--smoke); font-size:13px; }
+
+  .confirm{ text-align:center; padding:20px 0; }
+  .confirm h2{ font-size:32px; margin-bottom:16px; }
+  .confirm p{ font-family:var(--font-sans); color:var(--smoke); font-size:14px; line-height:1.85; max-width:380px; margin:0 auto 34px; }
+  .confirm .btn{ width:100%; justify-content:center; }
+
+  .identity-group{ margin-bottom:32px; }
+  .identity-label{
+    font-family:var(--font-serif); font-size:21px; color:var(--cream); margin-bottom:14px;
+  }
+  .identity-options{ display:flex; gap:10px; flex-wrap:wrap; }
+  .identity-btn{
+    flex:1; min-width:100px; padding:16px 12px; text-align:center;
+    border:1px solid var(--line-strong); border-radius:2px; cursor:pointer;
+    font-family:var(--font-sans); font-size:12px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--smoke); background:none; transition:border-color .3s ease, color .3s ease, background .3s ease, box-shadow .3s ease;
+  }
+  .identity-btn:hover{ border-color:var(--gold-dim); }
+  .identity-btn.selected{
+    border-color:var(--gold); color:var(--gold-bright); background:rgba(199,166,92,0.07);
+    box-shadow:0 6px 16px rgba(0,0,0,0.35), 0 0 0 1px rgba(199,166,92,0.15);
+  }
+
+  footer{ border-top:1px solid var(--line); padding:26px 0; }
+  footer .container{ max-width:1000px; }
+  .footer-legal{ font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); text-align:center; }
+
+  @media (max-width:560px){
+    .wizard-card{ padding:36px 22px; border-radius:6px; }
+    .row{ flex-direction:column; gap:0; }
+    main{ padding:50px 0; }
+  }
+</style>
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+<div class="ambient-light"></div>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<header>
+  <div class="container">
+    <a class="signet" href="/LandingPage/Landing.html">
+      <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
+    </a>
+    <a class="back-link" href="/LandingPage/Landing.html">Back to Fantasi</a>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+  <div class="wizard-card">
+
+    <button type="button" class="wizard-back" id="wizard-back" aria-label="Go back" data-cursor="Back">
+      <svg width="18" height="13" viewBox="0 0 29 20" fill="none"><path fill-rule="evenodd" fill="currentColor" d="M29 10C29 9.73479 28.8947 9.48044 28.7071 9.29291C28.5196 9.10537 28.2652 9.00001 28 9.00001H4.41402L10.7082 2.70801C10.801 2.61504 10.8747 2.50466 10.9251 2.38318C10.9754 2.2617 11.0013 2.1315 11.0013 2.00001C11.0013 1.86852 10.9754 1.73832 10.9251 1.61685C10.8747 1.49537 10.801 1.38499 10.708 1.29201C10.615 1.19904 10.5047 1.12528 10.3832 1.07497C10.2617 1.02465 10.1315 0.998749 10 0.998749C9.86853 0.998749 9.73833 1.02465 9.61685 1.07497C9.49537 1.12528 9.38499 1.19904 9.29202 1.29201L1.29202 9.29201C1.19889 9.3849 1.12501 9.49525 1.07459 9.61674C1.02418 9.73824 0.99823 9.86848 0.99823 10C0.99823 10.1315 1.02418 10.2618 1.07459 10.3833C1.12501 10.5048 1.19889 10.6151 1.29202 10.708L9.29202 18.708C9.38499 18.801 9.49537 18.8747 9.61685 18.9251C9.73833 18.9754 9.86853 19.0013 10 19.0013C10.1315 19.0013 10.2617 18.9754 10.3832 18.9251C10.5047 18.8747 10.615 18.801 10.708 18.708C10.801 18.615 10.8747 18.5047 10.9251 18.3832C10.9754 18.2617 11.0013 18.1315 11.0013 18C11.0013 17.8685 10.9754 17.7383 10.9251 17.6168C10.8747 17.4954 10.801 17.385 10.708 17.292L4.41402 11H28C28.2652 11 28.5196 10.8947 28.7071 10.7071C28.8947 10.5196 29 10.2652 29 10Z"/></svg>
+    </button>
+
+    <div class="progress" id="progress">
+      <span class="dot active" data-step="1"></span>
+      <span class="dot" data-step="2"></span>
+      <span class="dot" data-step="3"></span>
+    </div>
+
+    <!-- STEP — identity and preference. Asked of everyone up front (UI ordering only) —
+         but this data is only ever fed into the matching algorithm if the account converts
+         to a paid membership. Free/preview accounts still answer this, but their answer is
+         discarded rather than used, per the "only paid data counts" rule. -->
+    <div class="step active" id="step-identity">
+      <div class="step-mark">
+        <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+      </div>
+      <h1 class="step-title">Tell us about yourself</h1>
+      <span class="step-sub">This helps us curate the right introductions.</span>
+
+      <div class="identity-group">
+        <div class="identity-label">I am a...</div>
+        <div class="identity-options">
+          <button type="button" class="identity-btn" data-group="gender" data-value="Man">Man</button>
+          <button type="button" class="identity-btn" data-group="gender" data-value="Woman">Woman</button>
+        </div>
+      </div>
+
+      <div class="identity-group">
+        <div class="identity-label">Interested in...</div>
+        <div class="identity-options">
+          <button type="button" class="identity-btn" data-group="interest" data-value="Women">Women</button>
+          <button type="button" class="identity-btn" data-group="interest" data-value="Men">Men</button>
+          <button type="button" class="identity-btn" data-group="interest" data-value="Everyone">Everyone</button>
+        </div>
+      </div>
+
+      <button class="btn btn-gold full-btn step-next" data-next="step-birthday" data-cursor="Continue">Continue</button>
+    </div>
+
+    <!-- STEP — birthday -->
+    <div class="step" id="step-birthday">
+      <div class="step-mark">
+        <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+      </div>
+      <h1 class="step-title">When is your birthday?</h1>
+      <span class="step-sub">This helps us verify your identity.</span>
+
+      <div class="dob-columns">
+        <div class="dob-col">
+          <span class="dob-col-label">Month</span>
+          <div class="dob-picker-wrap">
+            <div class="dob-picker" id="dob-month-picker" data-picker="month"></div>
+          </div>
+        </div>
+        <div class="dob-col">
+          <span class="dob-col-label">Day</span>
+          <div class="dob-picker-wrap">
+            <div class="dob-picker" id="dob-day-picker" data-picker="day"></div>
+          </div>
+        </div>
+        <div class="dob-col">
+          <span class="dob-col-label">Year</span>
+          <div class="dob-picker-wrap">
+            <div class="dob-picker" id="dob-year-picker" data-picker="year"></div>
+          </div>
+        </div>
+      </div>
+      <!-- hidden ISO date consumed by the register API call -->
+      <input type="hidden" id="p-birthday">
+
+      <button class="btn btn-gold full-btn step-next" data-next="step-phone" data-cursor="Continue">Continue</button>
+    </div>
+
+    <!-- STEP — phone number -->
+    <div class="step" id="step-phone">
+      <div class="step-mark">
+        <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><rect x="9" y="4" width="12" height="22" rx="2" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="22" r="0.8" fill="currentColor"/></svg>
+      </div>
+      <h1 class="step-title">What's your number?</h1>
+      <span class="step-sub">A real, working phone adds a layer of trust no email alone can.</span>
+
+      <div class="field">
+        <label for="p-phone">Phone number</label>
+        <input type="tel" id="p-phone" placeholder="+1 (555) 123-4567" autocomplete="off">
+      </div>
+
+      <button class="btn btn-gold full-btn" id="phone-send" data-cursor="Continue">Send Code</button>
+      <span class="resend-link"><a href="#" id="phone-skip">Skip for now</a></span>
+      <div class="legal">Standard message and data rates may apply.</div>
+    </div>
+
+    <!-- STEP — phone verification code -->
+    <div class="step" id="step-phone-verify">
+      <div class="step-mark">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4L16 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h1 class="step-title">Enter the code</h1>
+      <span class="step-sub" id="phone-verify-sub">We sent a 6-digit code to your phone.</span>
+
+      <div class="code-row">
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit">
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit">
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit">
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit">
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit">
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit">
+      </div>
+      <span class="resend-link">Didn't get it? <a href="#" id="phone-resend">Resend code</a></span>
+
+      <button class="btn btn-gold full-btn" id="phone-verify-submit" data-cursor="Continue">Verify</button>
+      <div class="legal" id="phone-verify-legal">Codes expire after 10 minutes.</div>
+    </div>
+
+    <!-- STEP — build profile -->
+    <div class="step" id="step-form">
+      <div class="step-mark">
+        <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+      </div>
+      <h1 class="step-title">Build your profile</h1>
+      <span class="step-sub">Every request undergoes a personal background and identity check.</span>
+
+      <div class="field">
+        <label for="p-name">Full name</label>
+        <input type="text" id="p-name" placeholder="Your name" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="p-displayname">Display name</label>
+        <input type="text" id="p-displayname" placeholder="What matches will see instead" autocomplete="off">
+        <div class="field-note">Your full name is never shown. This is what appears on your profile.</div>
+      </div>
+      <div class="field">
+        <label for="p-email">Email</label>
+        <input type="email" id="p-email" placeholder="you@example.com" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="p-location">Location</label>
+        <div class="location-wrap">
+          <input type="text" id="p-location" placeholder="Start typing a city…" autocomplete="off" autocomplete="off">
+          <div class="location-suggestions" id="location-suggestions"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="p-occupation">Occupation</label>
+        <input type="text" id="p-occupation" placeholder="What you do" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="p-linkedin">LinkedIn</label>
+        <input type="url" id="p-linkedin" placeholder="linkedin.com/in/yourname" autocomplete="off">
+        <div class="field-note">Used only for review — never shown on your profile or linked publicly.</div>
+      </div>
+      <div class="field">
+        <label for="p-password">Password</label>
+        <input type="password" id="p-password" placeholder="Min. 10 chars, uppercase, number, symbol" autocomplete="new-password">
+        <div class="field-note">Used to sign in. Never shown publicly.</div>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="p-age">
+        <label for="p-age">I confirm I am 18 years of age or older.</label>
+      </div>
+
+      <button class="btn btn-gold full-btn step-next" data-next="step-verify" data-cursor="Continue">Continue</button>
+    </div>
+
+    <!-- STEP — verify identity -->
+    <div class="step" id="step-verify">
+      <div class="step-mark">
+        <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
+      </div>
+      <h1 class="step-title">Verify your identity</h1>
+      <span class="step-sub">Kept strictly confidential. Never shown on your profile.</span>
+
+      <div class="upload" id="upload" tabindex="0">
+        <div class="mark">+</div>
+        <div class="lbl">Upload government-issued ID</div>
+        <div class="dim">JPG, PNG, or PDF</div>
+      </div>
+
+      <div class="check-row">
+        <input type="checkbox" id="p-consent">
+        <label for="p-consent">I consent to a confidential background review as part of my application.</label>
+      </div>
+
+      <button class="btn btn-gold full-btn step-next" data-next="step-preferences" data-cursor="Continue">Continue</button>
+      <div class="legal"><br>For consenting adults 18 and older only.</div>
+    </div>
+
+    <!-- STEP — subtle preference questions. Kept evocative, not explicit — spectrum
+         sliders and short open prompts, matching the same restraint used in the
+         Interests taxonomy elsewhere on the site. This signal is used to curate
+         introductions, not displayed on the public profile. -->
+    <div class="step" id="step-preferences">
+      <div class="step-mark">
+        <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+      </div>
+      <h1 class="step-title">A few last questions</h1>
+      <span class="step-sub">Helps us curate who you meet. Never shown on your profile.</span>
+
+      <div class="spectrum">
+        <div class="spectrum-question">How do you feel about structure in a relationship?</div>
+        <div class="spectrum-track"><input type="range" id="p-structure" min="0" max="100" value="50"></div>
+        <div class="spectrum-labels"><span>An equal partnership</span><span>A clearly defined dynamic</span></div>
+      </div>
+
+      <div class="spectrum">
+        <div class="spectrum-question">What pace suits you?</div>
+        <div class="spectrum-track"><input type="range" id="p-pace" min="0" max="100" value="50"></div>
+        <div class="spectrum-labels"><span>Slow, traditional</span><span>Direct, unconventional</span></div>
+      </div>
+
+      <div class="field">
+        <label for="p-drawn">What draws you here, over anywhere else?</label>
+        <textarea id="p-drawn" rows="2" placeholder="A few words"></textarea>
+      </div>
+      <div class="field">
+        <label for="p-discretion">Discretion matters to me because...</label>
+        <textarea id="p-discretion" rows="2" placeholder="A few words"></textarea>
+      </div>
+
+      <button class="btn btn-gold full-btn step-next" data-next="step-referral" data-cursor="Continue">Continue</button>
+    </div>
+
+    <!-- STEP — refer a friend (optional; purely client-side sharing, no
+         referral tracking/attribution exists on the backend) -->
+    <div class="step" id="step-referral">
+      <div class="step-mark">
+        <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1"/><circle cx="20" cy="10" r="4" stroke="currentColor" stroke-width="1"/><path d="M4 25c0-5 3-8 6-8s6 3 6 8M14 25c0-5 3-8 6-8s6 3 6 8" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      </div>
+      <h1 class="step-title">Refer a friend</h1>
+      <span class="step-sub">Optional — know someone who belongs here? Send them an invitation.</span>
+
+      <div class="field">
+        <span class="optional-note">Optional</span>
+        <label for="referral-link">Your invitation link</label>
+        <div class="referral-link-row">
+          <input type="text" id="referral-link" readonly value="" onclick="this.select()">
+          <button type="button" class="referral-copy" id="referral-copy">Copy</button>
+        </div>
+      </div>
+
+      <span class="share-label">Share via</span>
+      <div class="share-row">
+        <a class="share-btn" id="share-x" href="#" target="_blank" rel="noopener" title="Share on X" data-cursor="Share">X</a>
+        <a class="share-btn" id="share-facebook" href="#" target="_blank" rel="noopener" title="Share on Facebook" data-cursor="Share">f</a>
+        <a class="share-btn" id="share-whatsapp" href="#" target="_blank" rel="noopener" title="Share on WhatsApp" data-cursor="Share">
+          <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>
+        </a>
+        <a class="share-btn" id="share-email" href="#" title="Share via email" data-cursor="Share">
+          <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><rect x="4" y="7" width="22" height="16" rx="2" stroke="currentColor" stroke-width="1"/><path d="M5 8l10 8 10-8" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="share-btn" id="share-sms" href="#" title="Share via text message" data-cursor="Share">
+          <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><rect x="9" y="4" width="12" height="22" rx="2" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="22" r="0.8" fill="currentColor"/></svg>
+        </a>
+        <button type="button" class="share-btn" id="share-native" title="More sharing options" data-cursor="Share" style="display:none;">
+          <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><path d="M21 10a3 3 0 1 0-2.83-4H18a3 3 0 0 0 .1 3.2L11.9 13a3 3 0 1 0 0 4l6.2 3.8a3 3 0 1 0 .77-1.72L12.7 15.3a3 3 0 0 0 0-.6l6.17-3.78c.31.28.68.5 1.1.63" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <button class="btn btn-gold full-btn" id="submit-application" data-cursor="Submit">Submit Application</button>
+      <div class="legal">For consenting adults 18 and older only.</div>
+    </div>
+
+    <!-- STEP — reviewing -->
+    <div class="step" id="step-processing">
+      <div class="processing">
+        <div class="spinner"></div>
+        <p>Running your background review…</p>
+      </div>
+    </div>
+
+    <!-- STEP — application submitted. This replaces the old three-way split
+         (paid tier / free access / wait for approval) — there is no free
+         membership and no instant access anymore. Every applicant goes
+         through the same review, no exceptions, no shortcuts for paying
+         faster. Tier selection and payment now happen only AFTER
+         acceptance, on a separate page reached via the acceptance email —
+         see accepted.html. -->
+    <div class="step" id="step-submitted">
+      <div class="confirm">
+        <div class="step-mark">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4L16 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>Your application is in.</h2>
+        <p>Every application is reviewed personally — background check included, typically 2–4 business days. You'll receive an email the moment a decision is made. There's no faster path, paid or otherwise.</p>
+        <a class="btn btn-gold" href="pending-approval.html" data-cursor="Begin" style="margin-bottom:12px;">Track My Application</a>
+        <a class="btn btn-line" href="/LandingPage/Landing.html" data-cursor="Close">Back to Fantasi</a>
+      </div>
+    </div>
+
+
+  </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-legal">Fantasi is for consenting adults 18 and older only. © 2026 Fantasi.</div>
+  </div>
+</footer>
+
+<script>
+  // custom cursor
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  const ambientLight = document.querySelector('.ambient-light');
+  const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  let mx=0, my=0, rx=0, ry=0;
+
+  window.addEventListener('mousemove', e=>{
+    mx=e.clientX; my=e.clientY;
+    if(dot){ dot.style.left=mx+'px'; dot.style.top=my+'px'; }
+    if(ambientLight && hasFinePointer){
+      ambientLight.style.left=mx+'px'; ambientLight.style.top=my+'px'; ambientLight.style.opacity='1';
+    }
+  }, {passive:true});
+  function loop(){
+    rx += (mx-rx)*0.18; ry += (my-ry)*0.18;
+    if(ring){ ring.style.left=rx+'px'; ring.style.top=ry+'px'; }
+    requestAnimationFrame(loop);
+  }
+  loop();
+  document.querySelectorAll('a, button, .upload').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{ if(ring) ring.classList.add('active'); });
+    el.addEventListener('mouseleave', ()=>{ if(ring) ring.classList.remove('active'); });
+  });
+
+  // ── Birthday pickers — three independently scrollable columns, same visual
+  // language as the Weight/Height pickers on profile-setup.html rather than
+  // native <select> dropdowns. Each column keeps its own scroll position;
+  // only Day ever rebuilds, since its length depends on Month/Year. ─────────
+  (function() {
+    const monthPicker = document.getElementById('dob-month-picker');
+    const dayPicker   = document.getElementById('dob-day-picker');
+    const yearPicker  = document.getElementById('dob-year-picker');
+    const hidden      = document.getElementById('p-birthday');
+
+    const MONTHS = [
+      ['01','January'], ['02','February'], ['03','March'],     ['04','April'],
+      ['05','May'],     ['06','June'],     ['07','July'],      ['08','August'],
+      ['09','September'],['10','October'], ['11','November'],  ['12','December'],
+    ];
+
+    // Most recently-eligible year first — an 18–25 year old (most new
+    // signups) finds their year within the first couple of scrolls.
+    const currentYear = new Date().getFullYear();
+    const YEARS = [];
+    for (let y = currentYear - 18; y >= currentYear - 100; y--) YEARS.push([String(y), String(y)]);
+
+    const selected = { month: '', day: '', year: '' };
+
+    function daysInMonth(month, year) {
+      if (!month) return 31;
+      // No year picked yet → assume a leap year (29 days) until a real year narrows it.
+      return new Date(year ? parseInt(year, 10) : 2000, parseInt(month, 10), 0).getDate();
+    }
+
+    function markSelected(picker, value) {
+      picker.querySelectorAll('.dob-item').forEach(el => {
+        el.classList.toggle('selected', el.dataset.value === value);
+      });
+    }
+
+    function buildColumn(picker, items, key) {
+      picker.innerHTML = '';
+      items.forEach(([value, label]) => {
+        const el = document.createElement('div');
+        el.className = 'dob-item' + (value === selected[key] ? ' selected' : '');
+        el.dataset.value = value;
+        el.textContent = label;
+        el.addEventListener('click', () => onPick(key, value));
+        // Columns rebuild (Day, on every Month/Year change), so the cursor-ring
+        // hover binding above — which only ran once at load — can't reach
+        // these; bind it per element here instead.
+        el.addEventListener('mouseenter', () => { if (ring) ring.classList.add('active'); });
+        el.addEventListener('mouseleave', () => { if (ring) ring.classList.remove('active'); });
+        picker.appendChild(el);
+      });
+    }
+
+    function renderDays() {
+      const max = daysInMonth(selected.month, selected.year);
+      if (selected.day && parseInt(selected.day, 10) > max) selected.day = '';
+      const items = [];
+      for (let d = 1; d <= max; d++) items.push([String(d).padStart(2, '0'), String(d)]);
+      buildColumn(dayPicker, items, 'day');
+    }
+
+    function syncHidden() {
+      hidden.value = (selected.month && selected.day && selected.year)
+        ? `${selected.year}-${selected.month}-${selected.day}`
+        : '';
+    }
+
+    function onPick(key, value) {
+      selected[key] = value;
+      if (key === 'month') markSelected(monthPicker, value);
+      if (key === 'year')  markSelected(yearPicker, value);
+      if (key === 'month' || key === 'year') renderDays();
+      if (key === 'day')   markSelected(dayPicker, value);
+      syncHidden();
+    }
+
+    buildColumn(monthPicker, MONTHS, 'month');
+    buildColumn(yearPicker, YEARS, 'year');
+    renderDays();
+  })();
+
+  // ── Location autocomplete (offline city list) ─────────────────────────────────
+  (function() {
+    // Curated list of 120 major world cities — no API key required
+    const CITIES = [
+      'Amsterdam, Netherlands','Athens, Greece','Auckland, New Zealand',
+      'Bangkok, Thailand','Barcelona, Spain','Beijing, China',
+      'Berlin, Germany','Bogotá, Colombia','Brussels, Belgium',
+      'Buenos Aires, Argentina','Cairo, Egypt','Cape Town, South Africa',
+      'Chicago, USA','Copenhagen, Denmark','Dallas, USA',
+      'Doha, Qatar','Dubai, UAE','Dublin, Ireland',
+      'Frankfurt, Germany','Geneva, Switzerland','Hong Kong',
+      'Houston, USA','Istanbul, Turkey','Jakarta, Indonesia',
+      'Johannesburg, South Africa','Karachi, Pakistan','Kuala Lumpur, Malaysia',
+      'Lagos, Nigeria','Lahore, Pakistan','Lima, Peru',
+      'Lisbon, Portugal','London, UK','Los Angeles, USA',
+      'Madrid, Spain','Manila, Philippines','Melbourne, Australia',
+      'Mexico City, Mexico','Miami, USA','Milan, Italy',
+      'Montreal, Canada','Moscow, Russia','Mumbai, India',
+      'Nairobi, Kenya','New York, USA','Oslo, Norway',
+      'Paris, France','Prague, Czech Republic','Rome, Italy',
+      'Santiago, Chile','São Paulo, Brazil','Seattle, USA',
+      'Seoul, South Korea','Shanghai, China','Singapore',
+      'Stockholm, Sweden','Sydney, Australia','Taipei, Taiwan',
+      'Tehran, Iran','Tel Aviv, Israel','Tokyo, Japan',
+      'Toronto, Canada','Vancouver, Canada','Vienna, Austria',
+      'Warsaw, Poland','Washington D.C., USA','Zurich, Switzerland',
+      // UK cities
+      'Birmingham, UK','Edinburgh, UK','Glasgow, UK','Leeds, UK','Manchester, UK',
+      // US cities
+      'Atlanta, USA','Austin, USA','Boston, USA','Denver, USA','Las Vegas, USA',
+      'Nashville, USA','Orlando, USA','Philadelphia, USA','Phoenix, USA',
+      'Portland, USA','San Francisco, USA','San Diego, USA',
+      // Australia
+      'Brisbane, Australia','Perth, Australia',
+      // Middle East
+      'Abu Dhabi, UAE','Riyadh, Saudi Arabia','Kuwait City, Kuwait',
+      // Asia
+      'Bangalore, India','Chennai, India','Delhi, India','Kolkata, India',
+      'Osaka, Japan','Chengdu, China','Shenzhen, China',
+      // Africa
+      'Accra, Ghana','Addis Ababa, Ethiopia','Casablanca, Morocco',
+      'Dar es Salaam, Tanzania','Kigali, Rwanda',
+      // Europe
+      'Athens, Greece','Budapest, Hungary','Helsinki, Finland',
+      'Krakow, Poland','Kyiv, Ukraine','Lyon, France','Munich, Germany',
+      'Rotterdam, Netherlands','Valencia, Spain','Zagreb, Croatia',
+    ];
+
+    const input       = document.getElementById('p-location');
+    const suggestions = document.getElementById('location-suggestions');
+    let focusedIdx    = -1;
+
+    function highlight(text, query) {
+      const idx = text.toLowerCase().indexOf(query.toLowerCase());
+      if (idx === -1) return text;
+      return text.slice(0, idx) +
+        '<mark>' + text.slice(idx, idx + query.length) + '</mark>' +
+        text.slice(idx + query.length);
+    }
+
+    function render(matches, query) {
+      if (!matches.length) { suggestions.classList.remove('open'); return; }
+      focusedIdx = -1;
+      suggestions.innerHTML = matches
+        .map(c => `<div class="location-suggestion" data-value="${c}">${highlight(c, query)}</div>`)
+        .join('');
+      suggestions.classList.add('open');
+      suggestions.querySelectorAll('.location-suggestion').forEach(el => {
+        el.addEventListener('mousedown', () => {
+          input.value = el.getAttribute('data-value');
+          suggestions.classList.remove('open');
+        });
+      });
+    }
+
+    input.addEventListener('input', () => {
+      const q = input.value.trim();
+      if (q.length < 2) { suggestions.classList.remove('open'); return; }
+      const matches = CITIES.filter(c => c.toLowerCase().includes(q.toLowerCase())).slice(0, 8);
+      render(matches, q);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      const items = suggestions.querySelectorAll('.location-suggestion');
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        focusedIdx = Math.min(focusedIdx + 1, items.length - 1);
+        items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        focusedIdx = Math.max(focusedIdx - 1, 0);
+        items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+      } else if (e.key === 'Enter' && focusedIdx >= 0) {
+        e.preventDefault();
+        input.value = items[focusedIdx].getAttribute('data-value');
+        suggestions.classList.remove('open');
+      } else if (e.key === 'Escape') {
+        suggestions.classList.remove('open');
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.location-wrap')) suggestions.classList.remove('open');
+    });
+  })();
+
+  // ---- wizard logic ----
+  const allSteps = Array.from(document.querySelectorAll('.step'));
+  const progressDots = document.querySelectorAll('#progress .dot');
+  const stepProcessing = document.getElementById('step-processing');
+  const stepSubmitted = document.getElementById('step-submitted');
+  const wizardBack = document.getElementById('wizard-back');
+
+  const dotForStep = {
+    'step-identity':1, 'step-birthday':1, 'step-phone':1, 'step-phone-verify':1, 'step-form':1,
+    'step-verify':2,
+    'step-preferences':3, 'step-referral':3, 'step-processing':3, 'step-submitted':3,
+  };
+
+  // The back button itself stays hidden on these — the very first step
+  // (nothing before it) and the processing/confirmation steps.
+  const HIDE_BACK_ON = new Set(['step-identity', 'step-processing', 'step-submitted']);
+
+  // Separately: these steps should never be *recorded* as a back-target —
+  // step-identity doesn't belong here (going back TO it is exactly what
+  // should happen when leaving step-birthday), but the submit spinner does:
+  // if registration fails validation and bounces the user to step-form,
+  // back should return to wherever they were before submitting, not to the
+  // spinner they were never meant to revisit.
+  const NEVER_A_BACK_TARGET = new Set(['step-processing', 'step-submitted']);
+
+  // Actual visited-step history, not just "previous in DOM order" — several
+  // paths branch (e.g. skipping phone verification jumps step-phone straight
+  // to step-form), so "back" has to mean "wherever this user actually came
+  // from", not a fixed prior step.
+  let stepHistory = [];
+  let currentStepId = 'step-identity';
+
+  function showStep(step, { isBack = false } = {}){
+    if (!isBack && step.id !== currentStepId && !NEVER_A_BACK_TARGET.has(currentStepId)) {
+      stepHistory.push(currentStepId);
+    }
+    currentStepId = step.id;
+
+    allSteps.forEach(s=>{ s.classList.remove('active'); s.style.display='none'; });
+    step.style.display = 'block';
+    requestAnimationFrame(()=> step.classList.add('active'));
+    window.scrollTo({top:0, behavior:'smooth'});
+    const activeDot = dotForStep[step.id] || 1;
+    progressDots.forEach(d=>{
+      const n = parseInt(d.getAttribute('data-step'),10);
+      d.classList.toggle('active', n===activeDot);
+      d.classList.toggle('done', n<activeDot);
+    });
+
+    wizardBack.classList.toggle('show', stepHistory.length > 0 && !HIDE_BACK_ON.has(step.id));
+  }
+
+  wizardBack.addEventListener('click', () => {
+    const prevId = stepHistory.pop();
+    if (!prevId) return;
+    const prevStep = document.getElementById(prevId);
+    if (prevStep) showStep(prevStep, { isBack: true });
+  });
+
+  document.querySelectorAll('.step-next').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const nextId = btn.getAttribute('data-next');
+      const next = document.getElementById(nextId);
+      if(next) showStep(next);
+    });
+  });
+
+  // identity/preference toggle buttons — single-select within each group
+  document.querySelectorAll('.identity-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const group = btn.getAttribute('data-group');
+      document.querySelectorAll(`.identity-btn[data-group="${group}"]`).forEach(b=> b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+  });
+
+  const uploadBox = document.getElementById('upload');
+  if(uploadBox){
+    uploadBox.addEventListener('click', ()=>{
+      uploadBox.querySelector('.lbl').textContent = 'ID selected ✓';
+      uploadBox.querySelector('.dim').textContent = 'Ready to submit';
+    });
+  }
+
+  // ---- refer a friend — pure client-side sharing, no referral tracking or
+  // per-user codes exist on the backend, so this is a plain invitation link
+  // (the public landing page) rather than something attributable to whoever
+  // shares it. ----
+  (function() {
+    const inviteUrl = `${window.location.origin}/LandingPage/Landing.html`;
+    const shareText = 'A private, invitation-only network — thought you might like it.';
+
+    const linkInput = document.getElementById('referral-link');
+    linkInput.value = inviteUrl;
+
+    document.getElementById('referral-copy').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      try {
+        await navigator.clipboard.writeText(inviteUrl);
+      } catch {
+        // Clipboard API can be unavailable (older browsers, non-HTTPS) —
+        // fall back to the classic select+copy trick.
+        linkInput.select();
+        document.execCommand('copy');
+      }
+      const original = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1800);
+    });
+
+    const encodedUrl = encodeURIComponent(inviteUrl);
+    const encodedText = encodeURIComponent(shareText);
+    document.getElementById('share-x').href = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
+    document.getElementById('share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+    document.getElementById('share-whatsapp').href = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + inviteUrl)}`;
+    document.getElementById('share-email').href = `mailto:?subject=${encodeURIComponent('An invitation to Fantasi')}&body=${encodeURIComponent(shareText + '\n\n' + inviteUrl)}`;
+    document.getElementById('share-sms').href = `sms:?body=${encodeURIComponent(shareText + ' ' + inviteUrl)}`;
+
+    // Native share sheet (mobile Chrome/Safari) — shown only when supported,
+    // as one more option alongside the specific-platform links above.
+    const nativeBtn = document.getElementById('share-native');
+    if (navigator.share) {
+      nativeBtn.style.display = 'flex';
+      nativeBtn.addEventListener('click', () => {
+        navigator.share({ title: 'Fantasi', text: shareText, url: inviteUrl }).catch(() => {});
+      });
+    }
+  })();
+
+  // ── API wiring ───────────────────────────────────────────────────────────────
+  // Guarded, deliberately: if fantasi-api.js failed to load, this used to throw
+  // here and silently kill every handler registered AFTER this line. See the
+  // fallback object below — every real method degrades to a clear "API
+  // unavailable" failure instead of a crash.
+  if (!window.FantasiAPI) {
+    console.error(
+      'FantasiAPI failed to load from /js/fantasi-api.js — ' +
+      'is the backend running, and is this page being served through it rather than opened as a file:// URL?'
+    );
+  }
+  const apiUnavailable = async () => ({ ok: false, status: 0, data: { error: 'API unavailable — check that the backend is running.' } });
+  const { api, showFieldError, clearFieldError, showToast } = window.FantasiAPI || {
+    api: {
+      auth:  { register: apiUnavailable },
+      phone: { sendCode: apiUnavailable, verifyCode: apiUnavailable },
+    },
+    showFieldError: (el, msg) => { if (el) alert(msg); },
+    clearFieldError: () => {},
+    showToast: (msg) => alert(msg),
+  };
+
+  // ---- phone verification (real — Twilio Verify via the backend) ----
+  // Verification happens before any account exists, so the proof of a
+  // verified number travels as a short-lived signed token (returned by
+  // verify-code) rather than a session — see phoneController.js.
+  let phoneVerificationToken = null;
+
+  function normalizePhone(raw) {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith('+')) return '+' + trimmed.slice(1).replace(/[^0-9]/g, '');
+    // No country code given — assume US/Canada, the site's only stated market so far.
+    return '+1' + trimmed.replace(/[^0-9]/g, '');
+  }
+
+  const phoneSendBtn = document.getElementById('phone-send');
+  phoneSendBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const phoneInput = document.getElementById('p-phone');
+    const rawPhone = phoneInput?.value.trim();
+    if (!rawPhone) { phoneInput?.focus(); return; }
+
+    const phone = normalizePhone(rawPhone);
+    phoneSendBtn.disabled = true;
+    phoneSendBtn.textContent = 'Sending…';
+
+    const { ok, status, data } = await api.phone.sendCode(phone);
+
+    phoneSendBtn.disabled = false;
+    phoneSendBtn.textContent = 'Send Code';
+
+    // Phone verification is an optional integration (see backend/.env) —
+    // its absence should never be a hard blocker on signing up at all.
+    // 503 specifically means "not configured", not "this number is bad".
+    if (status === 503) {
+      showToast('Phone verification isn’t set up yet — continuing without it.', 'warning');
+      showStep(document.getElementById('step-form'));
+      return;
+    }
+
+    if (!ok) { showToast(data?.error || 'Could not send code. Please check the number and try again.', 'error'); return; }
+
+    document.getElementById('step-phone-verify').dataset.phone = phone;
+    document.getElementById('phone-verify-sub').textContent = `We sent a 6-digit code to ${phone}.`;
+    showStep(document.getElementById('step-phone-verify'));
+  });
+
+  document.getElementById('phone-skip').addEventListener('click', (e) => {
+    e.preventDefault();
+    showStep(document.getElementById('step-form'));
+  });
+
+  // code digits auto-advance to the next box, matching standard SMS-code UX
+  const codeDigits = Array.from(document.querySelectorAll('.code-digit'));
+  codeDigits.forEach((input, i)=>{
+    input.addEventListener('input', ()=>{
+      input.value = input.value.replace(/[^0-9]/g, '').slice(0,1);
+      if(input.value && codeDigits[i+1]) codeDigits[i+1].focus();
+    });
+    input.addEventListener('keydown', (e)=>{
+      if(e.key === 'Backspace' && !input.value && codeDigits[i-1]) codeDigits[i-1].focus();
+    });
+  });
+
+  document.getElementById('phone-resend').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const phone = document.getElementById('step-phone-verify').dataset.phone;
+    codeDigits.forEach(d => d.value = '');
+    codeDigits[0]?.focus();
+    if (!phone) return;
+    const { ok, data } = await api.phone.sendCode(phone);
+    showToast(ok ? 'A new code is on its way.' : (data?.error || 'Could not resend code.'), ok ? 'info' : 'error');
+  });
+
+  const phoneVerifyBtn = document.getElementById('phone-verify-submit');
+  const phoneVerifyLegal = document.getElementById('phone-verify-legal');
+  phoneVerifyBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const code = codeDigits.map(d => d.value).join('');
+    if (code.length !== 6) { codeDigits.find(d => !d.value)?.focus(); return; }
+    const phone = document.getElementById('step-phone-verify').dataset.phone;
+
+    phoneVerifyBtn.disabled = true;
+    phoneVerifyBtn.textContent = 'Verifying…';
+    phoneVerifyLegal.textContent = 'Codes expire after 10 minutes.';
+
+    const { ok, data } = await api.phone.verifyCode(phone, code);
+
+    phoneVerifyBtn.disabled = false;
+    phoneVerifyBtn.textContent = 'Verify';
+
+    if (!ok) {
+      phoneVerifyLegal.textContent = data?.error || 'That code is incorrect or has expired.';
+      codeDigits.forEach(d => d.value = '');
+      codeDigits[0]?.focus();
+      return;
+    }
+
+    phoneVerificationToken = data.verification_token;
+    showStep(document.getElementById('step-form'));
+  });
+
+  // "Submit Application" — the actual registration call now fires at the END of
+  // the whole application (after preferences + optional referral), not partway
+  // through. On success, this is where the real backend would kick off the
+  // Checkr Trust background check server-side (POST /checks with first_name,
+  // last_name, dob — see the Checkr Trust integration notes) alongside queuing
+  // the application for personal review. That call belongs entirely in the
+  // backend controller, never in this client-side file — Checkr Trust
+  // credentials must never be exposed to the browser.
+  document.getElementById('submit-application').addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const emailInput    = document.getElementById('p-email');
+    const passwordInput = document.getElementById('p-password');
+    const nameInput     = document.getElementById('p-name');
+    const displayInput  = document.getElementById('p-displayname');
+    const birthdayInput = document.getElementById('p-birthday');
+    const ageCheck      = document.getElementById('p-age');
+    const consentCheck  = document.getElementById('p-consent');
+
+    [emailInput, passwordInput, nameInput, displayInput, birthdayInput].forEach(el => el && clearFieldError(el));
+
+    let valid = true;
+    const require = (el, msg) => { if (!el || !el.value.trim()) { showFieldError(el, msg); valid = false; } };
+
+    require(nameInput,     'Full name is required.');
+    require(displayInput,  'Display name is required.');
+    require(emailInput,    'Email is required.');
+    require(passwordInput, 'Password is required.');
+    require(birthdayInput, 'Date of birth is required.');
+
+    if (!ageCheck?.checked)     { showToast('You must confirm you are 18 or older.', 'error');      valid = false; }
+    if (!consentCheck?.checked) { showToast('You must consent to the background review.', 'error'); valid = false; }
+    if (!valid) {
+      // send them back to whichever earlier step actually has the problem
+      showStep(document.getElementById('step-form'));
+      return;
+    }
+
+    showStep(stepProcessing);
+
+    const verifiedPhone = document.getElementById('step-phone-verify').dataset.phone;
+
+    const { ok, status, data } = await api.auth.register({
+      email:         emailInput.value.trim(),
+      password:      passwordInput.value,
+      display_name:  displayInput.value.trim(),
+      full_name:     nameInput.value.trim(),
+      date_of_birth: birthdayInput.value,
+      // Only sent once phone-verify actually succeeded — the backend rejects
+      // a phone without a valid verification_token, so an unverified number
+      // here would just fail registration outright rather than silently
+      // being stored as unverified.
+      ...(phoneVerificationToken ? { phone: verifiedPhone, phone_verification_token: phoneVerificationToken } : {}),
+      // Additional fields collected in this flow — occupation, LinkedIn,
+      // the preference sliders, and the optional referral — are not yet part
+      // of the /auth/register contract we verified against routes/auth.js.
+      // Sending them here is harmless (unvalidated fields typically pass
+      // through unless a controller explicitly rejects unknown keys), but
+      // they won't be PERSISTED until the backend is extended to accept them.
+    });
+
+    if (ok) {
+      showStep(stepSubmitted);
+      return;
+    }
+
+    if (status === 409) {
+      showFieldError(emailInput, 'An account with that email already exists.');
+      showStep(document.getElementById('step-form'));
+    } else if (status === 422 && data?.errors) {
+      const first = data.errors[0];
+      showToast(first.msg, 'error');
+      showStep(document.getElementById('step-form'));
+    } else if (status === 422) {
+      showToast(data?.error || 'Please check your details and try again.', 'error');
+      showStep(document.getElementById('step-form'));
+    } else {
+      showToast(data?.error || 'Application failed to submit. Please try again.', 'error');
+      showStep(document.getElementById('step-referral'));
+    }
+  });
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>

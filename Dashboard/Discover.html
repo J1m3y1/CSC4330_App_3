@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discover — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --online: #7FBF8F;
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  h1,h2{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  h3{ font-family:var(--font-serif); font-weight:400; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .eyebrow{
+    font-family:var(--font-header); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .btn-small{ padding:8px 16px; font-size:10px; }
+
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none;
+    opacity:0.04; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  .shell{ display:flex; min-height:100vh; }
+
+  .sidebar{
+    width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  }
+  .sidebar-brand{ padding:26px 24px; border-bottom:1px solid var(--line); }
+  .sidebar-brand .signet{ display:flex; align-items:center; gap:10px; }
+  .sidebar-brand .signet-logo{ height:55px; width:auto; }
+
+  .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
+    font-family:var(--font-sans); font-size:12.5px; letter-spacing:0.02em; color:var(--smoke);
+    transition:background .25s ease, color .25s ease;
+  }
+  .nav-item svg{ flex-shrink:0; opacity:0.75; }
+  .nav-item:hover{ background:rgba(199,166,92,0.05); color:var(--cream); }
+  .nav-item.active{ background:rgba(199,166,92,0.09); color:var(--gold-bright); }
+  .nav-item.active svg{ opacity:1; }
+
+  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); }
+  .mini-account{ display:flex; align-items:center; gap:11px; }
+  .mini-avatar{
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--noir);
+  }
+  .mini-account-name{ font-family:var(--font-sans); font-size:12px; color:var(--cream); }
+  .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
+
+  .main{ flex:1; min-width:0; padding:44px 56px 80px; }
+  .main-inner{ max-width:1160px; }
+
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:28px; flex-wrap:wrap; }
+  .page-head h1{ font-size:32px; margin-bottom:6px; }
+  .page-head p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
+  .like-counter{
+    font-family:var(--font-sans); font-size:11px; color:var(--smoke); text-align:right;
+    border:1px solid var(--line-strong); border-radius:20px; padding:8px 16px;
+  }
+  .like-counter strong{ color:var(--gold-bright); }
+
+  /* ---------------- filter bar ---------------- */
+  .filter-bar{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    border:1px solid var(--line-strong); border-radius:6px; padding:16px 20px; margin-bottom:32px;
+  }
+  .filter-group{ display:flex; flex-direction:column; gap:5px; }
+  .filter-group label{
+    font-family:var(--font-sans); font-size:9px; letter-spacing:0.07em; text-transform:uppercase; color:var(--smoke-dim);
+  }
+  .filter-group select, .filter-group input{
+    background:none; border:1px solid var(--line-strong); border-radius:3px; padding:8px 11px;
+    color:var(--cream); font-family:var(--font-sans); font-size:12px; outline:none; cursor:pointer;
+    transition:border-color .3s ease;
+  }
+  .filter-group input{ cursor:text; width:70px; }
+  .filter-group select:focus, .filter-group input:focus{ border-color:var(--gold); }
+  .filter-range{ display:flex; align-items:center; gap:6px; }
+  .filter-range span{ color:var(--smoke-dim); font-size:11px; }
+  .filter-toggle-group{ display:flex; align-items:center; gap:8px; margin-left:auto; }
+  .filter-online-toggle{
+    display:flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:11px; color:var(--smoke); cursor:pointer;
+  }
+  .mini-toggle{
+    width:32px; height:18px; border-radius:10px; background:var(--line-strong); position:relative; transition:background .3s ease;
+  }
+  .mini-toggle::after{ content:""; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:var(--smoke); transition:transform .3s ease, background .3s ease; }
+  .mini-toggle.on{ background:var(--gold); }
+  .mini-toggle.on::after{ transform:translateX(14px); background:var(--noir); }
+
+  /* ---------------- profile grid ---------------- */
+  .profile-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; margin-bottom:36px; }
+  .profile-card{
+    border:1px solid var(--line-strong); border-radius:6px; overflow:hidden; background:var(--noir-soft);
+    transition:transform .35s cubic-bezier(.2,.6,.2,1), border-color .35s ease, box-shadow .35s ease;
+  }
+  .profile-card:hover{ transform:translateY(-4px); border-color:var(--gold-dim); box-shadow:0 20px 40px rgba(0,0,0,0.35); }
+  .profile-card.passing{
+    animation:spinAway 1.1s cubic-bezier(.4,0,.2,1) forwards;
+    pointer-events:none;
+  }
+  @keyframes spinAway{
+    0%{ transform:rotate(0deg) scale(1) translate(0,0); opacity:1; }
+    100%{ transform:rotate(420deg) scale(0.25) translate(120px,-50px); opacity:0; }
+  }
+
+  .profile-photo{ position:relative; aspect-ratio:3/4; overflow:hidden; }
+  .profile-photo-fill{
+    width:100%; height:100%;
+    background:linear-gradient(160deg, #2a2117, var(--noir-soft) 60%);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:56px; color:var(--gold-dim);
+  }
+  .profile-photo.blurred .profile-photo-fill{ filter:blur(16px); transform:scale(1.15); }
+  .online-dot{
+    position:absolute; top:11px; left:11px; width:9px; height:9px; border-radius:50%;
+    background:var(--online); border:2px solid var(--noir-soft); z-index:2;
+  }
+  .tier-badge{
+    position:absolute; top:9px; right:9px; font-family:var(--font-sans); font-size:8px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:4px 9px; border-radius:20px; z-index:2; backdrop-filter:blur(4px);
+  }
+  .tier-badge.silver{ background:rgba(166,171,177,0.85); color:#1C1D1E; }
+  .tier-badge.gold{ background:rgba(199,166,92,0.9); color:var(--noir); }
+  .tier-badge.black{ background:rgba(10,10,10,0.85); color:var(--gold-bright); border:1px solid rgba(228,198,135,0.3); }
+  .blur-tag{
+    position:absolute; bottom:10px; left:10px; right:10px; z-index:2; text-align:center;
+    font-family:var(--font-sans); font-size:9px; letter-spacing:0.05em; text-transform:uppercase;
+    background:rgba(11,10,12,0.72); color:var(--gold-bright); padding:6px 4px; border-radius:3px;
+  }
+  .compat-badge{
+    position:absolute; bottom:10px; left:10px; z-index:2;
+    font-family:var(--font-sans); font-size:9px; letter-spacing:0.03em;
+    background:rgba(11,10,12,0.72); color:var(--gold-bright); padding:5px 9px; border-radius:20px;
+  }
+
+  .profile-info{ padding:14px 16px 16px; }
+  .profile-name-row{ display:flex; align-items:center; gap:6px; margin-bottom:3px; }
+  .profile-name-row h3{ font-size:16px; color:var(--cream); }
+  .profile-name-row .verify-check{ color:var(--gold); flex-shrink:0; }
+  .profile-meta{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); margin-bottom:9px; }
+  .profile-tagline{ font-family:var(--font-display); font-style:italic; font-weight:300; font-size:12px; color:var(--smoke); line-height:1.5; min-height:34px; }
+
+  .profile-actions{ display:flex; gap:8px; margin-top:13px; }
+  .action-btn{
+    flex:1; border:1px solid var(--line-strong); border-radius:4px; padding:9px; display:flex;
+    align-items:center; justify-content:center; transition:border-color .3s ease, color .3s ease, background .3s ease;
+    color:var(--smoke);
+  }
+  .action-btn.like:hover{ border-color:var(--gold); color:var(--gold-bright); background:rgba(199,166,92,0.06); }
+  .action-btn.like.liked{ border-color:var(--gold); color:var(--gold-bright); background:rgba(199,166,92,0.1); }
+  .action-btn.pass:hover{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .action-btn.message:hover{ border-color:var(--gold-dim); color:var(--cream); }
+
+  .load-more{ display:flex; justify-content:center; }
+
+  @media (max-width:1150px){ .profile-grid{ grid-template-columns:repeat(3, 1fr); } }
+  @media (max-width:900px){
+    .sidebar{ display:none; }
+    .main{ padding:32px 22px 60px; }
+    .profile-grid{ grid-template-columns:repeat(2, 1fr); }
+    .filter-toggle-group{ margin-left:0; }
+  }
+  @media (max-width:520px){ .profile-grid{ grid-template-columns:1fr; } }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a class="signet" href="/LandingPage/Landing.html">
+        <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="/Dashboard/Discover.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Discover
+      </a>
+      <a class="nav-item" href="/Dashboard/Search.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="13" cy="13" r="8" stroke="currentColor" stroke-width="1"/><path d="M19 19l6 6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Search
+      </a>
+      <a class="nav-item" href="/Dashboard/Interests.html">
+        <svg width="16" height="16" viewBox="0 0 20 18" fill="none"><path d="M10 17s-6.5-4.2-8.4-8.7C.4 5.6 2.2 2 5.4 2c1.8 0 3.3 1 4.2 2.4C10.4 3 11.9 2 13.7 2c3.2 0 5 3.6 3.8 6.3C15.5 12.8 10 17 10 17z" stroke="currentColor" stroke-width="1"/></svg>
+        Interests
+      </a>
+      <a class="nav-item" href="/Dashboard/Messages.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>
+        Messages
+      </a>
+      <a class="nav-item" href="/Dashboard/Chatrooms.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M6 14a9 9 0 1 0 18 0 9 9 0 0 0-18 0z" stroke="currentColor" stroke-width="1"/><path d="M6 20a9 9 0 0 0 12 5.5M24 20a9 9 0 0 1-12 5.5" stroke="currentColor" stroke-width="1"/></svg>
+        Chatrooms
+      </a>
+      <a class="nav-item" href="/Dashboard/Profile.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        My Profile
+      </a>
+      <a class="nav-item" href="/Dashboard/Privacy.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1"/></svg>
+        Privacy &amp; Data
+      </a>
+      <a class="nav-item" href="/Dashboard/Membership.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+        Membership
+      </a>
+      <a class="nav-item" href="/LandingPage/Safety.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
+        Safety
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="mini-account">
+        <div class="mini-avatar"></div>
+        <div>
+          <div class="mini-account-name">Loading…</div>
+          <div class="mini-account-tier"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Discover</span>
+          <h1 style="margin-top:10px;">Curated for you</h1>
+          <p>Matched by compatibility and intent, not endless scrolling.</p>
+        </div>
+        <div class="like-counter" id="like-counter" hidden></div>
+      </div>
+
+      <!-- filter bar -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label for="filter-location">Location</label>
+          <input type="text" id="filter-location" placeholder="City, state…">
+        </div>
+        <div class="filter-group">
+          <label for="filter-looking-for">Seeking</label>
+          <select id="filter-looking-for">
+            <option value="">Any arrangement</option>
+            <option value="Long-term arrangement">Long-term arrangement</option>
+            <option value="Casual">Casual</option>
+            <option value="Travel partner">Travel companionship</option>
+            <option value="Financial partnership">Financial partnership</option>
+            <option value="Emotional connection">Emotional connection</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-tier">Membership</label>
+          <select id="filter-tier">
+            <option value="">Any tier</option>
+            <option value="free">Free</option>
+            <option value="silver">Silver</option>
+            <option value="gold">Gold</option>
+            <option value="black">Black</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-sort">Sort by</label>
+          <select id="filter-sort">
+            <option value="active">Recently active</option>
+            <option value="newest">Newest members</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- profile grid — populated from GET /api/discover -->
+      <div class="profile-grid" id="profile-grid"></div>
+      <p id="discover-empty" class="profile-tagline" style="display:none; text-align:center; margin:20px 0;">
+        No members match these filters yet. Try widening them.
+      </p>
+
+      <div class="load-more">
+        <button type="button" class="btn btn-line" id="load-more-btn" hidden>Load More</button>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(async () => {
+  if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+  const { api, initDashboard, capitalize, initials, showToast } = window.FantasiAPI;
+
+  const user = await initDashboard();
+  if (!user) return;
+
+  const likeCounter = document.getElementById('like-counter');
+  if (user.membership_tier === 'free') {
+    likeCounter.hidden = false;
+    likeCounter.innerHTML = ''; // safe: no user-supplied data here, static markup only
+    likeCounter.append('Free membership · ');
+    const strong = document.createElement('strong');
+    strong.textContent = 'Upgrade';
+    likeCounter.append(strong, ' for unlimited likes');
+  } else {
+    likeCounter.hidden = false;
+    likeCounter.textContent = `${capitalize(user.membership_tier)} membership · Unlimited likes`;
+  }
+
+  const grid       = document.getElementById('profile-grid');
+  const emptyMsg   = document.getElementById('discover-empty');
+  const loadMore   = document.getElementById('load-more-btn');
+  const locationEl = document.getElementById('filter-location');
+  const lookingEl  = document.getElementById('filter-looking-for');
+  const tierEl     = document.getElementById('filter-tier');
+  const sortEl     = document.getElementById('filter-sort');
+
+  let page = 1;
+  let totalPages = 1;
+
+  function currentFilters() {
+    const f = { sort: sortEl.value, page, limit: 20 };
+    if (locationEl.value.trim())    f.location    = locationEl.value.trim();
+    if (lookingEl.value)            f.looking_for = lookingEl.value;
+    if (tierEl.value)               f.tier        = tierEl.value;
+    return f;
+  }
+
+  // Builds one card with real DOM nodes (never innerHTML) — every field here
+  // came back from the server, and textContent is the one assignment that
+  // can never be interpreted as markup.
+  function buildCard(member) {
+    const card = document.createElement('div');
+    card.className = 'profile-card';
+
+    const photo = document.createElement('div');
+    photo.className = 'profile-photo';
+
+    if (member.membership_tier !== 'free') {
+      const badge = document.createElement('span');
+      badge.className = `tier-badge ${member.membership_tier}`;
+      badge.textContent = capitalize(member.membership_tier);
+      photo.appendChild(badge);
+    }
+
+    const fill = document.createElement('div');
+    fill.className = 'profile-photo-fill';
+    if (member.avatar_url) {
+      fill.style.backgroundImage = `url(${member.avatar_url})`;
+      fill.style.backgroundSize = 'cover';
+      fill.style.backgroundPosition = 'center';
+    } else {
+      fill.textContent = initials(member.display_name);
+    }
+    photo.appendChild(fill);
+
+    const info = document.createElement('div');
+    info.className = 'profile-info';
+
+    const nameRow = document.createElement('div');
+    nameRow.className = 'profile-name-row';
+    const h3 = document.createElement('h3');
+    h3.textContent = member.display_name;
+    nameRow.appendChild(h3);
+
+    const meta = document.createElement('div');
+    meta.className = 'profile-meta';
+    meta.textContent = member.location || 'Location hidden';
+
+    const tagline = document.createElement('p');
+    tagline.className = 'profile-tagline';
+    tagline.textContent = member.heading || member.bio || 'This member hasn’t written a bio yet.';
+
+    const actions = document.createElement('div');
+    actions.className = 'profile-actions';
+
+    const passBtn = document.createElement('button');
+    passBtn.type = 'button'; passBtn.className = 'action-btn pass'; passBtn.title = 'Pass';
+    passBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+    passBtn.addEventListener('click', () => {
+      if (card.classList.contains('passing')) return;
+      card.classList.add('passing');
+      card.addEventListener('animationend', () => card.remove(), { once: true });
+    });
+
+    const likeBtn = document.createElement('button');
+    likeBtn.type = 'button'; likeBtn.className = 'action-btn like'; likeBtn.title = 'Like';
+    likeBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 17s-6.5-4-8.2-8.3C.6 5.6 2.3 3 5.2 3c1.7 0 3.1.9 4 2.2C10 3.9 11.4 3 13.1 3c2.9 0 4.6 2.6 3.4 5.7C14.9 13 10 17 10 17z" stroke="currentColor" stroke-width="1.3"/></svg>';
+    likeBtn.addEventListener('click', async () => {
+      const wasLiked = likeBtn.classList.contains('liked');
+      likeBtn.classList.toggle('liked');
+      const { ok } = wasLiked
+        ? await api.interests.unlike(member.user_id)
+        : await api.interests.like(member.user_id);
+      if (!ok) likeBtn.classList.toggle('liked'); // revert on failure
+    });
+
+    const msgBtn = document.createElement('button');
+    msgBtn.type = 'button'; msgBtn.className = 'action-btn message'; msgBtn.title = 'Message';
+    msgBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M2 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-4 3v-3H4a2 2 0 0 1-2-2V5z" stroke="currentColor" stroke-width="1.3"/></svg>';
+    msgBtn.addEventListener('click', () => {
+      window.location.href = `/Dashboard/Messages.html?to=${member.user_id}`;
+    });
+
+    actions.append(passBtn, likeBtn, msgBtn);
+    info.append(nameRow, meta, tagline, actions);
+    card.append(photo, info);
+    return card;
+  }
+
+  async function loadPage(reset) {
+    if (reset) { page = 1; grid.innerHTML = ''; }
+    const { ok, data } = await api.discover.browse(currentFilters());
+    if (!ok) { showToast(data?.error || 'Could not load members.', 'error'); return; }
+
+    totalPages = data.pagination.pages;
+    data.members.forEach(m => grid.appendChild(buildCard(m)));
+
+    emptyMsg.style.display = grid.children.length ? 'none' : 'block';
+    loadMore.hidden = page >= totalPages;
+  }
+
+  [locationEl, lookingEl, tierEl, sortEl].forEach(el => {
+    const evt = el.tagName === 'SELECT' ? 'change' : 'input';
+    let debounce;
+    el.addEventListener(evt, () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(() => loadPage(true), evt === 'input' ? 400 : 0);
+    });
+  });
+
+  loadMore.addEventListener('click', () => { page += 1; loadPage(false); });
+
+  loadPage(true);
+})();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>

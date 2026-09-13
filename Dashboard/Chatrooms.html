@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chatrooms — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  h1,h2{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  h3{ font-family:var(--font-serif); font-weight:400; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .eyebrow{
+    font-family:var(--font-header); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .btn-small{ padding:8px 16px; font-size:10px; }
+  .btn-bordeaux{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .btn-bordeaux:hover{ background:rgba(113,26,46,0.12); border-color:var(--bordeaux-bright); }
+
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none;
+    opacity:0.04; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  .shell{ display:flex; min-height:100vh; }
+
+  .sidebar{
+    width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  }
+  .sidebar-brand{ padding:26px 24px; border-bottom:1px solid var(--line); }
+  .sidebar-brand .signet{ display:flex; align-items:center; gap:10px; }
+  .sidebar-brand .signet-logo{ height:55px; width:auto; }
+
+  .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
+    font-family:var(--font-sans); font-size:12.5px; letter-spacing:0.02em; color:var(--smoke);
+    transition:background .25s ease, color .25s ease;
+  }
+  .nav-item svg{ flex-shrink:0; opacity:0.75; }
+  .nav-item:hover{ background:rgba(199,166,92,0.05); color:var(--cream); }
+  .nav-item.active{ background:rgba(199,166,92,0.09); color:var(--gold-bright); }
+  .nav-item.active svg{ opacity:1; }
+
+  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); }
+  .mini-account{ display:flex; align-items:center; gap:11px; }
+  .mini-avatar{
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, #3D3D3D, #0A0A0A); border:1px solid rgba(228,198,135,0.3);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--gold-bright);
+  }
+  .mini-account-name{ font-family:var(--font-sans); font-size:12px; color:var(--cream); }
+  .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold-bright); margin-top:1px; }
+
+  .main{ flex:1; min-width:0; padding:44px 56px 80px; }
+  .main-inner{ max-width:900px; }
+
+  .page-head{ margin-bottom:24px; }
+  .page-head h1{ font-size:32px; margin-bottom:6px; }
+  .page-head p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
+
+  /* reactive-moderation notice — states the real policy plainly */
+  .mod-notice{
+    display:flex; align-items:flex-start; gap:14px;
+    border:1px solid var(--line-strong); border-radius:4px; padding:18px 20px; margin-bottom:32px;
+    background:rgba(199,166,92,0.03);
+  }
+  .mod-notice svg{ flex-shrink:0; margin-top:2px; color:var(--gold); }
+  .mod-notice p{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.7; }
+  .mod-notice strong{ color:var(--cream); font-weight:500; }
+
+  .directory-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .directory-head h3{ font-size:18px; }
+
+  /* ---------------- create room panel ---------------- */
+  .create-panel{
+    display:none; border:1px solid var(--line-strong); border-radius:4px; padding:26px 26px; margin-bottom:32px;
+  }
+  .create-panel.show{ display:block; }
+  .create-panel h3{ font-size:16px; margin-bottom:20px; }
+  .cp-field{ margin-bottom:18px; }
+  .cp-field label{
+    display:block; font-family:var(--font-sans); font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--smoke-dim); margin-bottom:8px;
+  }
+  .cp-field input, .cp-field textarea{
+    width:100%; background:none; border:none; border-bottom:1px solid var(--line-strong);
+    padding:9px 0; color:var(--cream); font-family:var(--font-serif); font-size:15px; outline:none;
+    transition:border-color .3s ease; resize:none;
+  }
+  .cp-field input:focus, .cp-field textarea:focus{ border-color:var(--gold); }
+  .cp-field input::placeholder, .cp-field textarea::placeholder{ color:var(--smoke-dim); }
+
+  .scope-options{ display:flex; gap:10px; margin-bottom:16px; }
+  .scope-btn{
+    flex:1; padding:14px 12px; text-align:center; border:1px solid var(--line-strong); border-radius:3px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:var(--smoke);
+    cursor:pointer; transition:border-color .3s ease, color .3s ease, background .3s ease;
+  }
+  .scope-btn:hover{ border-color:var(--gold-dim); }
+  .scope-btn.selected{ border-color:var(--gold); color:var(--gold-bright); background:rgba(199,166,92,0.07); }
+
+  .radius-row{ display:none; align-items:center; gap:12px; margin-bottom:20px; }
+  .radius-row.show{ display:flex; }
+  .radius-row select{
+    background:none; border:1px solid var(--line-strong); border-radius:3px; padding:9px 12px;
+    color:var(--cream); font-family:var(--font-sans); font-size:12px; outline:none; cursor:pointer;
+  }
+  .radius-row span{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); }
+
+  .cp-actions{ display:flex; gap:10px; }
+
+  /* ---------------- room cards ---------------- */
+  .room-grid{ display:flex; flex-direction:column; gap:12px; margin-bottom:8px; }
+  .room-card{
+    display:flex; align-items:center; gap:18px; border:1px solid var(--line-strong); border-radius:4px;
+    padding:18px 20px; transition:border-color .3s ease, background .3s ease;
+  }
+  .room-card:hover{ border-color:var(--gold-dim); background:rgba(199,166,92,0.03); }
+  .room-icon{
+    width:42px; height:42px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, #3D3D3D, #0A0A0A); border:1px solid rgba(228,198,135,0.25); color:var(--gold-bright);
+    font-family:var(--font-display); font-style:italic; font-size:17px;
+  }
+  .room-card-body{ flex:1; min-width:0; }
+  .room-card-title-row{ display:flex; align-items:center; gap:10px; margin-bottom:3px; flex-wrap:wrap; }
+  .room-card-title-row h4{ font-family:var(--font-serif); font-size:15.5px; font-weight:400; color:var(--cream); }
+  .scope-chip{
+    font-family:var(--font-sans); font-size:9px; letter-spacing:0.06em; text-transform:uppercase;
+    border:1px solid var(--line-strong); color:var(--smoke); padding:3px 9px; border-radius:20px;
+  }
+  .room-card-meta{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); }
+  .room-card-actions{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
+  .flag-btn{ color:var(--smoke-dim); transition:color .3s ease; }
+  .flag-btn:hover{ color:var(--bordeaux-bright); }
+
+  /* ---------------- room view (replaces directory when a room is joined) ---------------- */
+  .room-view{ display:none; }
+  .room-view.show{ display:block; }
+  .room-view-header{
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+    border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:24px;
+  }
+  .room-view-title{ display:flex; align-items:center; gap:12px; }
+  .room-view-title h2{ font-size:24px; }
+  .back-to-directory{
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.05em; color:var(--smoke);
+    display:inline-flex; align-items:center; gap:6px; margin-bottom:14px; transition:color .3s ease;
+  }
+  .back-to-directory:hover{ color:var(--gold-bright); }
+
+  .message-list{ display:flex; flex-direction:column; gap:16px; margin-bottom:24px; }
+  .message{ display:flex; gap:12px; max-width:520px; }
+  .message-avatar{
+    width:32px; height:32px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, #3D3D3D, #0A0A0A); border:1px solid rgba(228,198,135,0.2);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:13px; color:var(--gold-bright);
+  }
+  .message-name{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.04em; color:var(--smoke-dim); margin-bottom:4px; }
+  .message-bubble{ font-family:var(--font-sans); font-size:13px; color:var(--cream); line-height:1.6; }
+
+  .message-input-row{ display:flex; gap:10px; }
+  .message-input-row input{
+    flex:1; background:none; border:1px solid var(--line-strong); border-radius:24px;
+    padding:12px 18px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;
+    transition:border-color .3s ease;
+  }
+  .message-input-row input:focus{ border-color:var(--gold); }
+  .message-input-row input::placeholder{ color:var(--smoke-dim); }
+
+  /* ---------------- report flow ---------------- */
+  .report-panel{
+    display:none; border:1px solid var(--bordeaux-bright); border-radius:4px; padding:22px 24px; margin-bottom:24px;
+    background:rgba(113,26,46,0.06);
+  }
+  .report-panel.show{ display:block; }
+  .report-panel h4{ font-family:var(--font-serif); font-size:15px; color:var(--cream); margin-bottom:8px; }
+  .report-panel p{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.7; margin-bottom:16px; }
+  .report-reasons{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .report-reason-btn{
+    font-family:var(--font-sans); font-size:11px; color:var(--smoke); border:1px solid var(--line-strong);
+    padding:8px 14px; border-radius:20px; cursor:pointer; transition:border-color .3s ease, color .3s ease;
+  }
+  .report-reason-btn:hover, .report-reason-btn.selected{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .report-confirm{ display:none; text-align:center; padding:6px 0; }
+  .report-confirm.show{ display:block; }
+  .report-confirm p{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); }
+  .report-confirm strong{ color:var(--cream); }
+
+  @media (max-width:900px){
+    .sidebar{ display:none; }
+    .main{ padding:32px 22px 60px; }
+    .scope-options{ flex-direction:column; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a class="signet" href="/LandingPage/Landing.html">
+        <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/Dashboard/Discover.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Discover
+      </a>
+      <a class="nav-item" href="/Dashboard/Search.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="13" cy="13" r="8" stroke="currentColor" stroke-width="1"/><path d="M19 19l6 6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Search
+      </a>
+      <a class="nav-item" href="/Dashboard/Interests.html">
+        <svg width="16" height="16" viewBox="0 0 20 18" fill="none"><path d="M10 17s-6.5-4.2-8.4-8.7C.4 5.6 2.2 2 5.4 2c1.8 0 3.3 1 4.2 2.4C10.4 3 11.9 2 13.7 2c3.2 0 5 3.6 3.8 6.3C15.5 12.8 10 17 10 17z" stroke="currentColor" stroke-width="1"/></svg>
+        Interests
+      </a>
+      <a class="nav-item" href="/Dashboard/Messages.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>
+        Messages
+      </a>
+      <a class="nav-item active" href="/Dashboard/Chatrooms.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M6 14a9 9 0 1 0 18 0 9 9 0 0 0-18 0z" stroke="currentColor" stroke-width="1"/><path d="M6 20a9 9 0 0 0 12 5.5M24 20a9 9 0 0 1-12 5.5" stroke="currentColor" stroke-width="1"/></svg>
+        Chatrooms
+      </a>
+      <a class="nav-item" href="/Dashboard/Profile.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        My Profile
+      </a>
+      <a class="nav-item" href="/Dashboard/Privacy.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1"/></svg>
+        Privacy &amp; Data
+      </a>
+      <a class="nav-item" href="/Dashboard/Membership.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+        Membership
+      </a>
+      <a class="nav-item" href="/LandingPage/Safety.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
+        Safety
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="mini-account">
+        <div class="mini-avatar"></div>
+        <div>
+          <div class="mini-account-name">Loading…</div>
+          <div class="mini-account-tier"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+
+      <!-- ============ DIRECTORY VIEW ============ -->
+      <div id="view-directory">
+        <div class="page-head">
+          <span class="eyebrow">Chatrooms</span>
+          <h1 style="margin-top:10px;">Chatrooms</h1>
+          <p>Group spaces, gated by membership tier.</p>
+        </div>
+
+        <div class="mod-notice">
+          <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
+          <p><strong>Not pre-screened.</strong> Messages aren't monitored before they're posted, but every room's creator can be reported directly to our safety team — reviewed by a person, same as everywhere else on Fantasi.</p>
+        </div>
+
+        <div class="directory-head">
+          <h3>All rooms</h3>
+          <button type="button" class="btn btn-gold btn-small" id="create-toggle" style="display:none;">+ Create a Room</button>
+        </div>
+
+        <!-- create room panel — admins only; the backend rejects this from anyone else -->
+        <div class="create-panel" id="create-panel">
+          <h3>Create a room</h3>
+          <div class="cp-field">
+            <label for="room-name">Room name</label>
+            <input type="text" id="room-name" placeholder="e.g. Baton Rouge Circle">
+          </div>
+          <div class="cp-field">
+            <label for="room-desc">Description</label>
+            <textarea id="room-desc" rows="2" placeholder="What's this room for?"></textarea>
+          </div>
+          <div class="cp-field">
+            <label>Minimum membership tier</label>
+            <div class="scope-options" id="tier-options">
+              <div class="scope-btn selected" data-value="free">Free</div>
+              <div class="scope-btn" data-value="silver">Silver</div>
+              <div class="scope-btn" data-value="gold">Gold</div>
+              <div class="scope-btn" data-value="black">Black</div>
+            </div>
+          </div>
+          <div class="cp-actions">
+            <button type="button" class="btn btn-gold" id="create-room-submit">Create Room</button>
+            <button type="button" class="btn btn-line" id="create-cancel">Cancel</button>
+          </div>
+        </div>
+
+        <!-- room directory — populated from GET /api/chatrooms -->
+        <div class="room-grid" id="room-grid"></div>
+        <p id="rooms-empty" style="display:none; font-family:var(--font-sans); font-size:12px; color:var(--smoke); padding:16px 0;">
+          No rooms are open to your membership tier yet.
+        </p>
+      </div>
+
+      <!-- ============ ROOM VIEW ============ -->
+      <div class="room-view" id="view-room">
+        <button type="button" class="back-to-directory" id="back-to-directory">
+          <svg width="14" height="10" viewBox="0 0 29 20" fill="none"><path fill-rule="evenodd" fill="currentColor" d="M29 10C29 9.73479 28.8947 9.48044 28.7071 9.29291C28.5196 9.10537 28.2652 9.00001 28 9.00001H4.41402L10.7082 2.70801C10.801 2.61504 10.8747 2.50466 10.9251 2.38318C10.9754 2.2617 11.0013 2.1315 11.0013 2.00001C11.0013 1.86852 10.9754 1.73832 10.9251 1.61685C10.8747 1.49537 10.801 1.38499 10.708 1.29201C10.615 1.19904 10.5047 1.12528 10.3832 1.07497C10.2617 1.02465 10.1315 0.998749 10 0.998749C9.86853 0.998749 9.73833 1.02465 9.61685 1.07497C9.49537 1.12528 9.38499 1.19904 9.29202 1.29201L1.29202 9.29201C1.19889 9.3849 1.12501 9.49525 1.07459 9.61674C1.02418 9.73824 0.99823 9.86848 0.99823 10C0.99823 10.1315 1.02418 10.2618 1.07459 10.3833C1.12501 10.5048 1.19889 10.6151 1.29202 10.708L9.29202 18.708C9.38499 18.801 9.49537 18.8747 9.61685 18.9251C9.73833 18.9754 9.86853 19.0013 10 19.0013C10.1315 19.0013 10.2617 18.9754 10.3832 18.9251C10.5047 18.8747 10.615 18.801 10.708 18.708C10.801 18.615 10.8747 18.5047 10.9251 18.3832C10.9754 18.2617 11.0013 18.1315 11.0013 18C11.0013 17.8685 10.9754 17.7383 10.9251 17.6168C10.8747 17.4954 10.801 17.385 10.708 17.292L4.41402 11H28C28.2652 11 28.5196 10.8947 28.7071 10.7071C28.8947 10.5196 29 10.2652 29 10Z"/></svg>
+          All rooms
+        </button>
+
+        <div class="room-view-header">
+          <div class="room-view-title">
+            <div class="room-icon" id="room-view-icon"></div>
+            <div>
+              <h2 id="room-view-name"></h2>
+              <span class="scope-chip" id="room-view-scope"></span>
+            </div>
+          </div>
+          <button type="button" class="btn btn-bordeaux btn-small" id="room-report-toggle">Report Room</button>
+        </div>
+
+        <!-- report panel — reports the room's creator via the existing member-report endpoint -->
+        <div class="report-panel" id="report-panel">
+          <h4>Report this room</h4>
+          <p>Reports go directly to our safety team and are reviewed by a person — not automatically dismissed or ignored.</p>
+          <div class="report-reasons" id="report-reasons">
+            <div class="report-reason-btn" data-reason="Harassment in this room">Harassment</div>
+            <div class="report-reason-btn" data-reason="This room feels unsafe">Feels unsafe</div>
+            <div class="report-reason-btn" data-reason="Illegal activity in this room">Illegal activity</div>
+            <div class="report-reason-btn" data-reason="Spam or scam in this room">Spam or scam</div>
+          </div>
+          <button type="button" class="btn btn-bordeaux" id="report-submit">Submit Report</button>
+
+          <div class="report-confirm" id="report-confirm">
+            <p><strong>Report received.</strong> Our safety team reviews every report personally.</p>
+          </div>
+        </div>
+
+        <div class="message-list" id="room-message-list"></div>
+
+        <div class="message-input-row">
+          <input type="text" placeholder="Send a message…" id="room-message-input">
+          <button type="button" class="btn btn-gold btn-small" id="room-message-send">Send</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(async () => {
+  if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+  const { api, initDashboard, capitalize, initials, showToast } = window.FantasiAPI;
+
+  const me = await initDashboard();
+  if (!me) return;
+
+  const viewDirectory = document.getElementById('view-directory');
+  const viewRoom      = document.getElementById('view-room');
+  const roomGrid      = document.getElementById('room-grid');
+  const roomsEmpty    = document.getElementById('rooms-empty');
+  let rooms = [];
+  let activeRoom = null;
+
+  // ---- create room panel — only admins can actually create one server-side ----
+  const createToggle = document.getElementById('create-toggle');
+  const createPanel  = document.getElementById('create-panel');
+  if (me.role === 'admin') createToggle.style.display = 'inline-flex';
+
+  createToggle.addEventListener('click', () => createPanel.classList.toggle('show'));
+  document.getElementById('create-cancel').addEventListener('click', () => createPanel.classList.remove('show'));
+
+  const tierOptions = document.getElementById('tier-options');
+  tierOptions.querySelectorAll('.scope-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      tierOptions.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+  });
+
+  document.getElementById('create-room-submit').addEventListener('click', async () => {
+    const name = document.getElementById('room-name').value.trim();
+    const description = document.getElementById('room-desc').value.trim();
+    const min_tier = tierOptions.querySelector('.selected')?.dataset.value || 'free';
+    if (name.length < 2) { showToast('Room name must be at least 2 characters.', 'error'); return; }
+
+    const { ok, data } = await api.chatrooms.create(name, description, min_tier);
+    if (ok) {
+      document.getElementById('room-name').value = '';
+      document.getElementById('room-desc').value = '';
+      createPanel.classList.remove('show');
+      showToast('Room created.', 'info');
+      loadRooms();
+    } else {
+      showToast(data?.error || 'Could not create room.', 'error');
+    }
+  });
+
+  // ---- room directory ----
+  function buildRoomCard(room) {
+    const card = document.createElement('div');
+    card.className = 'room-card';
+
+    const icon = document.createElement('div');
+    icon.className = 'room-icon';
+    icon.textContent = room.name.charAt(0).toUpperCase();
+
+    const body = document.createElement('div');
+    body.className = 'room-card-body';
+    const titleRow = document.createElement('div');
+    titleRow.className = 'room-card-title-row';
+    const h4 = document.createElement('h4');
+    h4.textContent = room.name;
+    const chip = document.createElement('span');
+    chip.className = 'scope-chip';
+    chip.textContent = room.min_tier === 'free' ? 'Free' : `${capitalize(room.min_tier)}+`;
+    titleRow.append(h4, chip);
+    const meta = document.createElement('div');
+    meta.className = 'room-card-meta';
+    const count = parseInt(room.message_count, 10) || 0;
+    meta.textContent = room.last_message_at
+      ? `${count} message${count === 1 ? '' : 's'} · last active ${new Date(room.last_message_at).toLocaleDateString()}`
+      : 'No messages yet';
+    body.append(titleRow, meta);
+
+    const actions = document.createElement('div');
+    actions.className = 'room-card-actions';
+    const joinBtn = document.createElement('button');
+    joinBtn.type = 'button'; joinBtn.className = 'btn btn-line btn-small';
+    joinBtn.textContent = 'Join';
+    joinBtn.addEventListener('click', () => openRoom(room));
+    actions.appendChild(joinBtn);
+
+    card.append(icon, body, actions);
+    return card;
+  }
+
+  async function loadRooms() {
+    const { ok, data } = await api.chatrooms.list();
+    if (!ok) { showToast(data?.error || 'Could not load chatrooms.', 'error'); return; }
+    rooms = data;
+    roomGrid.innerHTML = '';
+    data.forEach(r => roomGrid.appendChild(buildRoomCard(r)));
+    roomsEmpty.style.display = data.length ? 'none' : 'block';
+  }
+
+  // ---- room view ----
+  const roomMessageList = document.getElementById('room-message-list');
+  const reportPanel  = document.getElementById('report-panel');
+  const reportConfirm = document.getElementById('report-confirm');
+  const reportToggle  = document.getElementById('room-report-toggle');
+
+  function buildMessage(msg) {
+    const row = document.createElement('div');
+    row.className = 'message';
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    if (msg.sender_avatar) { avatar.style.backgroundImage = `url(${msg.sender_avatar})`; avatar.style.backgroundSize = 'cover'; avatar.style.backgroundPosition = 'center'; }
+    else avatar.textContent = initials(msg.sender_name);
+    const body = document.createElement('div');
+    const nameRow = document.createElement('div');
+    nameRow.className = 'message-name';
+    nameRow.textContent = msg.sender_name;
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    bubble.textContent = msg.body;
+    body.append(nameRow, bubble);
+
+    if (msg.sender_id === me.id || me.role === 'admin') {
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.title = 'Delete message';
+      del.style.cssText = 'margin-left:8px; color:var(--smoke-dim); font-size:11px; vertical-align:middle;';
+      del.textContent = '✕';
+      del.addEventListener('click', async () => {
+        const { ok } = await api.chatrooms.delete(activeRoom.id, msg.id);
+        if (ok) row.remove(); else showToast('Could not delete message.', 'error');
+      });
+      nameRow.appendChild(del);
+    }
+
+    row.append(avatar, body);
+    return row;
+  }
+
+  async function openRoom(room) {
+    activeRoom = room;
+    document.getElementById('room-view-name').textContent = room.name;
+    document.getElementById('room-view-scope').textContent = room.min_tier === 'free' ? 'Free' : `${capitalize(room.min_tier)}+`;
+    document.getElementById('room-view-icon').textContent = room.name.charAt(0).toUpperCase();
+    reportPanel.classList.remove('show');
+    reportConfirm.classList.remove('show');
+    reportToggle.style.display = (room.created_by && room.created_by !== me.id) ? 'inline-flex' : 'none';
+
+    viewDirectory.style.display = 'none';
+    viewRoom.classList.add('show');
+
+    roomMessageList.innerHTML = '<p style="font-family:var(--font-sans); font-size:12px; color:var(--smoke-dim);">Loading…</p>';
+    const { ok, data } = await api.chatrooms.messages(room.id);
+    roomMessageList.innerHTML = '';
+    if (!ok) { showToast(data?.error || 'Could not load messages.', 'error'); return; }
+    data.messages.forEach(m => roomMessageList.appendChild(buildMessage(m)));
+  }
+
+  document.getElementById('back-to-directory').addEventListener('click', () => {
+    viewRoom.classList.remove('show');
+    viewDirectory.style.display = 'block';
+    loadRooms(); // pick up any new message counts
+  });
+
+  const roomInput = document.getElementById('room-message-input');
+  async function sendRoomMessage() {
+    const text = roomInput.value.trim();
+    if (!text || !activeRoom) return;
+    roomInput.value = '';
+    const { ok, data } = await api.chatrooms.post(activeRoom.id, text);
+    if (!ok) { showToast(data?.error || 'Could not send message.', 'error'); return; }
+    roomMessageList.appendChild(buildMessage({ ...data, sender_name: me.display_name, sender_avatar: me.avatar_url }));
+  }
+  document.getElementById('room-message-send').addEventListener('click', sendRoomMessage);
+  roomInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendRoomMessage(); });
+
+  // ---- report flow — reports the room's creator via the member-report endpoint ----
+  let selectedReason = null;
+  reportToggle.addEventListener('click', () => {
+    reportPanel.classList.toggle('show');
+    reportConfirm.classList.remove('show');
+  });
+  document.querySelectorAll('.report-reason-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.report-reason-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedReason = btn.dataset.reason;
+    });
+  });
+  document.getElementById('report-submit').addEventListener('click', async () => {
+    if (!selectedReason || !activeRoom?.created_by) { showToast('Choose a reason first.', 'warning'); return; }
+    const { ok, data } = await api.profile.report(activeRoom.created_by, `[Room: ${activeRoom.name}] ${selectedReason}`);
+    if (ok) reportConfirm.classList.add('show');
+    else showToast(data?.error || 'Could not submit report.', 'error');
+  });
+
+  await loadRooms();
+})();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>

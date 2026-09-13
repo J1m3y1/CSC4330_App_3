@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  h3{ font-family:var(--font-sans); font-weight:400; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; text-decoration:none; }
+  button, input, select{ font-family:inherit; }
+  button{ background:none; border:none; color:inherit; cursor:pointer; }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+    padding:20px 40px; border-bottom:1px solid var(--line);
+  }
+  .topbar h1{ font-size:22px; }
+  .topbar-right{ display:flex; align-items:center; gap:16px; font-family:var(--font-sans); font-size:12px; color:var(--smoke); }
+  .topbar-right a{ color:var(--gold); text-decoration:underline; }
+
+  .wrap{ max-width:1000px; margin:0 auto; padding:36px 24px 80px; }
+
+  .denied{ text-align:center; padding:120px 20px; }
+  .denied h2{ font-size:26px; margin-bottom:10px; }
+  .denied p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
+
+  .tabs{ display:flex; gap:26px; border-bottom:1px solid var(--line); margin-bottom:26px; }
+  .tab-btn{
+    font-family:var(--font-sans); font-size:13px; color:var(--smoke); padding-bottom:13px;
+    border-bottom:2px solid transparent; transition:color .3s ease, border-color .3s ease;
+  }
+  .tab-btn.active{ color:var(--gold-bright); border-color:var(--gold); }
+  .tab-count{ margin-left:6px; font-size:10px; color:var(--smoke-dim); }
+
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  .card{
+    border:1px solid var(--line-strong); border-radius:6px; padding:18px 20px; margin-bottom:12px;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:18px; flex-wrap:wrap;
+  }
+  .card-main{ flex:1; min-width:220px; }
+  .card-title{ font-size:15.5px; color:var(--cream); margin-bottom:4px; }
+  .card-meta{ font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); margin-bottom:8px; }
+  .card-body{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.6; max-width:60ch; }
+  .card-actions{ display:flex; gap:8px; flex-shrink:0; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:9px 16px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); border-radius:3px; transition:transform .2s ease, background .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .btn-bordeaux{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .btn-bordeaux:hover{ background:rgba(113,26,46,0.12); }
+
+  .empty{ font-family:var(--font-sans); font-size:12.5px; color:var(--smoke-dim); padding:20px 0; }
+
+  .grant-form{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;
+    border:1px solid var(--line-strong); border-radius:6px; padding:20px; margin-top:8px;
+  }
+  .grant-form .field{ display:flex; flex-direction:column; gap:6px; }
+  .grant-form label{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--smoke-dim); }
+  .grant-form input, .grant-form select{
+    background:none; border:1px solid var(--line-strong); border-radius:3px; padding:9px 11px;
+    color:var(--cream); font-size:13px; outline:none;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Fantasi — Admin</h1>
+  <div class="topbar-right">
+    <span id="admin-name"></span>
+    <a href="/Dashboard/Profile.html">Back to app</a>
+  </div>
+</div>
+
+<div class="wrap" id="admin-wrap" style="display:none;">
+
+  <div class="tabs">
+    <button type="button" class="tab-btn active" data-tab="pending">Pending applicants<span class="tab-count" id="count-pending"></span></button>
+    <button type="button" class="tab-btn" data-tab="reports">Reports<span class="tab-count" id="count-reports"></span></button>
+    <button type="button" class="tab-btn" data-tab="privacy">Privacy requests<span class="tab-count" id="count-privacy"></span></button>
+    <button type="button" class="tab-btn" data-tab="membership">Membership requests<span class="tab-count" id="count-membership"></span></button>
+    <button type="button" class="tab-btn" data-tab="grant">Grant membership</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-pending">
+    <div id="pending-list"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-reports">
+    <div id="reports-list"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-privacy">
+    <div id="privacy-list"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-membership">
+    <div id="membership-list"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-grant">
+    <p style="font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); margin-bottom:16px; max-width:60ch;">
+      Manually grant a paid tier — for comps, support cases, or testing, without
+      going through a membership request first.
+    </p>
+    <div class="grant-form">
+      <div class="field">
+        <label for="grant-user-id">User ID</label>
+        <input type="text" id="grant-user-id" placeholder="UUID" style="width:280px;">
+      </div>
+      <div class="field">
+        <label for="grant-tier">Tier</label>
+        <select id="grant-tier">
+          <option value="silver">Silver</option>
+          <option value="gold">Gold</option>
+          <option value="black">Black</option>
+        </select>
+      </div>
+      <button type="button" class="btn btn-gold" id="grant-submit">Grant</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="denied" id="admin-denied" style="display:none;">
+  <h2>Admins only.</h2>
+  <p>Your account doesn't have admin access.</p>
+</div>
+
+<script>
+(async () => {
+  if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+  const { api, requireSession, showToast, capitalize } = window.FantasiAPI;
+
+  const me = await requireSession();
+  if (!me) return;
+
+  if (me.role !== 'admin') {
+    document.getElementById('admin-denied').style.display = 'block';
+    return;
+  }
+  document.getElementById('admin-wrap').style.display = 'block';
+  document.getElementById('admin-name').textContent = me.display_name || me.email;
+
+  // ---- tabs ----
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const panels = {
+    pending: document.getElementById('panel-pending'),
+    reports: document.getElementById('panel-reports'),
+    privacy: document.getElementById('panel-privacy'),
+    membership: document.getElementById('panel-membership'),
+    grant: document.getElementById('panel-grant'),
+  };
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      Object.values(panels).forEach(p => p.classList.remove('active'));
+      panels[btn.dataset.tab].classList.add('active');
+    });
+  });
+
+  function card({ title, meta, body, actions }) {
+    const el = document.createElement('div');
+    el.className = 'card';
+    const main = document.createElement('div');
+    main.className = 'card-main';
+    const titleEl = document.createElement('div');
+    titleEl.className = 'card-title';
+    titleEl.textContent = title;
+    main.appendChild(titleEl);
+    if (meta) {
+      const metaEl = document.createElement('div');
+      metaEl.className = 'card-meta';
+      metaEl.textContent = meta;
+      main.appendChild(metaEl);
+    }
+    if (body) {
+      const bodyEl = document.createElement('div');
+      bodyEl.className = 'card-body';
+      bodyEl.textContent = body;
+      main.appendChild(bodyEl);
+    }
+    el.appendChild(main);
+    if (actions?.length) {
+      const actionsEl = document.createElement('div');
+      actionsEl.className = 'card-actions';
+      actions.forEach(a => actionsEl.appendChild(a));
+      el.appendChild(actionsEl);
+    }
+    return el;
+  }
+
+  function actionBtn(label, cls, onClick) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `btn ${cls}`;
+    btn.textContent = label;
+    btn.addEventListener('click', onClick);
+    return btn;
+  }
+
+  // ---- pending applicants ----
+  async function loadPending() {
+    const { ok, data } = await api.admin.pending();
+    const list = document.getElementById('pending-list');
+    list.innerHTML = '';
+    if (!ok) { list.innerHTML = '<p class="empty">Could not load applicants.</p>'; return; }
+    document.getElementById('count-pending').textContent = data.length || '';
+    if (!data.length) { list.innerHTML = '<p class="empty">No pending applications.</p>'; return; }
+
+    data.forEach(applicant => {
+      const age = applicant.date_of_birth
+        ? Math.floor((Date.now() - new Date(applicant.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+        : null;
+      list.appendChild(card({
+        title: `${applicant.display_name} — ${applicant.email}`,
+        meta: `Applied ${new Date(applicant.created_at).toLocaleDateString()}${age ? ` · ${age} years old` : ''}`,
+        body: applicant.bio || '',
+        actions: [
+          actionBtn('Approve', 'btn-gold', async () => {
+            const { ok, data: res } = await api.admin.approveUser(applicant.id);
+            if (ok) { showToast('Applicant approved.', 'info'); loadPending(); }
+            else showToast(res?.error || 'Could not approve.', 'error');
+          }),
+          actionBtn('Reject', 'btn-bordeaux', async () => {
+            if (!confirm(`Reject ${applicant.display_name}'s application? This deactivates the account.`)) return;
+            const { ok, data: res } = await api.admin.rejectUser(applicant.id);
+            if (ok) { showToast('Applicant rejected.', 'info'); loadPending(); }
+            else showToast(res?.error || 'Could not reject.', 'error');
+          }),
+        ],
+      }));
+    });
+  }
+
+  // ---- reports ----
+  async function loadReports() {
+    const { ok, data } = await api.admin.reports('pending');
+    const list = document.getElementById('reports-list');
+    list.innerHTML = '';
+    if (!ok) { list.innerHTML = '<p class="empty">Could not load reports.</p>'; return; }
+    document.getElementById('count-reports').textContent = data.length || '';
+    if (!data.length) { list.innerHTML = '<p class="empty">No pending reports.</p>'; return; }
+
+    data.forEach(report => {
+      list.appendChild(card({
+        title: `${report.reporter_name} reported ${report.reported_name}`,
+        meta: new Date(report.created_at).toLocaleString(),
+        body: report.reason,
+        actions: [
+          actionBtn('Resolve', 'btn-gold', async () => {
+            const { ok, data: res } = await api.admin.resolveReport(report.id, 'resolved');
+            if (ok) { showToast('Report resolved.', 'info'); loadReports(); }
+            else showToast(res?.error || 'Could not update.', 'error');
+          }),
+          actionBtn('Dismiss', 'btn-line', async () => {
+            const { ok, data: res } = await api.admin.resolveReport(report.id, 'dismissed');
+            if (ok) { showToast('Report dismissed.', 'info'); loadReports(); }
+            else showToast(res?.error || 'Could not update.', 'error');
+          }),
+        ],
+      }));
+    });
+  }
+
+  // ---- privacy requests ----
+  const TYPE_LABELS = {
+    access: 'Access their data', correct: 'Correct their data', restrict: 'Restrict processing',
+    object: 'Object to a use', portability: 'Export their data', delete: 'Delete their account',
+  };
+  async function loadPrivacy() {
+    const { ok, data } = await api.admin.privacyRequests('pending');
+    const list = document.getElementById('privacy-list');
+    list.innerHTML = '';
+    if (!ok) { list.innerHTML = '<p class="empty">Could not load requests.</p>'; return; }
+    document.getElementById('count-privacy').textContent = data.length || '';
+    if (!data.length) { list.innerHTML = '<p class="empty">No pending privacy requests.</p>'; return; }
+
+    data.forEach(req => {
+      const isDelete = req.type === 'delete';
+      list.appendChild(card({
+        title: `${TYPE_LABELS[req.type] || req.type} — ${req.display_name} (${req.email})`,
+        meta: new Date(req.created_at).toLocaleString(),
+        body: req.reason || '',
+        actions: [
+          actionBtn(isDelete ? 'Delete account' : 'Mark completed', isDelete ? 'btn-bordeaux' : 'btn-gold', async () => {
+            if (isDelete && !confirm(`Permanently delete ${req.display_name}'s account? This cannot be undone.`)) return;
+            const { ok, data: res } = await api.admin.resolvePrivacyRequest(req.id, 'completed');
+            if (ok) { showToast('Request completed.', 'info'); loadPrivacy(); }
+            else showToast(res?.error || 'Could not update.', 'error');
+          }),
+          actionBtn('Dismiss', 'btn-line', async () => {
+            const { ok, data: res } = await api.admin.resolvePrivacyRequest(req.id, 'dismissed');
+            if (ok) { showToast('Request dismissed.', 'info'); loadPrivacy(); }
+            else showToast(res?.error || 'Could not update.', 'error');
+          }),
+        ],
+      }));
+    });
+  }
+
+  // ---- membership requests ----
+  async function loadMembershipRequests() {
+    const { ok, data } = await api.admin.membershipRequests('pending');
+    const list = document.getElementById('membership-list');
+    list.innerHTML = '';
+    if (!ok) { list.innerHTML = '<p class="empty">Could not load membership requests.</p>'; return; }
+    document.getElementById('count-membership').textContent = data.length || '';
+    if (!data.length) { list.innerHTML = '<p class="empty">No pending membership requests.</p>'; return; }
+
+    data.forEach(req => {
+      list.appendChild(card({
+        title: `${req.display_name} (${req.email}) — wants ${capitalize(req.requested_tier)}`,
+        meta: `Currently ${capitalize(req.current_tier)} · Requested ${new Date(req.created_at).toLocaleString()}`,
+        body: req.note || '',
+        actions: [
+          actionBtn('Grant', 'btn-gold', async () => {
+            const { ok, data: res } = await api.admin.resolveMembershipRequest(req.id, 'granted');
+            if (ok) { showToast(`Granted ${capitalize(req.requested_tier)}.`, 'info'); loadMembershipRequests(); }
+            else showToast(res?.error || 'Could not update.', 'error');
+          }),
+          actionBtn('Decline', 'btn-line', async () => {
+            const { ok, data: res } = await api.admin.resolveMembershipRequest(req.id, 'declined');
+            if (ok) { showToast('Request declined.', 'info'); loadMembershipRequests(); }
+            else showToast(res?.error || 'Could not update.', 'error');
+          }),
+        ],
+      }));
+    });
+  }
+
+  // ---- manual grant ----
+  document.getElementById('grant-submit').addEventListener('click', async () => {
+    const userId = document.getElementById('grant-user-id').value.trim();
+    const tier = document.getElementById('grant-tier').value;
+    if (!userId) { showToast('Enter a user ID.', 'warning'); return; }
+    const { ok, data } = await api.membership.grant(userId, tier);
+    showToast(ok ? `Granted ${capitalize(tier)}.` : (data?.error || 'Could not grant membership.'), ok ? 'info' : 'error');
+    if (ok) document.getElementById('grant-user-id').value = '';
+  });
+
+  await Promise.all([loadPending(), loadReports(), loadPrivacy(), loadMembershipRequests()]);
+})();
+</script>
+
+</body>
+</html>

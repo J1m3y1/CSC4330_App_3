@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>You're In | Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  h1,h2{ font-family:var(--font-serif); font-weight:300; font-style:italic; margin:0; }
+  h3,h4{ font-family:var(--font-serif); font-weight:300; font-style:italic; margin:0; }
+  p{ margin:0; font-family:var(--font-serif); }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:var(--font-sans); background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .container{ max-width:1180px; margin:0 auto; padding:0 32px; width:100%; }
+
+  .eyebrow{
+    font-family:var(--font-header); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+
+  header{ padding:26px 0; border-bottom:1px solid var(--line); }
+  header .container{ display:flex; align-items:center; justify-content:space-between; max-width:1000px; }
+  .signet-logo{ height:26px; width:auto; }
+  .header-close{ font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke); transition:color .3s ease; }
+  .header-close:hover{ color:var(--gold-bright); }
+
+  main{ flex:1; padding:70px 0; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:15px 30px;
+    font-family:var(--font-sans); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .full-btn{ width:100%; }
+
+  .wizard-card{
+    background:var(--noir-soft); border:1px solid var(--line-strong); border-radius:10px;
+    padding:56px 48px; box-shadow:0 30px 70px rgba(0,0,0,0.45);
+    max-width:640px; margin:0 auto;
+    transition:max-width .4s cubic-bezier(.2,.6,.2,1);
+  }
+  /* the tier-choice step is the one place three cards need real room to breathe —
+     every other step (billing form, confirmations) stays comfortable at the
+     narrower width, so this widens only while step-choice is the active step,
+     toggled via JS rather than blowing out every step uniformly */
+  .wizard-card.wide{ max-width:1180px; }
+
+  .step{ display:none; }
+  .step.active{ display:block; opacity:0; animation:stepIn .5s ease forwards; }
+  @keyframes stepIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+
+  .step-title{ font-family:var(--font-display); font-style:italic; font-weight:300; font-size:clamp(26px,3.4vw,32px); margin-bottom:10px; }
+  .step-sub{ display:block; font-family:var(--font-sans); font-size:13px; color:var(--smoke); margin-bottom:32px; }
+
+  .field{ margin-bottom:20px; }
+  .field label{ display:block; font-family:var(--font-sans); font-size:11px; letter-spacing:0.04em; color:var(--smoke); margin-bottom:8px; }
+  .field input{
+    width:100%; background:none; border:1px solid var(--line-strong); border-radius:3px; padding:13px 14px;
+    color:var(--cream); font-family:var(--font-sans); font-size:14px; outline:none; transition:border-color .3s ease;
+  }
+  .field input:focus{ border-color:var(--gold); }
+  .field-note{ font-family:var(--font-sans); font-size:10.5px; color:var(--smoke-dim); margin-top:7px; line-height:1.5; }
+  .row{ display:flex; gap:16px; }
+  .row .field{ flex:1; }
+
+  .processing{ text-align:center; padding:60px 0; }
+  .spinner{
+    width:36px; height:36px; margin:0 auto 24px; border-radius:50%;
+    border:2px solid var(--line-strong); border-top-color:var(--gold); animation:spin 1s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .processing p{ font-family:var(--font-sans); color:var(--smoke); font-size:13px; }
+
+  .confirm{ text-align:center; padding:20px 0; }
+  .confirm h2{ font-size:32px; margin-bottom:16px; }
+  .confirm p{ font-family:var(--font-sans); color:var(--smoke); font-size:14px; line-height:1.85; max-width:380px; margin:0 auto 34px; }
+  .confirm .btn{ width:100%; justify-content:center; }
+
+  .membership-intro{ text-align:center; margin-bottom:36px; }
+  .membership-intro .eyebrow{ display:inline-block; margin-bottom:14px; }
+  .membership-intro h2{
+    font-family:var(--font-display); font-style:italic; font-weight:300;
+    font-size:clamp(24px,3.4vw,32px); color:var(--cream); margin-bottom:10px; line-height:1.15;
+  }
+  .membership-intro p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); max-width:440px; margin:0 auto; line-height:1.75; }
+
+  .benefit-row{ display:flex; gap:24px; flex-wrap:wrap; margin-bottom:40px; padding-bottom:36px; border-bottom:1px solid var(--line); }
+  .benefit-col{ flex:1; min-width:150px; text-align:center; }
+  .benefit-col .icon-chip{
+    width:36px; height:36px; border-radius:50%; border:1px solid var(--line-strong);
+    background:rgba(199,166,92,0.06); display:flex; align-items:center; justify-content:center;
+    margin:0 auto 14px; color:var(--gold);
+  }
+  .benefit-col h3{ font-family:var(--font-sans); font-style:normal; font-size:13px; letter-spacing:0.05em; text-transform:uppercase; color:var(--cream); margin-bottom:9px; }
+  .benefit-col p{ font-family:var(--font-sans); font-size:11.5px; color:var(--smoke); line-height:1.7; }
+
+  .tier-list-wrap{ perspective:1600px; }
+  .tier-list{ display:flex; flex-direction:row; align-items:stretch; gap:18px; }
+  .tier-list .tier-card{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .tier-list .tier-features{ flex:1; }
+
+  .tier-card{
+    position:relative; overflow:hidden;
+    border:1px solid var(--line-strong); border-radius:4px; padding:0 24px 26px;
+    transform-style:preserve-3d; will-change:transform;
+    transition:border-color .4s ease, transform .5s cubic-bezier(.2,.6,.2,1), background .4s ease, box-shadow .5s ease;
+    cursor:pointer; box-shadow:0 20px 40px rgba(0,0,0,0.3);
+  }
+  .tier-card:hover{ box-shadow:0 34px 64px rgba(0,0,0,0.45); }
+  .tier-card::after{
+    content:""; position:absolute; inset:0; z-index:1; pointer-events:none; border-radius:inherit;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.08), transparent 60%);
+    opacity:0; transition:opacity .4s ease;
+  }
+  .tier-card:hover::after{ opacity:1; }
+
+  .tier-card.silver{ border-color:var(--silver-dim); background:var(--noir-soft); }
+  .tier-card.silver:hover{ border-color:var(--silver); }
+  .tier-card.gold{
+    border-color:var(--gold-dim); background:var(--noir-soft);
+    box-shadow:0 20px 40px rgba(0,0,0,0.3), 0 0 60px rgba(199,166,92,0.08);
+  }
+  .tier-card.gold:hover{ border-color:var(--gold); box-shadow:0 34px 64px rgba(0,0,0,0.45), 0 0 80px rgba(199,166,92,0.16); }
+  .tier-card.black{ border-color:rgba(228,198,135,0.25); background:var(--noir-soft); }
+  .tier-card.black:hover{ border-color:rgba(228,198,135,0.5); }
+
+  .tier-card-band{ position:relative; z-index:2; margin:0 -24px 22px; padding:18px 16px; text-align:center; }
+  .tier-card.silver .tier-card-band{ background:linear-gradient(120deg, #EDEFF0 0%, var(--silver-bright) 30%, var(--silver) 65%, var(--silver-dim) 100%); }
+  .tier-card.gold .tier-card-band{ background:linear-gradient(120deg, #F7EACB 0%, var(--gold-bright) 30%, var(--gold) 65%, var(--gold-dim) 100%); }
+  .tier-card.black .tier-card-band{ background:linear-gradient(120deg, #3D3D3D 0%, #1A1A1A 40%, #0A0A0A 75%, #000000 100%); }
+
+  .tier-card-band .band-tag{ display:block; font-family:var(--font-sans); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; opacity:0.75; }
+  .tier-card.silver .band-tag{ color:#1C1D1E; }
+  .tier-card.gold .band-tag{ color:var(--noir); }
+  .tier-card.black .band-tag{ color:var(--gold-bright); }
+
+  .tier-card-band h4{
+    font-family:var(--font-display); font-style:italic; font-weight:300;
+    font-size:34px; letter-spacing:0.01em; line-height:1;
+  }
+  .tier-card.silver .tier-card-band h4{ color:#1C1D1E; }
+  .tier-card.gold .tier-card-band h4{ color:var(--noir); }
+  .tier-card.black .tier-card-band h4{ color:var(--gold-bright); }
+
+  .tier-benefits-label{
+    position:relative; z-index:2; display:block;
+    font-family:var(--font-sans); font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--smoke-dim); margin-bottom:16px;
+  }
+
+  .tier-features{ position:relative; z-index:2; list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:18px; }
+  .tier-features li{
+    font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); line-height:1.7;
+    display:flex; align-items:flex-start; gap:10px;
+    opacity:0; transform:translateX(-10px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .tier-list.revealed .tier-features li{ opacity:1; transform:translateX(0); }
+  .tier-list.revealed .tier-features li:nth-child(1){ transition-delay:.05s; }
+  .tier-list.revealed .tier-features li:nth-child(2){ transition-delay:.14s; }
+  .tier-list.revealed .tier-features li:nth-child(3){ transition-delay:.23s; }
+  .tier-list.revealed .tier-features li:nth-child(4){ transition-delay:.32s; }
+  .tier-list.revealed .tier-features li:nth-child(5){ transition-delay:.41s; }
+  .tier-list.revealed .tier-features li:nth-child(6){ transition-delay:.50s; }
+  .tier-features li::before{
+    content:"✓"; flex-shrink:0; margin-top:1px;
+    width:15px; height:15px; border-radius:50%; font-size:9px; line-height:15px; text-align:center;
+    background:rgba(199,166,92,0.12); color:var(--gold);
+  }
+  .tier-card.silver .tier-features li::before{ background:rgba(166,171,177,0.14); color:var(--silver-bright); }
+  .tier-card.gold .tier-features li::before{ background:rgba(199,166,92,0.16); color:var(--gold-bright); }
+  .tier-card.black .tier-features li::before{ background:rgba(228,198,135,0.14); color:var(--gold-bright); }
+  .tier-features li strong{ color:var(--cream); font-weight:500; }
+
+  .tier-card .btn{ position:relative; z-index:2; width:100%; justify-content:center; margin-top:26px; }
+  .tier-card.silver .btn-line{ border-color:var(--silver-dim); color:var(--silver-bright); }
+  .tier-card.silver .btn-line:hover{ border-color:var(--silver-bright); background:rgba(166,171,177,0.08); }
+  .tier-card.black .btn-line{ border-color:rgba(228,198,135,0.35); color:var(--gold-bright); }
+  .tier-card.black .btn-line:hover{ border-color:var(--gold-bright); background:rgba(228,198,135,0.06); }
+
+  footer{ border-top:1px solid var(--line); padding:26px 0; }
+  footer .container{ max-width:1000px; }
+  .footer-legal{ font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); text-align:center; }
+
+  @media (max-width:560px){
+    .wizard-card{ padding:36px 22px; border-radius:6px; }
+    .row{ flex-direction:column; gap:0; }
+    .tier-list{ flex-direction:column; }
+    .tier-card-band{ margin:0 -24px 22px; padding:22px 18px; }
+    .tier-card-band h4{ font-size:30px; }
+    .benefit-row{ flex-direction:column; gap:26px; }
+    main{ padding:50px 0; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <a href="/LandingPage/Landing.html"><img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo"></a>
+    <a class="header-close" href="/LandingPage/Landing.html">Back to Fantasi</a>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+  <div class="wizard-card">
+
+    <!-- STEP — you're in. Reached via the acceptance email in the real system — this page
+         should ultimately verify a real, single-use acceptance token before showing tier
+         selection, not just be openly reachable by URL. Not built here since there's no
+         backend token-issuance flow yet; flagging it as a real gap, not an oversight. -->
+    <div class="step active" id="step-accepted">
+      <div class="confirm">
+        <h2>You're in.</h2>
+        <p>Your application was reviewed and approved. Choose your membership to unlock your first introductions.</p>
+        <button class="btn btn-gold full-btn step-next" data-next="step-choice" data-cursor="Continue">Choose My Membership</button>
+      </div>
+    </div>
+
+    <!-- STEP — the choice -->
+    <div class="step" id="step-choice">
+      <div class="membership-intro">
+        <span class="eyebrow">Membership</span>
+        <h2>Every tier, a different kind of access.</h2>
+        <p>Every member is verified before anything else. The difference between tiers is how far that access reaches.</p>
+      </div>
+
+      <div class="benefit-row">
+        <div class="benefit-col">
+          <div class="icon-chip"><svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/><path d="M10.5 15l3 3 6-6" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Verified, always</h3>
+          <p>Identity and background checks happen before your profile is ever seen. No exceptions, at any tier.</p>
+        </div>
+        <div class="benefit-col">
+          <div class="icon-chip"><svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div>
+          <h3>Curated, not endless</h3>
+          <p>Matches are surfaced by compatibility and intent: quality over quantity, at every tier.</p>
+        </div>
+        <div class="benefit-col">
+          <div class="icon-chip"><svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1"/></svg></div>
+          <h3>Complete discretion</h3>
+          <p>Your name and photo stay private until you choose to share them, regardless of membership.</p>
+        </div>
+      </div>
+
+      <div class="tier-list-wrap">
+      <div class="tier-list">
+        <div class="tier-card silver" data-tier="Silver">
+          <div class="tier-card-band"><span class="band-tag">Begin your search</span><h4>Silver</h4></div>
+          <span class="tier-benefits-label">Tier Benefits</span>
+          <ul class="tier-features">
+            <li><strong>Full profile</strong>: unlimited messaging, no caps</li>
+            <li><strong>Curated introductions</strong>: new matches delivered weekly</li>
+            <li><strong>Blurred-photo mode</strong>: you approve every reveal</li>
+            <li><strong>24/7 safety line</strong>: live check-in for every date</li>
+          </ul>
+          <button type="button" class="btn btn-line">Choose Silver</button>
+        </div>
+
+        <div class="tier-card gold" data-tier="Gold">
+          <div class="tier-card-band"><span class="band-tag">Most requested</span><h4>Gold</h4></div>
+          <span class="tier-benefits-label">Tier Benefits</span>
+          <ul class="tier-features">
+            <li>Everything in Silver</li>
+            <li><strong>Terms builder</strong>: set your terms before anything begins</li>
+            <li><strong>Deep filters</strong>: priority placement in every match</li>
+            <li><strong>Full privacy suite</strong>: incognito, screenshots blocked, geofencing</li>
+            <li><strong>Dedicated concierge</strong>: travel planning included</li>
+          </ul>
+          <button type="button" class="btn btn-gold">Choose Gold</button>
+        </div>
+
+        <div class="tier-card black" data-tier="Black">
+          <div class="tier-card-band"><span class="band-tag">By invitation</span><h4>Black</h4></div>
+          <span class="tier-benefits-label">Tier Benefits</span>
+          <ul class="tier-features">
+            <li>Everything in Gold</li>
+            <li><strong>Black-only visibility</strong>: invisible to Silver and Gold</li>
+            <li><strong>Video-liveness access</strong>: see the verified clip behind any badge</li>
+            <li><strong>Self-destructing messages</strong>: plus a private duress signal</li>
+            <li><strong>Private chatrooms</strong>: an ongoing space, beyond one-to-one</li>
+            <li><strong>Named concierge</strong>: a dedicated personal contact</li>
+          </ul>
+          <button type="button" class="btn btn-line">Choose Black</button>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- STEP — request tier (Fantasi is by private invitation — no payment
+         is taken here; an admin reviews and grants the tier) -->
+    <div class="step" id="step-billing">
+      <h1 class="step-title">Request <span id="billing-tier-label" style="color:var(--gold-bright); font-style:italic;">Gold</span></h1>
+      <span class="step-sub">Fantasi is by private invitation. Our team reviews every request personally.</span>
+
+      <div class="field">
+        <label for="billing-note">Anything we should know? (optional)</label>
+        <textarea id="billing-note" rows="3" placeholder="Tell us a little about what you're looking for" style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:6px; padding:12px 14px; color:var(--cream); font-family:inherit; font-size:14px; resize:none;"></textarea>
+      </div>
+
+      <button class="btn btn-gold full-btn" id="billing-submit" data-cursor="Confirm">Submit Request</button>
+      <div class="legal" style="font-family:var(--font-sans); font-size:10.5px; color:var(--smoke-dim); text-align:center; margin-top:16px;">For consenting adults 18 and older only.</div>
+    </div>
+
+    <!-- STEP — request processing -->
+    <div class="step" id="step-billing-processing">
+      <div class="processing">
+        <div class="spinner"></div>
+        <p>Submitting your request…</p>
+      </div>
+    </div>
+
+    <!-- STEP — confirmation. Redirects into profile-setup.html, not straight to the
+         dashboard — the richer profile-building wizard is deliberately the first thing
+         an accepted member does, not something rushed through during application. -->
+    <div class="step" id="step-welcome">
+      <div class="confirm">
+        <h2>Request received.</h2>
+        <p>Our team will review your request personally. In the meantime, let's build the profile the rest of the community will actually see.</p>
+        <a class="btn btn-gold full-btn" href="/Dashboard/profile-setup.html" data-cursor="Begin">Build My Profile</a>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-legal">Fantasi is for consenting adults 18 and older only. © 2026 Fantasi.</div>
+  </div>
+</footer>
+
+<script>
+  const allSteps = Array.from(document.querySelectorAll('.step'));
+  const stepChoice = document.getElementById('step-choice');
+  const stepBilling = document.getElementById('step-billing');
+  const stepBillingProcessing = document.getElementById('step-billing-processing');
+  const stepWelcome = document.getElementById('step-welcome');
+  const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  function showStep(step){
+    allSteps.forEach(s=>{ s.classList.remove('active'); s.style.display='none'; });
+    step.style.display = 'block';
+    requestAnimationFrame(()=> step.classList.add('active'));
+    window.scrollTo({top:0, behavior:'smooth'});
+
+    // only the tier-choice step actually needs the extra width — every other
+    // step (billing form, confirmations) stays at the comfortable narrower size
+    document.querySelector('.wizard-card')?.classList.toggle('wide', step.id === 'step-choice');
+
+    if(step.id === 'step-choice'){
+      const tierList = step.querySelector('.tier-list');
+      if(tierList){
+        tierList.classList.remove('revealed');
+        void tierList.offsetWidth;
+        requestAnimationFrame(()=> requestAnimationFrame(()=> tierList.classList.add('revealed')));
+      }
+    }
+  }
+
+  document.querySelectorAll('.step-next').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const next = document.getElementById(btn.getAttribute('data-next'));
+      if(next) showStep(next);
+    });
+  });
+
+  // 3D cursor-tracking tilt + glare on the tier cards, same technique used sitewide
+  if(hasFinePointer){
+    document.querySelectorAll('.tier-card').forEach(card=>{
+      card.addEventListener('mousemove', (e)=>{
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const px = (x / rect.width) * 100;
+        const py = (y / rect.height) * 100;
+        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -4;
+        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 4;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+        card.style.setProperty('--mx', px + '%');
+        card.style.setProperty('--my', py + '%');
+      });
+      card.addEventListener('mouseleave', ()=>{
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
+      });
+    });
+  }
+
+  document.querySelectorAll('.tier-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      document.getElementById('billing-tier-label').textContent = card.getAttribute('data-tier');
+      showStep(stepBilling);
+    });
+  });
+
+  // ── API wiring ───────────────────────────────────────────────────────────────
+  if (!window.FantasiAPI) {
+    console.error('FantasiAPI failed to load — is the backend running, and is this page served through it rather than opened as a file:// URL?');
+  }
+  const { requireSession, requestMembershipUpgrade, showToast } = window.FantasiAPI || {
+    requireSession: async () => { window.location.href = '/SignInProcess/SignIn.html'; return null; },
+    requestMembershipUpgrade: async () => ({ submitted: false }),
+    showToast: (msg) => alert(msg),
+  };
+
+  // Requesting a tier here requires an account in good standing — the same
+  // membership.request endpoint Membership.html uses, so sign in first.
+  (async () => {
+    if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+    await requireSession();
+  })();
+
+  document.getElementById('billing-submit').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const tier = document.getElementById('billing-tier-label')?.textContent?.toLowerCase() || 'gold';
+    const note = document.getElementById('billing-note')?.value.trim() || undefined;
+    showStep(stepBillingProcessing);
+
+    const { submitted } = await requestMembershipUpgrade(tier, note);
+    if (submitted) {
+      showStep(stepWelcome);
+    } else {
+      showStep(stepBilling);
+    }
+  });
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>

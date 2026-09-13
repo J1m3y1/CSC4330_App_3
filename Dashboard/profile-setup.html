@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Setup — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  h1{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:15px 32px;
+    font-family:var(--font-sans); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn:active{ transform:scale(0.97); }
+  .btn.just-enabled{ animation:btnPulse .5s ease; }
+  @keyframes btnPulse{ 0%{ box-shadow:0 0 0 0 rgba(199,166,92,0.5); } 100%{ box-shadow:0 0 0 14px rgba(199,166,92,0); } }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn:disabled{ opacity:0.35; cursor:not-allowed; transform:none; background:var(--line-strong); border-color:var(--line-strong); color:var(--smoke); }
+  .btn-full{ width:100%; justify-content:center; }
+
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none;
+    opacity:0.04; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  main{ flex:1; display:flex; align-items:center; justify-content:center; padding:40px 20px; }
+
+  .setup-card{
+    width:100%; max-width:520px; min-height:680px; display:flex; flex-direction:column;
+    background:var(--noir-soft); border:1px solid var(--line-strong); border-radius:10px;
+    padding:34px 38px 36px; box-shadow:0 30px 70px rgba(0,0,0,0.45); position:relative;
+    animation:cardIn .6s cubic-bezier(.2,.7,.2,1);
+  }
+  @keyframes cardIn{ from{ opacity:0; transform:translateY(20px) scale(.98); } to{ opacity:1; transform:translateY(0) scale(1); } }
+
+  .setup-top{ display:flex; align-items:center; gap:14px; margin-bottom:30px; }
+  .setup-back{ color:var(--smoke); flex-shrink:0; transition:color .3s ease, transform .15s ease; }
+  .setup-back:active{ transform:scale(0.88); }
+  .setup-back:hover{ color:var(--gold-bright); }
+  .setup-back.hidden{ visibility:hidden; }
+  .setup-progress-track{ flex:1; height:3px; background:var(--line-strong); border-radius:2px; overflow:hidden; }
+  .setup-progress-fill{
+    height:100%; background:var(--gold); border-radius:2px; width:9%;
+    transition:width .5s cubic-bezier(.2,.7,.2,1);
+    box-shadow:0 0 8px rgba(199,166,92,0.5);
+  }
+  .setup-heart{ color:var(--gold); flex-shrink:0; }
+  .setup-skip{
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.04em; color:var(--smoke);
+    text-decoration:underline; margin-left:10px; flex-shrink:0; visibility:hidden;
+  }
+  .setup-skip.show{ visibility:visible; }
+  .setup-skip:hover{ color:var(--gold-bright); }
+
+  .setup-step{ display:none; flex:1; flex-direction:column; min-height:0; }
+  .setup-step.active{ display:flex; }
+  .setup-step.enter-fwd{ animation:slideInFwd .42s cubic-bezier(.2,.7,.2,1); }
+  .setup-step.enter-back{ animation:slideInBack .42s cubic-bezier(.2,.7,.2,1); }
+  @keyframes slideInFwd{ from{ opacity:0; transform:translateX(28px); } to{ opacity:1; transform:translateX(0); } }
+  @keyframes slideInBack{ from{ opacity:0; transform:translateX(-28px); } to{ opacity:1; transform:translateX(0); } }
+
+  .setup-step h1{ font-size:26px; line-height:1.2; margin-bottom:10px; }
+  .setup-sub{ font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); line-height:1.7; margin-bottom:26px; }
+
+  .setup-body{ flex:1; min-height:0; overflow-y:auto; }
+
+  /* toggle pairs (visible/hidden, lbs/kg, ft-in/cm) */
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:14px; flex-wrap:wrap; }
+  .pill-toggle{ display:inline-flex; border:1px solid var(--line-strong); border-radius:20px; padding:3px; }
+  .pill-toggle button{
+    padding:7px 16px; border-radius:16px; font-family:var(--font-sans); font-size:10.5px;
+    letter-spacing:0.03em; color:var(--smoke); transition:background .3s ease, color .3s ease;
+  }
+  .pill-toggle button.active{ background:var(--gold); color:var(--noir); }
+
+  /* picker list (weight/height) */
+  .picker-list{ display:flex; flex-direction:column; align-items:center; gap:0; margin-top:6px; }
+  .picker-item{
+    padding:11px 28px; color:var(--smoke-dim); font-family:var(--font-serif); font-size:15px;
+    cursor:pointer; border-radius:6px;
+    transition:color .2s ease, background .2s ease, font-size .2s ease, transform .15s ease, opacity .4s ease;
+    opacity:0; transform:translateY(6px);
+  }
+  .setup-step.active .picker-item{ opacity:1; transform:translateY(0); }
+  .picker-item:active{ transform:scale(0.96); }
+  .picker-item.selected{ color:var(--gold-bright); font-weight:500; font-size:18px; background:rgba(199,166,92,0.08); }
+
+  /* location field */
+  .loc-field{ position:relative; margin-bottom:18px; }
+  .loc-field input{
+    width:100%; background:none; border:1px solid var(--line-strong); border-radius:6px;
+    padding:13px 40px 13px 14px; color:var(--cream); font-family:var(--font-serif); font-size:14px; outline:none;
+    transition:border-color .3s ease, box-shadow .3s ease;
+  }
+  .loc-field input:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(199,166,92,0.1); }
+  .loc-clear{ position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--smoke); transition:transform .2s ease, color .3s ease; }
+  .loc-clear:active{ transform:translateY(-50%) scale(0.85); }
+  .use-location{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:12px;
+    color:var(--gold); transition:color .3s ease, transform .2s ease;
+  }
+  .use-location:hover{ color:var(--gold-bright); transform:translateX(2px); }
+
+  /* single-select list (education / relationship / smoking) */
+  .select-list{ display:flex; flex-direction:column; gap:10px; }
+  .select-list-btn{
+    width:100%; text-align:left; padding:14px 18px; border:1px solid var(--line-strong); border-radius:6px;
+    font-family:var(--font-serif); font-size:14px; color:var(--cream);
+    transition:border-color .3s ease, background .3s ease, color .3s ease, transform .15s ease, opacity .4s ease;
+    opacity:0; transform:translateY(8px);
+  }
+  .setup-step.active .select-list-btn{ opacity:1; transform:translateY(0); }
+  .select-list-btn:hover{ border-color:var(--gold-dim); }
+  .select-list-btn:active{ transform:scale(0.98); }
+  .select-list-btn.selected{ border-color:var(--gold); background:rgba(199,166,92,0.08); color:var(--gold-bright); }
+
+  /* tag select (interests / looking for) */
+  .tag-cat{ margin-bottom:22px; }
+  .tag-cat-label{
+    font-family:var(--font-sans); font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--smoke-dim); margin-bottom:11px; display:block;
+  }
+  .tag-select{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag-select-btn{
+    padding:9px 15px; border:1px solid var(--line-strong); border-radius:20px;
+    font-family:var(--font-sans); font-size:11.5px; color:var(--smoke); cursor:pointer;
+    transition:border-color .3s ease, color .3s ease, background .3s ease, transform .15s ease, opacity .4s ease;
+    opacity:0; transform:scale(0.92);
+  }
+  .setup-step.active .tag-select-btn{ opacity:1; transform:scale(1); }
+  .tag-select-btn:hover{ border-color:var(--gold-dim); }
+  .tag-select-btn:active{ transform:scale(0.94); }
+  .tag-select-btn.selected{ border-color:var(--gold); color:var(--gold-bright); background:rgba(199,166,92,0.1); }
+  .tag-limit-note{ font-family:var(--font-sans); font-size:10px; color:var(--smoke-dim); margin-top:14px; }
+
+  /* text entry (heading / about you) */
+  .setup-textarea{
+    width:100%; background:none; border:1px solid var(--line-strong); border-radius:6px;
+    padding:14px 16px; color:var(--cream); font-family:var(--font-serif); font-size:14px;
+    outline:none; resize:none; transition:border-color .3s ease, box-shadow .3s ease;
+  }
+  .setup-textarea:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(199,166,92,0.1); }
+  .setup-textarea::placeholder{ color:var(--smoke-dim); }
+  .char-count{ font-family:var(--font-sans); font-size:10px; color:var(--smoke-dim); text-align:right; margin-top:8px; }
+  .char-count strong{ color:var(--gold-bright); transition:color .2s ease; }
+
+  /* photo grid */
+  .photo-setup-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); grid-template-rows:repeat(3, 110px);
+    grid-template-areas:
+      "primary slot2 ."
+      "primary slot3 ."
+      "slot4 slot5 slot6";
+    gap:10px;
+  }
+  .ps-slot{
+    border:1px dashed var(--line-strong); border-radius:6px; min-width:0; min-height:0;
+    display:flex; align-items:center; justify-content:center; position:relative;
+    cursor:pointer; color:var(--gold-dim); font-size:20px; opacity:0; transform:translateY(10px) scale(0.95);
+    transition:border-color .3s ease, background .3s ease, transform .3s cubic-bezier(.2,.7,.2,1),
+               box-shadow .3s ease, opacity .4s ease;
+  }
+  .setup-step.active .ps-slot{ opacity:1; transform:translateY(0) scale(1); }
+  .ps-slot:hover{ border-color:var(--gold); background:rgba(199,166,92,0.05); transform:translateY(-2px); box-shadow:0 10px 24px rgba(0,0,0,0.35); }
+  .ps-slot:active{ transform:translateY(0) scale(0.97); }
+  .ps-slot.primary{ grid-area:primary; }
+  .ps-slot.slot-2{ grid-area:slot2; }
+  .ps-slot.slot-3{ grid-area:slot3; }
+  .ps-slot.slot-4{ grid-area:slot4; }
+  .ps-slot.slot-5{ grid-area:slot5; }
+  .ps-slot.slot-6{ grid-area:slot6; }
+  .ps-primary-tag{
+    position:absolute; bottom:8px; left:8px; font-family:var(--font-sans); font-size:8px;
+    letter-spacing:0.05em; text-transform:uppercase; background:rgba(199,166,92,0.15); color:var(--gold-bright);
+    padding:3px 8px; border-radius:10px;
+  }
+
+  /* cascading stagger delays — items reveal one after another rather than all at once */
+  .picker-item:nth-child(1), .select-list-btn:nth-child(1), .tag-select-btn:nth-child(1), .ps-slot:nth-child(1){ transition-delay:.03s; }
+  .picker-item:nth-child(2), .select-list-btn:nth-child(2), .tag-select-btn:nth-child(2), .ps-slot:nth-child(2){ transition-delay:.08s; }
+  .picker-item:nth-child(3), .select-list-btn:nth-child(3), .tag-select-btn:nth-child(3), .ps-slot:nth-child(3){ transition-delay:.13s; }
+  .picker-item:nth-child(4), .select-list-btn:nth-child(4), .tag-select-btn:nth-child(4), .ps-slot:nth-child(4){ transition-delay:.18s; }
+  .picker-item:nth-child(5), .select-list-btn:nth-child(5), .tag-select-btn:nth-child(5), .ps-slot:nth-child(5){ transition-delay:.23s; }
+  .picker-item:nth-child(6), .select-list-btn:nth-child(6), .tag-select-btn:nth-child(6), .ps-slot:nth-child(6){ transition-delay:.28s; }
+  .picker-item:nth-child(7), .select-list-btn:nth-child(7), .tag-select-btn:nth-child(7){ transition-delay:.33s; }
+
+  .setup-footer{ margin-top:24px; }
+
+  @media (max-width:520px){
+    main{ padding:0; align-items:flex-start; }
+    .setup-card{ max-width:100%; min-height:100vh; border-radius:0; border:none; box-shadow:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+
+<main>
+  <div class="setup-card">
+
+    <div class="setup-top">
+      <button type="button" class="setup-back" id="setup-back" aria-label="Back">
+        <svg width="18" height="13" viewBox="0 0 29 20" fill="none"><path fill-rule="evenodd" fill="currentColor" d="M29 10C29 9.73479 28.8947 9.48044 28.7071 9.29291C28.5196 9.10537 28.2652 9.00001 28 9.00001H4.41402L10.7082 2.70801C10.801 2.61504 10.8747 2.50466 10.9251 2.38318C10.9754 2.2617 11.0013 2.1315 11.0013 2.00001C11.0013 1.86852 10.9754 1.73832 10.9251 1.61685C10.8747 1.49537 10.801 1.38499 10.708 1.29201C10.615 1.19904 10.5047 1.12528 10.3832 1.07497C10.2617 1.02465 10.1315 0.998749 10 0.998749C9.86853 0.998749 9.73833 1.02465 9.61685 1.07497C9.49537 1.12528 9.38499 1.19904 9.29202 1.29201L1.29202 9.29201C1.19889 9.3849 1.12501 9.49525 1.07459 9.61674C1.02418 9.73824 0.99823 9.86848 0.99823 10C0.99823 10.1315 1.02418 10.2618 1.07459 10.3833C1.12501 10.5048 1.19889 10.6151 1.29202 10.708L9.29202 18.708C9.38499 18.801 9.49537 18.8747 9.61685 18.9251C9.73833 18.9754 9.86853 19.0013 10 19.0013C10.1315 19.0013 10.2617 18.9754 10.3832 18.9251C10.5047 18.8747 10.615 18.801 10.708 18.708C10.801 18.615 10.8747 18.5047 10.9251 18.3832C10.9754 18.2617 11.0013 18.1315 11.0013 18C11.0013 17.8685 10.9754 17.7383 10.9251 17.6168C10.8747 17.4954 10.801 17.385 10.708 17.292L4.41402 11H28C28.2652 11 28.5196 10.8947 28.7071 10.7071C28.8947 10.5196 29 10.2652 29 10Z"/></svg>
+      </button>
+      <div class="setup-progress-track"><div class="setup-progress-fill" id="setup-progress-fill"></div></div>
+      <svg class="setup-heart" width="17" height="15" viewBox="0 0 20 18" fill="none"><path d="M10 17s-6.5-4.2-8.4-8.7C.4 5.6 2.2 2 5.4 2c1.8 0 3.3 1 4.2 2.4C10.4 3 11.9 2 13.7 2c3.2 0 5 3.6 3.8 6.3C15.5 12.8 10 17 10 17z" stroke="currentColor" stroke-width="1.2"/></svg>
+      <a href="#" class="setup-skip" id="setup-skip">Skip</a>
+    </div>
+
+    <!-- STEP 1 — weight -->
+    <div class="setup-step active" data-step="1">
+      <h1>What is your weight?</h1>
+      <p class="setup-sub">You can always keep this hidden on your profile.</p>
+      <div class="setup-body">
+        <div class="toggle-row">
+          <div class="pill-toggle" data-toggle="weight-visibility">
+            <button type="button" class="active" data-value="visible">visible</button>
+            <button type="button" data-value="hidden">hidden</button>
+          </div>
+          <div class="pill-toggle" data-toggle="weight-unit">
+            <button type="button" class="active" data-value="lbs">lbs</button>
+            <button type="button" data-value="kg">kg</button>
+          </div>
+        </div>
+        <div class="picker-list" data-picker="weight">
+          <div class="picker-item">140–150 lbs</div>
+          <div class="picker-item">150–160 lbs</div>
+          <div class="picker-item selected">160–170 lbs</div>
+          <div class="picker-item">170–180 lbs</div>
+          <div class="picker-item">180–190 lbs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 — height -->
+    <div class="setup-step" data-step="2">
+      <h1>What is your height?</h1>
+      <p class="setup-sub">This will show on your profile and help others find a fit.</p>
+      <div class="setup-body">
+        <div class="toggle-row" style="justify-content:flex-end;">
+          <div class="pill-toggle" data-toggle="height-unit">
+            <button type="button" class="active" data-value="ft">ft/in</button>
+            <button type="button" data-value="cm">cm</button>
+          </div>
+        </div>
+        <div class="picker-list" data-picker="height">
+          <div class="picker-item">5'11"</div>
+          <div class="picker-item">6'0"</div>
+          <div class="picker-item selected">6'1"</div>
+          <div class="picker-item">6'2"</div>
+          <div class="picker-item">6'3"</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 — location -->
+    <div class="setup-step" data-step="3">
+      <h1>What is your location?</h1>
+      <p class="setup-sub">We use this to show you members nearby. Visible by default — you can always change it later.</p>
+      <div class="setup-body">
+        <div class="loc-field">
+          <input type="text" id="loc-input" value="Baton Rouge, Louisiana, United States">
+          <button type="button" class="loc-clear" id="loc-clear" aria-label="Clear">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <a href="#" class="use-location">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 16-6-4-6 4 6-16z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Use my current location
+        </a>
+      </div>
+    </div>
+
+    <!-- STEP 4 — education -->
+    <div class="setup-step" data-step="4">
+      <h1>What level of education do you have?</h1>
+      <p class="setup-sub">This will show on your profile and help others find a fit.</p>
+      <div class="setup-body">
+        <div class="select-list" data-select="education">
+          <button type="button" class="select-list-btn">High School</button>
+          <button type="button" class="select-list-btn">Some College</button>
+          <button type="button" class="select-list-btn">Associate's Degree</button>
+          <button type="button" class="select-list-btn">Bachelor's Degree</button>
+          <button type="button" class="select-list-btn">Graduate Degree</button>
+          <button type="button" class="select-list-btn">MD / Physician</button>
+          <button type="button" class="select-list-btn">JD / Attorney</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 — relationship status -->
+    <div class="setup-step" data-step="5">
+      <h1>What is your current relationship status?</h1>
+      <p class="setup-sub">This will show on your profile and help others find a fit.</p>
+      <div class="setup-body">
+        <div class="select-list" data-select="relationship">
+          <button type="button" class="select-list-btn">Single</button>
+          <button type="button" class="select-list-btn">Divorced</button>
+          <button type="button" class="select-list-btn">Widowed</button>
+          <button type="button" class="select-list-btn">Open</button>
+          <button type="button" class="select-list-btn">It's Complicated</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 — smoking -->
+    <div class="setup-step" data-step="6">
+      <h1>Do you smoke?</h1>
+      <p class="setup-sub">This will show on your profile and help others find a fit.</p>
+      <div class="setup-body">
+        <div class="select-list" data-select="smoking">
+          <button type="button" class="select-list-btn">Non-smoker</button>
+          <button type="button" class="select-list-btn">Light smoker</button>
+          <button type="button" class="select-list-btn">Heavy smoker</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 7 — interests (Fantasi's own vocabulary, not explicit fetish taxonomy) -->
+    <div class="setup-step" data-step="7">
+      <h1>What are you interested in?</h1>
+      <p class="setup-sub">Choose a few to help curate the right introductions. You can change this anytime.</p>
+      <div class="setup-body">
+        <div class="tag-cat">
+          <span class="tag-cat-label">Arrangement Style</span>
+          <div class="tag-select" data-tagselect="interests">
+            <div class="tag-select-btn">Power exchange</div>
+            <div class="tag-select-btn">Mentorship</div>
+            <div class="tag-select-btn">Financial partnership</div>
+            <div class="tag-select-btn">Long-term arrangement</div>
+          </div>
+        </div>
+        <div class="tag-cat">
+          <span class="tag-cat-label">Lifestyle</span>
+          <div class="tag-select" data-tagselect="interests">
+            <div class="tag-select-btn">Travel companionship</div>
+            <div class="tag-select-btn">Fine dining</div>
+            <div class="tag-select-btn">Life of leisure</div>
+            <div class="tag-select-btn">Discretion</div>
+          </div>
+        </div>
+        <div class="tag-cat">
+          <span class="tag-cat-label">Connection</span>
+          <div class="tag-select" data-tagselect="interests">
+            <div class="tag-select-btn">Casual</div>
+            <div class="tag-select-btn">Emotional connection</div>
+            <div class="tag-select-btn">No strings attached</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 8 — what are you looking for -->
+    <div class="setup-step" data-step="8">
+      <h1>What are you looking for?</h1>
+      <p class="setup-sub">Choose at least one tag. 7 max.</p>
+      <div class="setup-body">
+        <div class="tag-select" id="looking-for-tags" data-tagselect="lookingfor" data-max="7">
+          <div class="tag-select-btn">Long-term arrangement</div>
+          <div class="tag-select-btn">Casual</div>
+          <div class="tag-select-btn">Discretion</div>
+          <div class="tag-select-btn">Fine dining</div>
+          <div class="tag-select-btn">Monogamous</div>
+          <div class="tag-select-btn">Non-monogamous</div>
+          <div class="tag-select-btn">No strings attached</div>
+          <div class="tag-select-btn">Open relationship</div>
+          <div class="tag-select-btn">Travel partner</div>
+          <div class="tag-select-btn">Will travel</div>
+          <div class="tag-select-btn">Passport ready</div>
+          <div class="tag-select-btn">Life of leisure</div>
+          <div class="tag-select-btn">Emotional connection</div>
+          <div class="tag-select-btn">Financial partnership</div>
+        </div>
+        <p class="tag-limit-note" id="tag-limit-note">0 of 7 selected</p>
+      </div>
+    </div>
+
+    <!-- STEP 9 — heading -->
+    <div class="setup-step" data-step="9">
+      <h1>Choose your heading.</h1>
+      <p class="setup-sub">A short, captivating phrase — this is often the first thing someone reads.</p>
+      <div class="setup-body">
+        <textarea class="setup-textarea" id="heading-input" rows="2" maxlength="50" placeholder="For an eye-catching first impression"></textarea>
+        <div class="char-count"><strong id="heading-count">0</strong>/50 characters</div>
+      </div>
+    </div>
+
+    <!-- STEP 10 — about you -->
+    <div class="setup-step" data-step="10">
+      <h1>Tell us about yourself.</h1>
+      <p class="setup-sub">Share who you are, what you enjoy, and what makes you stand out.</p>
+      <div class="setup-body">
+        <textarea class="setup-textarea" id="about-input" rows="7" maxlength="4000" placeholder="Let your personality be known."></textarea>
+        <div class="char-count"><strong id="about-count">0</strong>/4000 characters</div>
+      </div>
+    </div>
+
+    <!-- STEP 11 — photos -->
+    <div class="setup-step" data-step="11">
+      <h1>Choose your photos.</h1>
+      <p class="setup-sub">We recommend at least 3 for the best introductions. You can always add or change these later.</p>
+      <div class="setup-body">
+        <div class="photo-setup-grid">
+          <div class="ps-slot primary" id="ps-slot-1">+</div>
+          <div class="ps-slot slot-2" id="ps-slot-2">+</div>
+          <div class="ps-slot slot-3" id="ps-slot-3">+</div>
+          <div class="ps-slot slot-4" id="ps-slot-4">+</div>
+          <div class="ps-slot slot-5" id="ps-slot-5">+</div>
+          <div class="ps-slot slot-6" id="ps-slot-6">+</div>
+        </div>
+        <input type="file" id="ps-photo-input" accept="image/jpeg,image/png,image/webp" style="display:none;">
+      </div>
+    </div>
+
+    <div class="setup-footer">
+      <button type="button" class="btn btn-gold btn-full" id="setup-continue">Continue</button>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const steps = Array.from(document.querySelectorAll('.setup-step'));
+  const totalSteps = steps.length;
+  let currentIndex = 0;
+
+  const progressFill = document.getElementById('setup-progress-fill');
+  const backBtn = document.getElementById('setup-back');
+  const skipLink = document.getElementById('setup-skip');
+  const continueBtn = document.getElementById('setup-continue');
+
+  // steps that are optional (show Skip) and/or require a value before Continue enables
+  const optionalSteps = [9, 10, 11]; // heading, about you, photos
+  const requiredTextSteps = [9, 10]; // Continue disabled until non-empty
+
+  function renderStep(direction){
+    steps.forEach((s, i)=>{
+      const isActive = i === currentIndex;
+      s.classList.toggle('active', isActive);
+      s.classList.remove('enter-fwd', 'enter-back');
+      if(isActive && direction){
+        // force reflow so the animation replays every time, even on repeat visits to a step
+        void s.offsetWidth;
+        s.classList.add(direction === 'back' ? 'enter-back' : 'enter-fwd');
+      }
+    });
+    const stepNum = currentIndex + 1;
+    progressFill.style.width = ((stepNum / totalSteps) * 100) + '%';
+    backBtn.classList.toggle('hidden', currentIndex === 0);
+    skipLink.classList.toggle('show', optionalSteps.includes(stepNum));
+    updateContinueState();
+  }
+
+  function updateContinueState(){
+    const stepNum = currentIndex + 1;
+    const wasDisabled = continueBtn.disabled;
+    if(requiredTextSteps.includes(stepNum)){
+      const input = stepNum === 9 ? document.getElementById('heading-input') : document.getElementById('about-input');
+      continueBtn.disabled = input.value.trim().length === 0;
+    } else if(stepNum === 8){
+      const selected = document.querySelectorAll('#looking-for-tags .tag-select-btn.selected');
+      continueBtn.disabled = selected.length === 0;
+    } else {
+      continueBtn.disabled = false;
+    }
+    continueBtn.textContent = currentIndex === totalSteps - 1 ? 'Finish' : 'Continue';
+    // a quick pulse the moment Continue flips from disabled to enabled — draws the eye
+    // to the fact that the step is now complete, without needing to read any text
+    if(wasDisabled && !continueBtn.disabled){
+      continueBtn.classList.remove('just-enabled');
+      void continueBtn.offsetWidth;
+      continueBtn.classList.add('just-enabled');
+    }
+  }
+
+  // ── API wiring ───────────────────────────────────────────────────────────────
+  if (!window.FantasiAPI) {
+    console.error('FantasiAPI failed to load — is the backend running, and is this page served through it rather than opened as a file:// URL?');
+  }
+  const apiUnavailable = async () => ({ ok: false, data: { error: 'API unavailable — check that the backend is running.' } });
+  const { api, requireSession, showToast } = window.FantasiAPI || {
+    api: {
+      profile: {
+        update: apiUnavailable,
+        uploadAvatar: apiUnavailable,
+        photos: { list: async () => ({ ok: false, data: [] }), add: apiUnavailable, delete: apiUnavailable },
+      },
+    },
+    requireSession: async () => null,
+    showToast: (msg) => alert(msg),
+  };
+
+  (async () => {
+    if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+    await requireSession();
+  })();
+
+  // Gathers every step's current on-screen state into one PATCH payload.
+  // Weight/height are stored as the picked label text plus the unit toggle —
+  // there's no numeric column, so "160–170 lbs" is stored exactly as shown.
+  function collectProfileData() {
+    const selectedText = (sel) => document.querySelector(sel)?.textContent.trim() || null;
+    const selectedList = (sel) => [...document.querySelectorAll(sel)].map(el => el.textContent.trim());
+
+    return {
+      weight_label: selectedText('[data-picker="weight"] .picker-item.selected'),
+      weight_unit: document.querySelector('[data-toggle="weight-unit"] button.active')?.dataset.value || 'lbs',
+      weight_visible: document.querySelector('[data-toggle="weight-visibility"] button.active')?.dataset.value === 'visible',
+      height_label: selectedText('[data-picker="height"] .picker-item.selected'),
+      height_unit: document.querySelector('[data-toggle="height-unit"] button.active')?.dataset.value || 'ft',
+      location: document.getElementById('loc-input').value.trim() || undefined,
+      education: selectedText('[data-select="education"] .select-list-btn.selected'),
+      relationship_status: selectedText('[data-select="relationship"] .select-list-btn.selected'),
+      smoking: selectedText('[data-select="smoking"] .select-list-btn.selected'),
+      interests: selectedList('[data-tagselect="interests"] .tag-select-btn.selected'),
+      looking_for: selectedList('#looking-for-tags .tag-select-btn.selected'),
+      heading: headingInput.value.trim() || undefined,
+      bio: aboutInput.value.trim() || undefined,
+    };
+  }
+
+  async function saveAndFinish() {
+    const payload = collectProfileData();
+    const { ok, data } = await api.profile.update(payload);
+    if (!ok) {
+      showToast(data?.error || data?.errors?.[0]?.msg || 'Could not save your profile.', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  // photo grid — real multi-photo upload. Slot 1 always shows whichever photo
+  // is primary; slots 2–6 show the rest in position order. Clicking an empty
+  // slot uploads a new photo; clicking a filled one offers to delete it.
+  const psPhotoInput = document.getElementById('ps-photo-input');
+  const psSlots = [1, 2, 3, 4, 5, 6].map(n => document.getElementById(`ps-slot-${n}`));
+
+  function renderSlot(slot, photo) {
+    slot.innerHTML = '';
+    slot.onclick = null;
+    if (photo) {
+      slot.style.backgroundImage = `url(${photo.url})`;
+      slot.style.backgroundSize = 'cover';
+      slot.style.backgroundPosition = 'center';
+      slot.style.opacity = ''; slot.style.cursor = 'pointer';
+      if (photo.is_primary) {
+        const tag = document.createElement('span');
+        tag.className = 'ps-primary-tag';
+        tag.textContent = 'Primary';
+        slot.appendChild(tag);
+      }
+      slot.onclick = async () => {
+        if (!confirm('Delete this photo?')) return;
+        const { ok, data } = await api.profile.photos.delete(photo.id);
+        if (ok) await loadGalleryIntoSlots();
+        else showToast(data?.error || 'Could not delete.', 'error');
+      };
+    } else {
+      slot.style.backgroundImage = '';
+      slot.style.opacity = ''; slot.style.cursor = 'pointer';
+      slot.textContent = '+';
+      slot.onclick = () => psPhotoInput.click();
+    }
+  }
+
+  async function loadGalleryIntoSlots() {
+    const { ok, data: photos } = await api.profile.photos.list();
+    if (!ok) return;
+    const primary = photos.find(p => p.is_primary) || null;
+    const rest = photos.filter(p => p !== primary);
+    renderSlot(psSlots[0], primary);
+    for (let i = 0; i < 5; i++) renderSlot(psSlots[i + 1], rest[i] || null);
+  }
+
+  psPhotoInput.addEventListener('change', async () => {
+    const file = psPhotoInput.files[0];
+    psPhotoInput.value = '';
+    if (!file) return;
+    const { ok, data } = await api.profile.photos.add(file);
+    if (ok) await loadGalleryIntoSlots();
+    else showToast(data?.error || 'Could not upload photo.', 'error');
+  });
+
+  loadGalleryIntoSlots();
+
+  backBtn.addEventListener('click', ()=>{
+    if(currentIndex > 0){ currentIndex--; renderStep('back'); }
+  });
+  skipLink.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    if(currentIndex < totalSteps - 1){
+      currentIndex++;
+      renderStep('fwd');
+    } else {
+      // skipping on the final step should behave the same as finishing, not do nothing
+      if (await saveAndFinish()) window.location.href = '/Dashboard/Profile.html';
+    }
+  });
+  continueBtn.addEventListener('click', async ()=>{
+    if(continueBtn.disabled) return;
+    if(currentIndex < totalSteps - 1){ currentIndex++; renderStep('fwd'); }
+    else {
+      continueBtn.disabled = true;
+      continueBtn.textContent = 'Saving…';
+      const success = await saveAndFinish();
+      if (success) {
+        continueBtn.textContent = 'Saved ✓';
+        setTimeout(()=>{ window.location.href = '/Dashboard/Profile.html'; }, 900);
+      } else {
+        continueBtn.disabled = false;
+        continueBtn.textContent = 'Finish';
+      }
+    }
+  });
+
+  // pill toggles (visible/hidden, lbs/kg, ft/cm)
+  document.querySelectorAll('.pill-toggle').forEach(group=>{
+    group.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        group.querySelectorAll('button').forEach(b=> b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  });
+
+  // picker lists (weight/height) — single select
+  document.querySelectorAll('.picker-list').forEach(list=>{
+    list.querySelectorAll('.picker-item').forEach(item=>{
+      item.addEventListener('click', ()=>{
+        list.querySelectorAll('.picker-item').forEach(i=> i.classList.remove('selected'));
+        item.classList.add('selected');
+      });
+    });
+  });
+
+  // single-select lists (education / relationship / smoking)
+  document.querySelectorAll('.select-list').forEach(list=>{
+    list.querySelectorAll('.select-list-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        list.querySelectorAll('.select-list-btn').forEach(b=> b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+  });
+
+  // interests — free multi-select, no cap
+  document.querySelectorAll('[data-tagselect="interests"] .tag-select-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> btn.classList.toggle('selected'));
+  });
+
+  // "what are you looking for" — capped multi-select
+  const lookingForTags = document.getElementById('looking-for-tags');
+  const tagLimitNote = document.getElementById('tag-limit-note');
+  const maxTags = parseInt(lookingForTags.getAttribute('data-max'), 10);
+  lookingForTags.querySelectorAll('.tag-select-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const selectedCount = lookingForTags.querySelectorAll('.selected').length;
+      if(!btn.classList.contains('selected') && selectedCount >= maxTags) return;
+      btn.classList.toggle('selected');
+      const newCount = lookingForTags.querySelectorAll('.selected').length;
+      tagLimitNote.textContent = `${newCount} of ${maxTags} selected`;
+      updateContinueState();
+    });
+  });
+
+  // text entry char counters, tied to Continue enable state
+  const headingInput = document.getElementById('heading-input');
+  const headingCount = document.getElementById('heading-count');
+  headingInput.addEventListener('input', ()=>{
+    headingCount.textContent = headingInput.value.length;
+    updateContinueState();
+  });
+
+  const aboutInput = document.getElementById('about-input');
+  const aboutCount = document.getElementById('about-count');
+  aboutInput.addEventListener('input', ()=>{
+    aboutCount.textContent = aboutInput.value.length;
+    updateContinueState();
+  });
+
+  // location clear
+  document.getElementById('loc-clear').addEventListener('click', ()=>{
+    document.getElementById('loc-input').value = '';
+  });
+
+  renderStep();
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>

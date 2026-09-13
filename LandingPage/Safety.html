@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safety Center — Fantasi</title>
+<meta name="description" content="How Fantasi verifies members, protects your privacy, and keeps arrangements safe — plus how to report a concern.">
+<meta property="og:title" content="Safety Center — Fantasi">
+<meta property="og:description" content="How Fantasi verifies members, protects your privacy, and keeps arrangements safe — plus how to report a concern.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --font-serif: garamond-premier-pro-display, serif;
+    --font-display: garamond-premier-pro-display, serif;
+    --font-sans: Calson, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  h1,h2,h3{ font-family:var(--font-display); font-weight:400; margin:0; }
+  p{ margin:0; font-family:var(--font-serif); }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  
+.signet-logo {
+    height: 75px;
+    width: auto;
+    display: block;
+    transition: height .5s cubic-bezier(.4, 0, .2, 1);
+}
+  .img{ display:block; width:100%;}
+  .container{ max-width:1000px; margin:0 auto; padding:0 32px; }
+  .eyebrow{
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:15px 32px;
+    font-size:12px; letter-spacing:0.1em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); transition:transform .4s ease, background .4s ease, border-color .4s ease, color .4s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  /* ---------------- nav ---------------- */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 28px 0;
+    }
+
+    header .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-left: 20px;
+    }
+
+    .signet {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-left: -4px;
+    }
+
+    .signet svg {
+      width: 52px;
+      height: 52px;
+      transition: width .5s cubic-bezier(.4, 0, .2, 1), height .5s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .signet-logo {
+      height: 75px;
+      width: auto;
+      display: block;
+      transition: height .5s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .signet-word {
+      font-family: var(--font-display);
+      font-size: 32px;
+      letter-spacing: 0.01em;
+      color: var(--cream);
+      transition: font-size .5s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    header.scrolled .signet svg {
+      width: 56px;
+      height: 56px;
+    }
+
+    header.scrolled .signet-logo {
+      height: 76px;
+    }
+
+    header.scrolled .signet-word {
+      font-size: 21px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .6s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold-bright);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .6s ease;
+    }
+
+    .nav-cta .sign-in {
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .nav-cta .sign-in:hover {
+      color: var(--gold-bright);
+    }
+
+    header.scrolled {
+      background: rgba(11, 10, 12, 0.86);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    header.scrolled .nav-links,
+    header.scrolled .nav-cta {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+  .signet svg{ width:32px; height:32px; }
+  .signet-word{ font-family:var(--font-display); font-size:19px; color:var(--cream); }
+  .back-link{ font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke); transition:color .3s ease; }
+  .back-link:hover{ color:var(--gold-bright); }
+
+  /* intro */
+  .intro{ padding:100px 0 70px; text-align:center; border-bottom:1px solid var(--line); }
+  .intro .eyebrow{ display:block; margin-bottom:20px; }
+  .intro h1{ font-size:clamp(34px,4.6vw,58px); max-width:760px; margin:0 auto 22px; line-height:1.1; }
+  .intro p{ font-family:var(--font-sans); font-size:14px; color:var(--smoke); max-width:560px; margin:0 auto; line-height:1.85; }
+
+  .stats{ display:flex; justify-content:center; gap:64px; flex-wrap:wrap; padding:48px 0; border-bottom:1px solid var(--line); }
+  .stat .num{ font-family:var(--font-display); font-size:32px; color:var(--gold-bright); text-align:center; }
+  .stat .lbl{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke-dim); text-align:center; margin-top:6px; }
+
+  /* section shell */
+  section.block{ padding:90px 0; border-bottom:1px solid var(--line); }
+  .block-head{ max-width:560px; margin-bottom:56px; }
+  .block-head .eyebrow{ display:block; margin-bottom:16px; }
+  .block-head h2{ font-size:clamp(26px,3vw,38px); line-height:1.2; }
+  .block-head p{ font-family:var(--font-sans); font-size:14px; color:var(--smoke); margin-top:16px; line-height:1.8; }
+
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line-strong); border:1px solid var(--line-strong); }
+  .card{ background:var(--noir); padding:34px 28px; }
+  .card .num-index{ font-family:var(--font-display); font-style:italic; font-size:12px; color:var(--gold-dim); display:block; margin-bottom:16px; }
+  .card .icon-chip{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line-strong);
+    background:rgba(199,166,92,0.06); display:flex; align-items:center; justify-content:center; margin-bottom:18px;
+  }
+  .card h3{ font-family:var(--font-serif); font-size:16px; font-weight:500; color:var(--cream); margin-bottom:9px; }
+  .card p{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.75; }
+
+  /* verification steps, numbered */
+  .steps{ display:flex; flex-direction:column; }
+  .step-row{ display:grid; grid-template-columns:60px 1fr; gap:24px; padding:34px 0; border-top:1px solid var(--line); }
+  .step-row:first-child{ border-top:none; padding-top:0; }
+  .step-row .step-num{ font-family:var(--font-display); font-style:italic; font-size:22px; color:var(--gold); }
+  .step-row h3{ font-family:var(--font-serif); font-size:19px; font-weight:500; color:var(--cream); margin-bottom:8px; }
+  .step-row p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.8; max-width:520px; }
+
+  .closing{ padding:100px 0; text-align:center; }
+  .closing .eyebrow{ display:block; margin-bottom:20px; }
+  .closing h2{ font-size:clamp(28px,3.6vw,44px); max-width:640px; margin:0 auto 34px; line-height:1.15; }
+  .closing-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+  footer{ border-top:1px solid var(--line); padding:30px 0; }
+  .footer-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  .footer-legal{ font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); }
+  .footer-links{ display:flex; gap:24px; flex-wrap:wrap; }
+  .footer-links a{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); }
+  .footer-links a:hover{ color:var(--gold-bright); }
+
+  @media (max-width:800px){
+    .grid{ grid-template-columns:1fr; }
+    .stats{ gap:36px; }
+  }
+</style>
+
+</head>
+<body>
+
+  <div class="luxury-grain"></div>
+  <div class="ambient-light"></div>
+  <div class="scroll-progress"><span></span></div>
+
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+  <div id="cursor-label"></div>
+
+ <header id="site-header">
+    <div class="container">
+      <span class="signet">
+        <img src="videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
+
+      </span>
+      <nav class="nav-links">
+        <a href="#about" data-cursor="View">About Us</a>
+        <a href="#discretion" data-cursor="View">Discretion</a>
+        <a href="#how" data-cursor="View">How it works</a>
+        <a href="#membership" data-cursor="View">Membership</a>
+        <a href="Safety.html" data-cursor="View">Safety</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="sign-in" href="/SignInProcess/SignIn.html" data-cursor="Enter">Sign in</a>
+        <a class="btn btn-gold" href="/SignUpProcess/SignUp.html" data-cursor="Begin" style="padding:12px 26px;">Request invitation</a>
+      </div>
+    </div>
+  </header>
+
+<section class="intro">
+  <div class="container">
+    <div class="eyebrow">Safety Center</div>
+    <h1>Every member is verified and invested.</h1>
+    <p>Not just paying — personally background-checked and reviewed before they ever see a match. Payment alone has never kept anyone safe; verification does. This page is what that actually means, in practice.</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="stats">
+    <div class="stat"><div class="num">100%</div><div class="lbl">ID-verified</div></div>
+    <div class="stat"><div class="num">24/7</div><div class="lbl">Safety team</div></div>
+    <div class="stat"><div class="num">&lt;2hrs</div><div class="lbl">Report response</div></div>
+  </div>
+</div>
+
+<section class="block">
+  <div class="container">
+    <div class="block-head">
+      <div class="eyebrow">How admission works</div>
+      <h2>Three checks, before anyone sees you — or you see them.</h2>
+      <p>Membership is never granted on payment alone. Every profile, free or paid, passes through the same review before it becomes visible to anyone else.</p>
+    </div>
+    <div class="steps">
+      <div class="step-row">
+        <span class="step-num">01</span>
+        <div>
+          <h3>Identity verification</h3>
+          <p>Government ID is required before a profile can browse at all. No exceptions, no shortcuts — this applies equally to free and paid members.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">02</span>
+        <div>
+          <h3>Confidential background review</h3>
+          <p>A private background check runs on every application. Results are never shown on your profile — they exist only to keep the platform honest.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">03</span>
+        <div>
+          <h3>Human review</h3>
+          <p>A member of our trust and safety team reads every application personally. Nothing is approved by an algorithm alone.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="container">
+    <div class="block-head">
+      <div class="eyebrow">While you're here</div>
+      <h2>Tools built into the platform, not bolted on after</h2>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <span class="num-index">01</span>
+        <div class="icon-chip"><svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="8" y="14" width="14" height="11" rx="0.5" stroke="#C7A65C" stroke-width="1"/><path d="M11.5 14v-3a3.5 3.5 0 0 1 7 0v3" stroke="#C7A65C" stroke-width="1"/></svg></div>
+        <h3>Blurred-photo mode</h3>
+        <p>Your real photo stays hidden until you personally approve someone to see it — even after you've matched.</p>
+      </div>
+      <div class="card">
+        <span class="num-index">02</span>
+        <div class="icon-chip"><svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="#C7A65C" stroke-width="1"/></svg></div>
+        <h3>Live check-in for dates</h3>
+        <p>Share real-time location with a trusted contact for the length of a meeting. It expires automatically when the date ends.</p>
+      </div>
+      <div class="card">
+        <span class="num-index">03</span>
+        <div class="icon-chip"><svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="#C7A65C" stroke-width="1"/><path d="M15 9v6l4 3" stroke="#C7A65C" stroke-width="1" stroke-linecap="round"/></svg></div>
+        <h3>Duress signal</h3>
+        <p>A quiet way to signal a conversation needs to end, without alerting the other person that anything is wrong.</p>
+      </div>
+      <div class="card">
+        <span class="num-index">04</span>
+        <div class="icon-chip"><svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M8 8l14 14M22 8L8 22" stroke="#C7A65C" stroke-width="1" stroke-linecap="round"/></svg></div>
+        <h3>Screenshot protection</h3>
+        <p>Photos shared in conversation are watermarked and protected against screenshotting where technically possible.</p>
+      </div>
+      <div class="card">
+        <span class="num-index">05</span>
+        <div class="icon-chip"><svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="6" y="6" width="18" height="18" rx="1" stroke="#C7A65C" stroke-width="1"/></svg></div>
+        <h3>Self-destructing messages</h3>
+        <p>Set any conversation to auto-delete after a chosen window — for both sides, permanently.</p>
+      </div>
+      <div class="card">
+        <span class="num-index">06</span>
+        <div class="icon-chip"><svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="#C7A65C" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="#C7A65C" stroke-width="1"/></svg></div>
+        <h3>Employer blocklist</h3>
+        <p>Manually exclude specific companies from ever seeing your profile — never explained, never questioned.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="border-bottom:none;">
+  <div class="container">
+    <div class="block-head">
+      <div class="eyebrow">If something goes wrong</div>
+      <h2>Reporting is never ignored, and never automated.</h2>
+      <p>Every report is read by a person on our trust and safety team — not silently closed by a filter. Blocking is instant and permanent, and requires no explanation.</p>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="container">
+    <div class="eyebrow">Fantasi</div>
+    <h2>Verified, discreet, and yours to explore.</h2>
+    <div class="closing-actions">
+      <a class="btn btn-gold" href="/SignUpProcess/SignUp.html">Request an invitation</a>
+      <a class="btn btn-line" href="/LandingPage/Landing.html">Back to Fantasi</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-row">
+    <div class="footer-links">
+      <a href="/LandingPage/Landing.html#discretion">Discretion</a>
+      <a href="/LandingPage/Landing.html#membership">Membership</a>
+      <a href="/SignUpProcess/SignUp.html">Request an invitation</a>
+    </div>
+    <div class="footer-legal">Fantasi is for consenting adults 18 and older only. © 2026 Fantasi.</div>
+  </div>
+</footer>
+
+<script>
+  // custom cursor
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  const label = document.getElementById('cursor-label');
+  let mx=0,my=0, rx=0, ry=0;
+  window.addEventListener('mousemove', e=>{
+    mx=e.clientX; my=e.clientY;
+    dot.style.left=mx+'px'; dot.style.top=my+'px';
+    label.style.left=mx+'px'; label.style.top=my+'px';
+  });
+  function loop(){
+    rx += (mx-rx)*0.18; ry += (my-ry)*0.18;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(loop);
+  }
+  loop();
+  document.querySelectorAll('a, button').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{
+      ring.classList.add('active');
+      const txt = el.getAttribute('data-cursor');
+      if(txt){ label.textContent = txt; label.classList.add('active'); }
+    });
+    el.addEventListener('mouseleave', ()=>{
+      ring.classList.remove('active');
+      label.classList.remove('active');
+    });
+  });
+ 
+  // ambient gold light — follows cursor
+  const ambientLight = document.querySelector('.ambient-light');
+  if (ambientLight && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    window.addEventListener('mousemove', e => {
+      ambientLight.style.left = e.clientX + 'px';
+      ambientLight.style.top = e.clientY + 'px';
+      ambientLight.style.opacity = '1';
+    });
+  }
+ 
+  // ---- consolidated scroll handling: nav reveal, progress bar, parallax, how-progress ----
+  // one rAF-throttled listener instead of four independent ones, to avoid redundant
+  // layout reads/writes on every scroll event.
+  const progressBar = document.querySelector('.scroll-progress span');
+  const header = document.getElementById('site-header');
+  const heroEl = document.querySelector('.hero');
+  const parallaxImages = document.querySelectorAll('.about-img, .founder-note-bg, .how-media__picture, .safety-bg, .final-cont img');
+  const howSection = document.querySelector('.how');
+  const howProgress = document.querySelector('.how-progress-line span');
+ 
+  let scrollTicking = false;
+ 
+  function runScrollUpdates(){
+    // progress bar
+    if(progressBar){
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      progressBar.style.width = (docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0) + '%';
+    }
+ 
+    // nav reveal
+    if(header && heroEl){
+      header.classList.toggle('scrolled', heroEl.getBoundingClientRect().bottom <= header.offsetHeight);
+    }
+ 
+    // background parallax
+    parallaxImages.forEach(img=>{
+      const rect = img.getBoundingClientRect();
+      if(rect.bottom < 0 || rect.top > window.innerHeight) return;
+      const offset = ((rect.top + rect.height / 2) - window.innerHeight / 2) * -0.035;
+      img.style.transform = `translate3d(0, ${offset}px, 0) scale(1.035)`;
+    });
+ 
+    // how-it-works progress line
+    if(howSection && howProgress){
+      const rect = howSection.getBoundingClientRect();
+      const start = window.innerHeight * 0.75;
+      const end = -rect.height * 0.15;
+      const progress = Math.max(0, Math.min(1, (start - rect.top) / (start - end)));
+      howProgress.style.height = progress * 100 + '%';
+    }
+ 
+    scrollTicking = false;
+  }
+ 
+  function onScroll(){
+    if(!scrollTicking){
+      requestAnimationFrame(runScrollUpdates);
+      scrollTicking = true;
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  runScrollUpdates();
+ 
+  // scroll reveals
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){ entry.target.classList.add('in-view'); }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal, .drop-in, .ux-card').forEach(el=>io.observe(el));
+ 
+</script>
+
+</body>
+</html>

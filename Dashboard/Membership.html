@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membership — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  h1,h2{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  h3,h4{ font-family:var(--font-serif); font-weight:400; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .eyebrow{
+    font-family:var(--font-header); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 22px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .btn-bordeaux{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .btn-bordeaux:hover{ background:rgba(113,26,46,0.12); }
+  .btn-small{ padding:9px 16px; font-size:10px; }
+  .btn-full{ width:100%; justify-content:center; }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none; opacity:0.04; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  .shell{ display:flex; min-height:100vh; }
+
+  .sidebar{
+    width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  }
+  .sidebar-brand{ padding:26px 24px; border-bottom:1px solid var(--line); }
+  .sidebar-brand .signet-logo{ height:55px; width:auto; }
+  .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
+    font-family:var(--font-sans); font-size:12.5px; letter-spacing:0.02em; color:var(--smoke);
+    transition:background .25s ease, color .25s ease;
+  }
+  .nav-item svg{ flex-shrink:0; opacity:0.75; }
+  .nav-item:hover{ background:rgba(199,166,92,0.05); color:var(--cream); }
+  .nav-item.active{ background:rgba(199,166,92,0.09); color:var(--gold-bright); }
+  .nav-item.active svg{ opacity:1; }
+  .nav-item.locked{ opacity:0.45; cursor:not-allowed; pointer-events:none; }
+  .nav-lock-badge{
+    margin-left:auto; font-family:var(--font-sans); font-size:8px; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--gold-dim); border:1px solid var(--line-strong); padding:2px 7px; border-radius:10px; flex-shrink:0;
+  }
+  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); }
+  .mini-account{ display:flex; align-items:center; gap:11px; }
+  .mini-avatar{
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--noir);
+  }
+  .mini-account-name{ font-family:var(--font-sans); font-size:12px; color:var(--cream); }
+  .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
+
+  .main{ flex:1; min-width:0; padding:44px 56px 80px; }
+  .main-inner{ max-width:900px; }
+
+  .page-head{ margin-bottom:32px; }
+  .page-head h1{ font-size:32px; margin-bottom:6px; }
+  .page-head p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
+
+  /* current plan summary */
+  .plan-summary{
+    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+    border:1px solid var(--gold-dim); border-radius:6px; padding:26px 30px; margin-bottom:40px;
+    background:rgba(199,166,92,0.04);
+  }
+  .plan-summary-left{ display:flex; align-items:center; gap:18px; }
+  .plan-icon{
+    width:52px; height:52px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:24px; color:var(--noir);
+  }
+  .plan-summary h2{ font-size:22px; margin-bottom:4px; }
+  .plan-summary-meta{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); }
+
+  .section{ margin-bottom:44px; }
+  .section-head{ margin-bottom:20px; }
+  .section-head h3{ font-size:18px; margin-bottom:6px; font-family: var(--font-sans); }
+  .section-head p{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); }
+
+  /* tier cards — reused band component from signup.html */
+  .tier-list{ display:flex; gap:18px; }
+  .tier-card{
+    flex:1; position:relative; overflow:hidden; border:1px solid var(--line-strong); border-radius:6px;
+    padding:0 24px 26px; transition:border-color .3s ease, transform .3s ease;
+  }
+  .tier-card:hover{ transform:translateY(-3px); }
+  .tier-card.current{ border-color:var(--gold); }
+  .tier-card-band{ margin:0 -24px 20px; padding:20px 16px; text-align:center; }
+  .tier-card.silver .tier-card-band{ background:linear-gradient(120deg, #EDEFF0 0%, var(--silver-bright) 30%, var(--silver) 65%, var(--silver-dim) 100%); }
+  .tier-card.gold .tier-card-band{ background:linear-gradient(120deg, #F7EACB 0%, var(--gold-bright) 30%, var(--gold) 65%, var(--gold-dim) 100%); }
+  .tier-card.black .tier-card-band{ background:linear-gradient(120deg, #3D3D3D 0%, #1A1A1A 40%, #0A0A0A 75%, #000000 100%); }
+  .tier-card-band .band-tag{ display:block; font-family:var(--font-sans); font-size:9px; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:3px; opacity:0.75; }
+  .tier-card.silver .band-tag{ color:#1C1D1E; }
+  .tier-card.gold .band-tag{ color:var(--noir); }
+  .tier-card.black .band-tag{ color:var(--gold-bright); }
+  .tier-card-band h4{ font-family:var(--font-display); font-style:italic; font-weight:300; font-size:26px; }
+  .tier-card.silver .tier-card-band h4{ color:#1C1D1E; }
+  .tier-card.gold .tier-card-band h4{ color:var(--noir); }
+  .tier-card.black .tier-card-band h4{ color:var(--gold-bright); }
+  .tier-price{ text-align:center; margin-bottom:18px; }
+  .tier-price .amount{ font-family:var(--font-sans); font-style:normal; font-size:34px; color:var(--cream); }
+  .tier-price .period{ font-family:var(--font-sans); font-size:10px; color:var(--smoke); }
+  .tier-current-badge{
+    display:block; text-align:center; font-family:'Times New Roman', Times, serif; font-size:9px; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--gold-bright); margin-bottom:14px;
+  }
+
+  /* billing */
+  .billing-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 0; border-bottom:1px solid var(--line); }
+  .billing-row:first-child{ border-top:1px solid var(--line); }
+  .billing-row-label{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--smoke-dim); }
+  .billing-row-value{ font-family:var(--font-sans); font-size:14px; color:var(--cream); }
+  .billing-row .link-btn{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); transition:color .3s ease; }
+  .billing-row .link-btn:hover{ color:var(--gold-bright); }
+
+  table.history-table{ width:100%; border-collapse:collapse; }
+  table.history-table th{
+    text-align:left; font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--smoke-dim); padding:0 0 12px; border-bottom:1px solid var(--line);
+  }
+  table.history-table td{
+    font-family:var(--font-sans); font-size:12.5px; color:var(--cream); padding:14px 0; border-bottom:1px solid var(--line);
+  }
+  .status-pill{ font-size:10px; letter-spacing:0.04em; text-transform:uppercase; color:var(--gold-bright); }
+
+  /* cancel */
+  .cancel-zone{ border:1px solid rgba(113,26,46,0.35); border-radius:6px; padding:22px 26px; }
+  .cancel-zone p{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.7; margin-bottom:16px; max-width:520px; }
+
+  /* cancel confirmation overlay */
+  .confirm-overlay{
+    position:fixed; inset:0; z-index:9999; background:rgba(11,10,12,0.88); backdrop-filter:blur(8px);
+    display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .35s ease;
+  }
+  .confirm-overlay.open{ opacity:1; pointer-events:auto; }
+  .confirm-modal{
+    width:min(420px, 100%); background:var(--noir-soft); border:1px solid var(--bordeaux-bright); border-radius:8px;
+    padding:32px 30px; text-align:center; transform:translateY(16px); transition:transform .4s cubic-bezier(.2,.6,.2,1);
+  }
+  .confirm-overlay.open .confirm-modal{ transform:translateY(0); }
+  .confirm-modal h3{ font-size:19px; margin-bottom:10px; font-family: var(--font-display);}
+  .confirm-modal p{ font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); line-height:1.7; margin-bottom:22px; }
+  .confirm-actions{ display:flex; flex-direction:column; gap:10px; }
+
+  /* Black upgrade — question step */
+  .upgrade-panel{ display:none; }
+  .upgrade-panel.active{ display:block; }
+  .upgrade-question-label{
+    display:block; font-family:var(--font-sans); font-size:10px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--smoke-dim); text-align:left; margin-bottom:10px;
+  }
+  .upgrade-textarea{
+    width:100%; background:none; border:none; border-bottom:1px solid var(--line-strong);
+    padding:10px 0; color:var(--cream); font-family:var(--font-sans); font-size:15px;
+    outline:none; resize:none; line-height:1.6; transition:border-color .3s ease;
+    text-align:left;
+  }
+  .upgrade-textarea:focus{ border-color:var(--gold); }
+  .upgrade-textarea::placeholder{ color:var(--smoke-dim); }
+  .upgrade-char-count{
+    font-family:var(--font-sans); font-size:10px; color:var(--smoke-dim);
+    text-align:right; margin-top:6px;
+  }
+
+
+  @media (max-width:980px){
+    .sidebar{ display:none; }
+    .main{ padding:32px 22px 60px; }
+  }
+  @media (max-width:760px){ .tier-list{ flex-direction:column; } }
+</style>
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a href="/LandingPage/Landing.html"><img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo"></a>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/Dashboard/Discover.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Discover
+      </a>
+      <a class="nav-item" href="/Dashboard/Search.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="13" cy="13" r="8" stroke="currentColor" stroke-width="1"/><path d="M19 19l6 6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Search
+      </a>
+      <a class="nav-item" href="/Dashboard/Interests.html">
+        <svg width="16" height="16" viewBox="0 0 20 18" fill="none"><path d="M10 17s-6.5-4.2-8.4-8.7C.4 5.6 2.2 2 5.4 2c1.8 0 3.3 1 4.2 2.4C10.4 3 11.9 2 13.7 2c3.2 0 5 3.6 3.8 6.3C15.5 12.8 10 17 10 17z" stroke="currentColor" stroke-width="1"/></svg>
+        Interests
+      </a>
+      <a class="nav-item" href="/Dashboard/Messages.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>
+        Messages
+      </a>
+      <a class="nav-item locked" href="/Dashboard/Chatrooms.html" title="Black tier only">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M6 14a9 9 0 1 0 18 0 9 9 0 0 0-18 0z" stroke="currentColor" stroke-width="1"/><path d="M6 20a9 9 0 0 0 12 5.5M24 20a9 9 0 0 1-12 5.5" stroke="currentColor" stroke-width="1"/></svg>
+        Chatrooms
+        <span class="nav-lock-badge">Black</span>
+      </a>
+      <a class="nav-item" href="/Dashboard/Profile.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        My Profile
+      </a>
+      <a class="nav-item" href="/Dashboard/Privacy.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1"/></svg>
+        Privacy &amp; Data
+      </a>
+      <a class="nav-item active" href="/Dashboard/Membership.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+        Membership
+      </a>
+      <a class="nav-item" href="/LandingPage/Safety.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
+        Safety
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="mini-account">
+        <div class="mini-avatar"></div>
+        <div>
+          <div class="mini-account-name">Loading…</div>
+          <div class="mini-account-tier"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+
+      <div class="page-head">
+        <span class="eyebrow">Membership</span>
+        <h1 style="margin-top:10px;">Membership</h1>
+        <p>Your plan, your billing, and what's next.</p>
+      </div>
+
+      <!-- current plan -->
+      <div class="plan-summary">
+        <div class="plan-summary-left">
+          <div class="plan-icon" id="plan-icon"></div>
+          <div>
+            <h2 id="plan-name">Loading…</h2>
+            <div class="plan-summary-meta" id="plan-meta"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- tier comparison -->
+      <div class="section">
+        <div class="section-head">
+          <h3>Compare tiers</h3>
+          <p>Fantasi is by private invitation — request a tier and our team will follow up.</p>
+        </div>
+        <div class="tier-list" id="tier-list"></div>
+      </div>
+
+      <!-- billing details -->
+      <div class="section">
+        <div class="section-head"><h3>Billing</h3></div>
+        <div class="billing-row">
+          <div><div class="billing-row-label">Billing email</div><div class="billing-row-value" id="billing-email"></div></div>
+        </div>
+        <div class="billing-row">
+          <div><div class="billing-row-label">Current period ends</div><div class="billing-row-value" id="billing-period-end">—</div></div>
+        </div>
+      </div>
+
+      <!-- billing history -->
+      <div class="section">
+        <div class="section-head"><h3>Billing history</h3></div>
+        <table class="history-table">
+          <thead>
+            <tr><th>Date</th><th>Tier</th><th>Status</th></tr>
+          </thead>
+          <tbody id="history-body">
+            <tr><td colspan="3" style="color:var(--smoke-dim);">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- cancel -->
+      <div class="section" style="margin-bottom:0;" id="cancel-section">
+        <div class="section-head"><h3>Cancel membership</h3></div>
+        <div class="cancel-zone">
+          <p>Cancelling moves you to Free immediately. Your profile, photos, and messages are kept — nothing is deleted.</p>
+          <button type="button" class="btn btn-bordeaux btn-small" id="cancel-trigger">Cancel Membership</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- cancel confirmation -->
+<div class="confirm-overlay" id="cancel-overlay">
+  <div class="confirm-modal">
+    <h3>Cancel your membership?</h3>
+    <p>You'll move to Free right away. You can upgrade again at any time.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-bordeaux btn-full" id="cancel-confirm">Yes, Cancel Membership</button>
+      <button type="button" class="btn btn-line btn-full" id="cancel-dismiss">Keep My Membership</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+(async () => {
+  if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+  const { api, initDashboard, capitalize, requestMembershipUpgrade, showToast } = window.FantasiAPI;
+
+  const me = await initDashboard();
+  if (!me) return;
+
+  const TIER_ORDER = ['free', 'silver', 'gold', 'black'];
+  const TIER_TAGS  = { free: 'Get started', silver: 'Begin your search', gold: 'Most requested', black: 'By invitation' };
+
+  document.getElementById('billing-email').textContent = me.email;
+
+  async function loadMembership() {
+    const { ok, data } = await api.membership.get();
+    if (!ok) { showToast(data?.error || 'Could not load membership.', 'error'); return; }
+    render(data);
+  }
+
+  function render(data) {
+    const tier = data.current_tier;
+    document.getElementById('plan-icon').textContent = tier.charAt(0).toUpperCase();
+    document.getElementById('plan-name').textContent = capitalize(tier);
+    document.getElementById('plan-meta').textContent = tier === 'free'
+      ? 'No active membership'
+      : (data.active_membership?.expires_at
+          ? `Active until ${new Date(data.active_membership.expires_at).toLocaleDateString()}`
+          : 'Active — no expiry on file');
+
+    document.getElementById('billing-period-end').textContent = data.active_membership?.expires_at
+      ? new Date(data.active_membership.expires_at).toLocaleDateString()
+      : '—';
+
+    document.getElementById('cancel-section').style.display = tier === 'free' ? 'none' : 'block';
+
+    // ---- tier comparison cards ----
+    const tierList = document.getElementById('tier-list');
+    tierList.innerHTML = '';
+    const currentRank = TIER_ORDER.indexOf(tier);
+
+    TIER_ORDER.forEach((t, rank) => {
+      const card = document.createElement('div');
+      card.className = `tier-card ${t}` + (t === tier ? ' current' : '');
+
+      const band = document.createElement('div');
+      band.className = 'tier-card-band';
+      band.innerHTML = `<span class="band-tag">${TIER_TAGS[t]}</span><h4>${capitalize(t)}</h4>`;
+
+      // No pricing shown — Fantasi takes no payment itself; tiers above Free
+      // are granted by invitation after a request is reviewed.
+      card.append(band);
+
+      if (t === tier) {
+        const badge = document.createElement('span');
+        badge.className = 'tier-current-badge';
+        badge.textContent = '✓ Your current plan';
+        card.appendChild(badge);
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'btn btn-gold btn-full'; btn.disabled = true;
+        btn.textContent = 'Current Plan';
+        card.appendChild(btn);
+      } else if (rank > currentRank) {
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'btn btn-line btn-full';
+        if (data.pending_request) {
+          btn.disabled = true;
+          btn.textContent = data.pending_request.requested_tier === t
+            ? 'Request Pending'
+            : 'Pending Request';
+        } else {
+          btn.textContent = `Request ${capitalize(t)}`;
+          btn.addEventListener('click', async () => {
+            const note = prompt(`Anything you'd like our team to know with your ${capitalize(t)} request? (optional)`);
+            if (note === null) return; // cancelled
+            const { submitted } = await requestMembershipUpgrade(t, note.trim() || undefined);
+            if (submitted) loadMembership();
+          });
+        }
+        card.appendChild(btn);
+      } else {
+        const note = document.createElement('p');
+        note.style.cssText = 'font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); text-align:center;';
+        note.textContent = 'Included in your plan';
+        card.appendChild(note);
+      }
+      tierList.appendChild(card);
+    });
+
+    // ---- billing history ----
+    const historyBody = document.getElementById('history-body');
+    historyBody.innerHTML = '';
+    if (!data.history.length) {
+      historyBody.innerHTML = '<tr><td colspan="3" style="color:var(--smoke-dim);">No billing history yet.</td></tr>';
+    } else {
+      data.history.forEach(row => {
+        const tr = document.createElement('tr');
+        const dateTd = document.createElement('td');
+        dateTd.textContent = new Date(row.created_at).toLocaleDateString();
+        const tierTd = document.createElement('td');
+        tierTd.textContent = capitalize(row.tier);
+        const statusTd = document.createElement('td');
+        const pill = document.createElement('span');
+        pill.className = 'status-pill';
+        pill.textContent = row.is_active ? 'Active' : 'Ended';
+        statusTd.appendChild(pill);
+        tr.append(dateTd, tierTd, statusTd);
+        historyBody.appendChild(tr);
+      });
+    }
+  }
+
+  // ---- cancel flow ----
+  const cancelOverlay = document.getElementById('cancel-overlay');
+  document.getElementById('cancel-trigger').addEventListener('click', () => cancelOverlay.classList.add('open'));
+  document.getElementById('cancel-dismiss').addEventListener('click', () => cancelOverlay.classList.remove('open'));
+  cancelOverlay.addEventListener('click', (e) => { if (e.target === cancelOverlay) cancelOverlay.classList.remove('open'); });
+  document.getElementById('cancel-confirm').addEventListener('click', async () => {
+    const btn = document.getElementById('cancel-confirm');
+    btn.disabled = true;
+    const { ok, data } = await api.membership.cancel();
+    if (ok) {
+      btn.textContent = 'Membership Cancelled ✓';
+      setTimeout(() => { cancelOverlay.classList.remove('open'); loadMembership(); }, 1200);
+    } else {
+      showToast(data?.error || 'Could not cancel membership.', 'error');
+      btn.disabled = false;
+    }
+  });
+
+  await loadMembership();
+})();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>

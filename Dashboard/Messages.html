@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  h1{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  h3{ font-family:var(--font-serif); font-weight:400; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .eyebrow{
+    font-family:var(--font-header); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 18px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none; opacity:0.04; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  .shell{ display:flex; height:100vh; overflow:hidden; }
+
+  .sidebar{
+    width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; height:100vh;
+  }
+  .sidebar-brand{ padding:26px 24px; border-bottom:1px solid var(--line); }
+  .sidebar-brand .signet-logo{ height:55px; width:auto; }
+  .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; overflow-y:auto; }
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
+    font-family:var(--font-sans); font-size:12.5px; letter-spacing:0.02em; color:var(--smoke);
+    transition:background .25s ease, color .25s ease;
+  }
+  .nav-item svg{ flex-shrink:0; opacity:0.75; }
+  .nav-item:hover{ background:rgba(199,166,92,0.05); color:var(--cream); }
+  .nav-item.active{ background:rgba(199,166,92,0.09); color:var(--gold-bright); }
+  .nav-item.active svg{ opacity:1; }
+  .nav-item.locked{ opacity:0.45; cursor:not-allowed; pointer-events:none; }
+  .nav-lock-badge{
+    margin-left:auto; font-family:var(--font-sans); font-size:8px; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--gold-dim); border:1px solid var(--line-strong); padding:2px 7px; border-radius:10px; flex-shrink:0;
+  }
+  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); }
+  .mini-account{ display:flex; align-items:center; gap:11px; }
+  .mini-avatar{
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--noir);
+  }
+  .mini-account-name{ font-family:var(--font-sans); font-size:12px; color:var(--cream); }
+  .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
+
+  /* ---------------- conversation list ---------------- */
+  .convo-list{ width:320px; flex-shrink:0; border-right:1px solid var(--line); display:flex; flex-direction:column; height:100vh; }
+  .convo-head{ padding:24px 22px 18px; border-bottom:1px solid var(--line); }
+  .convo-head h1{ font-size:24px; }
+  .convo-items{ flex:1; overflow-y:auto; }
+  .convo-item{
+    display:flex; align-items:center; gap:12px; padding:16px 22px; border-bottom:1px solid var(--line);
+    cursor:pointer; transition:background .2s ease;
+  }
+  .convo-item:hover{ background:rgba(199,166,92,0.03); }
+  .convo-item.active{ background:rgba(199,166,92,0.07); }
+  .convo-avatar{
+    width:42px; height:42px; border-radius:50%; flex-shrink:0; position:relative;
+    background:linear-gradient(135deg, #3D3D3D, #0A0A0A); border:1px solid rgba(228,198,135,0.2);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:17px; color:var(--gold-bright);
+  }
+  .convo-avatar.gold{ background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim)); border-color:transparent; color:var(--noir); }
+  .convo-avatar.silver{ background:linear-gradient(135deg, var(--silver-bright), var(--silver-dim)); border-color:transparent; color:#1C1D1E; }
+  .convo-unread-dot{
+    position:absolute; top:-2px; right:-2px; width:11px; height:11px; border-radius:50%;
+    background:var(--gold); border:2px solid var(--noir-soft);
+  }
+  .convo-body{ flex:1; min-width:0; }
+  .convo-name-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .convo-name{ font-family:var(--font-serif); font-size:14px; color:var(--cream); }
+  .convo-time{ font-family:var(--font-sans); font-size:10px; color:var(--smoke-dim); flex-shrink:0; }
+  .convo-preview{
+    font-family:var(--font-sans); font-size:12px; color:var(--smoke); margin-top:3px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .convo-item.unread .convo-preview{ color:var(--cream); }
+  .convo-item.unread .convo-name{ font-weight:500; }
+
+  /* ---------------- chat pane ---------------- */
+  .chat-pane{ flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; }
+  .chat-header{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:18px 28px; border-bottom:1px solid var(--line);
+  }
+  .chat-header-left{ display:flex; align-items:center; gap:12px; }
+  .chat-header-name{ display:flex; align-items:center; gap:8px; }
+  .chat-header-name h3{ font-size:16px; color:var(--cream); }
+  .tier-chip{
+    font-family:var(--font-sans); font-size:8px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:3px 8px; border-radius:20px;
+  }
+  .tier-chip.gold{ background:rgba(199,166,92,0.9); color:var(--noir); }
+  .chat-header-status{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); margin-top:2px; }
+  .chat-header-actions{ display:flex; align-items:center; gap:10px; }
+  .destruct-pill{
+    display:flex; align-items:center; gap:6px; font-family:var(--font-sans); font-size:10px;
+    color:var(--smoke-dim); border:1px solid var(--line-strong); padding:6px 11px; border-radius:20px;
+    opacity:0.5; cursor:not-allowed;
+  }
+  .icon-btn{
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--line-strong); display:flex;
+    align-items:center; justify-content:center; color:var(--smoke); transition:border-color .3s ease, color .3s ease;
+  }
+  .icon-btn:hover{ border-color:var(--gold); color:var(--gold-bright); }
+
+  .chat-messages{ flex:1; overflow-y:auto; padding:26px 28px; display:flex; flex-direction:column; gap:14px; }
+  .msg-row{ display:flex; }
+  .msg-row.sent{ justify-content:flex-end; }
+  .msg-bubble{
+    max-width:60%; padding:12px 16px; border-radius:14px; font-family:var(--font-sans); font-size:13px; line-height:1.6;
+  }
+  .msg-row.received .msg-bubble{ background:var(--noir-soft); border:1px solid var(--line-strong); border-bottom-left-radius:3px; }
+  .msg-row.sent .msg-bubble{ background:var(--gold); color:var(--noir); border-bottom-right-radius:3px; }
+  .msg-time{
+    font-family:var(--font-sans); font-size:9px; color:var(--smoke-dim); margin-top:4px;
+  }
+  .msg-row.sent .msg-time{ text-align:right; }
+
+  .chat-input-row{
+    display:flex; align-items:center; gap:12px; padding:18px 28px; border-top:1px solid var(--line);
+  }
+  .chat-input-row input{
+    flex:1; background:none; border:1px solid var(--line-strong); border-radius:24px;
+    padding:13px 18px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;
+    transition:border-color .3s ease;
+  }
+  .chat-input-row input:focus{ border-color:var(--gold); }
+  .chat-input-row input::placeholder{ color:var(--smoke-dim); }
+  .send-btn{
+    width:42px; height:42px; border-radius:50%; background:var(--gold); color:var(--noir);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .3s ease, transform .2s ease;
+  }
+  .send-btn:hover{ background:var(--gold-bright); transform:scale(1.05); }
+
+  .screenshot-note{
+    font-family:var(--font-sans); font-size:9.5px; color:var(--smoke-dim); text-align:center; padding:0 28px 12px;
+  }
+
+  @media (max-width:980px){
+    .sidebar{ display:none; }
+    .convo-list{ width:260px; }
+    .msg-bubble{ max-width:78%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a href="/LandingPage/Landing.html"><img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo"></a>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/Dashboard/Discover.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Discover
+      </a>
+      <a class="nav-item" href="/Dashboard/Search.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="13" cy="13" r="8" stroke="currentColor" stroke-width="1"/><path d="M19 19l6 6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Search
+      </a>
+      <a class="nav-item" href="/Dashboard/Interests.html">
+        <svg width="16" height="16" viewBox="0 0 20 18" fill="none"><path d="M10 17s-6.5-4.2-8.4-8.7C.4 5.6 2.2 2 5.4 2c1.8 0 3.3 1 4.2 2.4C10.4 3 11.9 2 13.7 2c3.2 0 5 3.6 3.8 6.3C15.5 12.8 10 17 10 17z" stroke="currentColor" stroke-width="1"/></svg>
+        Interests
+      </a>
+      <a class="nav-item active" href="/Dashboard/Messages.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>
+        Messages
+      </a>
+      <a class="nav-item locked" href="/Dashboard/Chatrooms.html" title="Black tier only">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M6 14a9 9 0 1 0 18 0 9 9 0 0 0-18 0z" stroke="currentColor" stroke-width="1"/><path d="M6 20a9 9 0 0 0 12 5.5M24 20a9 9 0 0 1-12 5.5" stroke="currentColor" stroke-width="1"/></svg>
+        Chatrooms
+        <span class="nav-lock-badge">Black</span>
+      </a>
+      <a class="nav-item" href="/Dashboard/Profile.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        My Profile
+      </a>
+      <a class="nav-item" href="/Dashboard/Privacy.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1"/></svg>
+        Privacy &amp; Data
+      </a>
+      <a class="nav-item" href="/Dashboard/Membership.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+        Membership
+      </a>
+      <a class="nav-item" href="/LandingPage/Safety.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
+        Safety
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="mini-account">
+        <div class="mini-avatar"></div>
+        <div>
+          <div class="mini-account-name">Loading…</div>
+          <div class="mini-account-tier"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ CONVERSATION LIST ============ -->
+  <div class="convo-list">
+    <div class="convo-head">
+      <span class="eyebrow">Messages</span>
+      <h1 style="margin-top:8px;">Connect</h1>
+    </div>
+    <div class="convo-items" id="convo-items">
+      <p id="convo-empty" style="display:none; padding:20px 22px; font-family:var(--font-sans); font-size:12px; color:var(--smoke);">
+        No conversations yet — message someone from Discover or Search to start one.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ CHAT PANE ============ -->
+  <div class="chat-pane">
+    <div class="chat-header" id="chat-header" style="display:none;">
+      <div class="chat-header-left">
+        <div class="convo-avatar" style="width:38px; height:38px; font-size:15px;" id="chat-avatar"></div>
+        <div class="chat-header-name">
+          <h3 id="chat-name"></h3>
+          <span class="tier-chip" id="chat-tier" style="display:none;"></span>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <div class="destruct-pill" title="Black tier only">
+          <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><rect x="6" y="6" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+          Self-destruct
+        </div>
+        <button type="button" class="icon-btn" id="chat-more-btn" title="Report or block">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="4" r="1.3" fill="currentColor"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/><circle cx="10" cy="16" r="1.3" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+      <p id="chat-placeholder" style="font-family:var(--font-sans); font-size:12px; color:var(--smoke); text-align:center; margin-top:40px;">
+        Select a conversation to start reading.
+      </p>
+    </div>
+
+    <div class="screenshot-note" id="screenshot-note" style="display:none;">Screenshot protection is active in this conversation — a Gold membership feature.</div>
+    <div class="chat-input-row" id="chat-input-row" style="display:none;">
+      <input type="text" id="chat-input" placeholder="Send a message…">
+      <button type="button" class="send-btn" id="chat-send" aria-label="Send">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 10h14M10 3l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(async () => {
+  if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+  const { api, initDashboard, capitalize, initials, showToast } = window.FantasiAPI;
+
+  const me = await initDashboard();
+  if (!me) return;
+
+  const convoItemsEl = document.getElementById('convo-items');
+  const convoEmpty   = document.getElementById('convo-empty');
+  const chatHeader   = document.getElementById('chat-header');
+  const chatName     = document.getElementById('chat-name');
+  const chatAvatar   = document.getElementById('chat-avatar');
+  const chatTier     = document.getElementById('chat-tier');
+  const chatMessages = document.getElementById('chat-messages');
+  const chatPlaceholder = document.getElementById('chat-placeholder');
+  const chatInputRow = document.getElementById('chat-input-row');
+  const screenshotNote = document.getElementById('screenshot-note');
+  const chatInput    = document.getElementById('chat-input');
+  const moreBtn      = document.getElementById('chat-more-btn');
+
+  let activePartnerId = null;
+
+  function relativeTime(iso) {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.round(diffMs / 60000);
+    if (mins < 1) return 'now';
+    if (mins < 60) return `${mins}m`;
+    const hours = Math.round(mins / 60);
+    if (hours < 24) return `${hours}h`;
+    return `${Math.round(hours / 24)}d`;
+  }
+
+  function buildConvoItem(convo) {
+    const item = document.createElement('div');
+    item.className = 'convo-item' + (convo.unread_count > 0 ? ' unread' : '');
+    item.dataset.partnerId = convo.partner_id;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'convo-avatar';
+    if (convo.partner_avatar) {
+      avatar.style.backgroundImage = `url(${convo.partner_avatar})`;
+      avatar.style.backgroundSize = 'cover';
+      avatar.style.backgroundPosition = 'center';
+    } else {
+      avatar.textContent = initials(convo.partner_name);
+    }
+    if (convo.unread_count > 0) {
+      const dot = document.createElement('span');
+      dot.className = 'convo-unread-dot';
+      avatar.appendChild(dot);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'convo-body';
+    const nameRow = document.createElement('div');
+    nameRow.className = 'convo-name-row';
+    const nameEl = document.createElement('span');
+    nameEl.className = 'convo-name';
+    nameEl.textContent = convo.partner_name;
+    const timeEl = document.createElement('span');
+    timeEl.className = 'convo-time';
+    timeEl.textContent = relativeTime(convo.last_sent_at);
+    nameRow.append(nameEl, timeEl);
+    const preview = document.createElement('div');
+    preview.className = 'convo-preview';
+    preview.textContent = convo.last_body;
+    body.append(nameRow, preview);
+
+    item.append(avatar, body);
+    item.addEventListener('click', () => openConversation(convo.partner_id, convo.partner_name, convo.partner_avatar));
+    return item;
+  }
+
+  async function loadConversations() {
+    const { ok, data } = await api.messages.conversations();
+    if (!ok) { showToast(data?.error || 'Could not load conversations.', 'error'); return; }
+    convoItemsEl.querySelectorAll('.convo-item').forEach(el => el.remove());
+    data.forEach(c => convoItemsEl.appendChild(buildConvoItem(c)));
+    convoEmpty.style.display = data.length ? 'none' : 'block';
+    return data;
+  }
+
+  function buildMessageRow(msg) {
+    const row = document.createElement('div');
+    row.className = 'msg-row ' + (msg.sender_id === me.id ? 'sent' : 'received');
+    const wrap = document.createElement('div');
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.textContent = msg.body;
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = new Date(msg.created_at).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+    wrap.append(bubble, time);
+    row.appendChild(wrap);
+    return row;
+  }
+
+  async function openConversation(partnerId, knownName, knownAvatar) {
+    activePartnerId = partnerId;
+
+    document.querySelectorAll('.convo-item').forEach(i => {
+      const isActive = i.dataset.partnerId === partnerId;
+      i.classList.toggle('active', isActive);
+      if (isActive) { i.classList.remove('unread'); i.querySelector('.convo-unread-dot')?.remove(); }
+    });
+
+    chatHeader.style.display = 'flex';
+    chatInputRow.style.display = 'flex';
+    chatName.textContent = knownName || '…';
+    chatAvatar.textContent = '';
+    chatAvatar.style.backgroundImage = knownAvatar ? `url(${knownAvatar})` : '';
+    if (!knownAvatar) chatAvatar.textContent = initials(knownName);
+    chatTier.style.display = 'none';
+
+    // One fetch covers everything the header needs: name/avatar (only used
+    // as a fallback — arriving via ?to=<id> with nothing in the conversation
+    // list yet) plus the tier chip and screenshot-protection note.
+    const { ok, data: partner } = await api.profile.get(partnerId);
+    if (ok) {
+      if (!knownName) {
+        chatName.textContent = partner.display_name;
+        if (partner.avatar_url) chatAvatar.style.backgroundImage = `url(${partner.avatar_url})`;
+        else chatAvatar.textContent = initials(partner.display_name);
+      }
+      if (partner.membership_tier !== 'free') {
+        chatTier.style.display = 'inline-block';
+        chatTier.className = `tier-chip ${partner.membership_tier}`;
+        chatTier.textContent = capitalize(partner.membership_tier);
+      }
+      screenshotNote.style.display = partner.membership_tier !== 'free' ? 'block' : 'none';
+    }
+
+    chatPlaceholder.remove();
+    chatMessages.innerHTML = '<p style="text-align:center; color:var(--smoke-dim); font-size:11px;">Loading…</p>';
+    const threadRes = await api.messages.thread(partnerId);
+    chatMessages.innerHTML = '';
+    if (!threadRes.ok) { showToast(threadRes.data?.error || 'Could not load messages.', 'error'); return; }
+    threadRes.data.messages.forEach(m => chatMessages.appendChild(buildMessageRow(m)));
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text || !activePartnerId) return;
+    chatInput.value = '';
+    const { ok, data } = await api.messages.send(activePartnerId, text);
+    if (!ok) { showToast(data?.error || 'Could not send message.', 'error'); return; }
+    chatMessages.appendChild(buildMessageRow(data));
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  document.getElementById('chat-send').addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+  moreBtn.addEventListener('click', async () => {
+    if (!activePartnerId) return;
+    if (confirm('Block this member? You will no longer see or receive messages from them.')) {
+      const { ok, data } = await api.profile.block(activePartnerId);
+      if (ok) { showToast('Member blocked.', 'info'); window.location.reload(); }
+      else showToast(data?.error || 'Could not block member.', 'error');
+      return;
+    }
+    const reason = prompt('Report this member — briefly describe why (at least 10 characters):');
+    if (reason && reason.trim().length >= 10) {
+      const { ok, data } = await api.profile.report(activePartnerId, reason.trim());
+      showToast(ok ? 'Report submitted. Our team will review it.' : (data?.error || 'Could not submit report.'), ok ? 'info' : 'error');
+    } else if (reason !== null) {
+      showToast('Please provide at least 10 characters.', 'warning');
+    }
+  });
+
+  await loadConversations();
+
+  // Deep link from Discover/Search: /Dashboard/Messages.html?to=<user_id>
+  const toId = new URLSearchParams(window.location.search).get('to');
+  if (toId) {
+    const existing = document.querySelector(`.convo-item[data-partner-id="${toId}"]`);
+    if (existing) existing.click();
+    else openConversation(toId, null, null);
+  }
+})();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>
