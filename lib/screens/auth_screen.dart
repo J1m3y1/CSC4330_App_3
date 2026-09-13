@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../database/database_helper.dart';
 import '../theme/app_colors.dart';
+import 'home_shell.dart';
 
 enum _AuthMode { login, signUp }
 
@@ -122,13 +123,13 @@ class _AuthScreenState extends State<AuthScreen>
         );
         _switchMode(_AuthMode.login);
       } else {
-        final user = await DatabaseHelper.instance.logIn(
+        await DatabaseHelper.instance.logIn(
           email: _emailController.text,
           password: _passwordController.text,
         );
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Welcome back, ${user['name']}!')),
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomeShell()),
         );
       }
     } on AuthException catch (e) {
