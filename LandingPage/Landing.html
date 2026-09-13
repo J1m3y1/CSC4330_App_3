@@ -3762,6 +3762,18 @@
   document.querySelectorAll('a[href="#"]').forEach(link=>{
     link.addEventListener('click', e=> e.preventDefault());
   });
+
+  if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/LandingPage/sw.js')
+    .then(reg => {
+      console.log('Service worker registered:', reg);
+    })
+    .catch(err => {
+      console.error('Service worker registration failed:', err);
+    });
+}
+
+
 </script>
  
 </body>
