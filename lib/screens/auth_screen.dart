@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../database/database_helper.dart';
+import '../models/app_user.dart';
 import '../theme/app_colors.dart';
 import 'home_shell.dart';
 
@@ -123,13 +124,15 @@ class _AuthScreenState extends State<AuthScreen>
         );
         _switchMode(_AuthMode.login);
       } else {
-        await DatabaseHelper.instance.logIn(
+        final userMap = await DatabaseHelper.instance.logIn(
           email: _emailController.text,
           password: _passwordController.text,
         );
         if (!mounted) return;
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomeShell()),
+          MaterialPageRoute(
+            builder: (_) => HomeShell(user: AppUser.fromMap(userMap)),
+          ),
         );
       }
     } on AuthException catch (e) {

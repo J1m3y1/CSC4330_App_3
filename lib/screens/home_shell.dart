@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../models/app_user.dart';
 import '../theme/app_colors.dart';
 import 'concerts_screen.dart';
 import 'my_concerts_screen.dart';
+import 'profile_screen.dart';
 
-/// Post-login shell: bottom navigation between browsing concerts and the
-/// user's own "going to" list.
+/// Post-login shell: bottom navigation between browsing concerts, the
+/// user's own "going to" list, and their profile/stats.
 class HomeShell extends StatefulWidget {
-  const HomeShell({super.key});
+  const HomeShell({super.key, required this.user});
+
+  final AppUser user;
 
   @override
   State<HomeShell> createState() => _HomeShellState();
@@ -16,15 +20,16 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
-  static const _screens = [
-    ConcertsScreen(),
-    MyConcertsScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      const ConcertsScreen(),
+      const MyConcertsScreen(),
+      ProfileScreen(user: widget.user),
+    ];
+
     return Scaffold(
-      body: IndexedStack(index: _index, children: _screens),
+      body: IndexedStack(index: _index, children: screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
         onTap: (index) => setState(() => _index = index),
@@ -39,6 +44,10 @@ class _HomeShellState extends State<HomeShell> {
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available_outlined),
             label: 'My Concerts',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
           ),
         ],
       ),
