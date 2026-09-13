@@ -52,7 +52,7 @@
   .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
   .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
   .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
-  .btn-small{ padding:8px 16px; font-size:10px; }
+  .btn-small{ padding:8px 16px; font-size:10px;  }
 
   /* ---------------- atmosphere ---------------- */
   .luxury-grain{
@@ -790,8 +790,8 @@
           </div>
           <div class="toggle-row">
             <div class="toggle-row-text">
-              <h4>View private video introductions</h4>
-              <p class="locked-note">Black tier only — play a member's private introduction when they choose to share one.</p>
+              <h4>View video-liveness clips</h4>
+              <p class="locked-note">Black tier only — see the real, verified video behind a match's badge, not just the checkmark.</p>
             </div>
             <button type="button" class="btn btn-line btn-small" disabled style="opacity:0.4; cursor:not-allowed;">Locked</button>
           </div>
@@ -838,7 +838,7 @@
             </div>
             <div>
               <h4>Private video introduction</h4>
-              <p>A short introduction you control. Gold and Black members can upload; only Black members can play it.</p>
+              <p>A short live video call confirms you're a real, present member. Black members can watch the clip behind your badge — see Privacy &amp; Discretion above.</p>
               <input type="file" id="intro-video-input" accept="video/mp4,video/webm,video/quicktime" hidden>
               <button type="button" class="btn btn-line btn-small" id="intro-video-action">Upload video</button>
               <button type="button" class="link-btn" id="intro-video-remove" style="display:none; margin-left:10px;">Remove</button>
@@ -1427,10 +1427,9 @@
     });
   }
 
-  // Toggle switches are visual only where a setting has no backend field.
-  // Private video introductions are implemented separately: Gold/Black upload
-  // one on this page and Black members can stream one on ViewProfile.html.
-  // Disappearing messages are also real now
+  // toggle switches — visual state only; no backend field exists for these yet
+  // (video-liveness clips — not built, unlike incognito/geofencing below
+  // which are Black-gated for real). Disappearing messages are also real now
   // but set per-conversation from the chat header in Messages.html, not here.
   document.querySelectorAll('.toggle[data-toggle]').forEach(t => {
     if (t.getAttribute('data-toggle') === 'locked') return;
