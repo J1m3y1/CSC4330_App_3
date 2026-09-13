@@ -35,7 +35,7 @@ everything else works.
 4. Sign in as the admin and open `/AdminPage/Admin.html` to approve the
    pending application from step 2.
 5. Sign in as the approved account and continue through
-   `/Dashboard/profile-setup.html`.
+   `/Profile/profile-setup.html`.
 
 ## Membership upgrades (private invitation — no payment processor)
 

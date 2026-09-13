@@ -32,7 +32,8 @@
   h3{ font-family:var(--font-sans); font-weight:400; margin:0; }
   p{ margin:0; }
   a{ color:inherit; text-decoration:none; }
-  button, input, select{ font-family:inherit; }
+  button, input { font-family:var(--font-display); font-style:italic; font-weight:300;}
+  select{ font-family:inherit; }
   button{ background:none; border:none; color:inherit; cursor:pointer; }
 
   .topbar{
@@ -95,6 +96,95 @@
     background:none; border:1px solid var(--line-strong); border-radius:3px; padding:9px 11px;
     color:var(--cream); font-size:13px; outline:none;
   }
+
+  /* ---------------- overview stats ---------------- */
+  .stats-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:14px; margin-bottom:32px; }
+  .stat-card{ border:1px solid var(--line-strong); border-radius:6px; padding:18px 20px; }
+  .stat-num{ font-family:var(--font-display); font-style:italic; font-size:32px; color:var(--gold-bright); line-height:1; }
+  .stat-label{ font-family:var(--font-sans); font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:var(--smoke-dim); margin-top:8px; }
+  .stat-card.warn .stat-num{ color:var(--bordeaux-bright); }
+
+  .stats-section-title{ font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke-dim); margin:28px 0 14px; }
+  .breakdown-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .breakdown-pill{
+    border:1px solid var(--line-strong); border-radius:20px; padding:8px 16px;
+    font-family:var(--font-sans); font-size:12px; color:var(--smoke); display:flex; gap:8px; align-items:center;
+  }
+  .breakdown-pill b{ color:var(--gold-bright); font-weight:500; }
+
+  /* ---------------- filters row (members / history) ---------------- */
+  .filters-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; align-items:center; }
+  .filters-row input, .filters-row select{
+    background:none; border:1px solid var(--line-strong); border-radius:3px; padding:8px 11px;
+    color:var(--cream); font-family:var(--font-sans); font-size:12.5px; outline:none;
+  }
+  .filters-row input[type="text"]{ min-width:220px; flex:1; }
+  .filters-row select:focus, .filters-row input:focus{ border-color:var(--gold); }
+
+  /* ---------------- members table ---------------- */
+  .member-row{
+    display:flex; align-items:center; gap:14px; border:1px solid var(--line-strong); border-radius:6px;
+    padding:12px 16px; margin-bottom:10px; flex-wrap:wrap;
+  }
+  .member-avatar{
+    width:36px; height:36px; border-radius:50%; background:var(--line-strong); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--gold-bright);
+    background-size:cover; background-position:center;
+  }
+  .member-main{ flex:1; min-width:180px; }
+  .member-name{ font-size:14.5px; }
+  .member-email{ font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); }
+  .status-pill{
+    font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase;
+    padding:3px 9px; border-radius:10px; border:1px solid var(--line-strong); color:var(--smoke);
+  }
+  .status-pill.active{ color:#8fd19e; border-color:#8fd19e44; }
+  .status-pill.pending{ color:var(--gold-bright); border-color:var(--gold-dim); }
+  .status-pill.suspended, .status-pill.rejected{ color:var(--bordeaux-bright); border-color:var(--bordeaux); }
+  .member-controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .member-controls select{
+    background:none; border:1px solid var(--line-strong); border-radius:3px; padding:6px 8px;
+    color:var(--cream); font-family:var(--font-sans); font-size:11.5px; outline:none;
+  }
+
+  .pagination{ display:flex; justify-content:center; gap:14px; align-items:center; margin-top:20px; font-family:var(--font-sans); font-size:12px; color:var(--smoke); }
+
+  /* ---------------- chatrooms ---------------- */
+  .room-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; border:1px solid var(--line-strong); border-radius:6px; padding:14px 18px; margin-bottom:10px; flex-wrap:wrap; }
+  .room-main{ flex:1; min-width:200px; }
+  .room-name{ font-size:15px; }
+  .room-meta{ font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); margin-top:3px; }
+  .room-inactive{ opacity:0.5; }
+  .create-room-form{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;
+    border:1px solid var(--line-strong); border-radius:6px; padding:20px; margin-bottom:24px;
+  }
+  .create-room-form .field{ display:flex; flex-direction:column; gap:6px; }
+  .create-room-form label{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--smoke-dim); }
+  .create-room-form input, .create-room-form select{
+    background:none; border:1px solid var(--line-strong); border-radius:3px; padding:9px 11px;
+    color:var(--cream); font-size:13px; outline:none;
+  }
+
+  /* ---------------- confirm modals ---------------- */
+  .confirm-overlay{
+    display:none; position:fixed; inset:0; z-index:9999; background:rgba(11,10,12,0.88); backdrop-filter:blur(8px);
+    align-items:center; justify-content:center; padding:24px;
+  }
+  .confirm-overlay.show{ display:flex; }
+  .confirm-modal{
+    width:min(420px, 100%); background:var(--noir-soft); border:1px solid var(--bordeaux-bright); border-radius:8px;
+    padding:30px 28px; text-align:center;
+  }
+  .confirm-modal h3{ font-size:18px; margin-bottom:10px; font-family:var(--font-sans); }
+  .confirm-modal p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.7; margin-bottom:20px; }
+  .confirm-actions{ display:flex; flex-direction:column; gap:10px; }
+  .confirm-modal input{
+    width:100%; background:none; border:1px solid var(--line-strong); border-radius:3px;
+    padding:10px 12px; color:var(--cream); font-family:var(--font-sans); font-size:14px; outline:none;
+    text-align:center; margin-bottom:18px; transition:border-color .3s ease;
+  }
+  .confirm-modal input:focus{ border-color:var(--bordeaux-bright); }
 </style>
 </head>
 <body>
@@ -103,34 +193,117 @@
   <h1>Fantasi — Admin</h1>
   <div class="topbar-right">
     <span id="admin-name"></span>
-    <a href="/Dashboard/Profile.html">Back to app</a>
+    <a href="/Profile/Profile.html">Back to app</a>
   </div>
 </div>
 
 <div class="wrap" id="admin-wrap" style="display:none;">
 
   <div class="tabs">
-    <button type="button" class="tab-btn active" data-tab="pending">Pending applicants<span class="tab-count" id="count-pending"></span></button>
+    <button type="button" class="tab-btn active" data-tab="overview">Overview</button>
+    <button type="button" class="tab-btn" data-tab="pending">Pending applicants<span class="tab-count" id="count-pending"></span></button>
+    <button type="button" class="tab-btn" data-tab="members">All members</button>
     <button type="button" class="tab-btn" data-tab="reports">Reports<span class="tab-count" id="count-reports"></span></button>
     <button type="button" class="tab-btn" data-tab="privacy">Privacy requests<span class="tab-count" id="count-privacy"></span></button>
     <button type="button" class="tab-btn" data-tab="membership">Membership requests<span class="tab-count" id="count-membership"></span></button>
+    <button type="button" class="tab-btn" data-tab="chatrooms">Chatrooms</button>
     <button type="button" class="tab-btn" data-tab="grant">Grant membership</button>
   </div>
 
-  <div class="tab-panel active" id="panel-pending">
+  <div class="tab-panel active" id="panel-overview">
+    <div id="overview-body"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-pending">
     <div id="pending-list"></div>
   </div>
 
+  <div class="tab-panel" id="panel-members">
+    <div class="filters-row">
+      <input type="text" id="members-search" placeholder="Search by name or email…">
+      <select id="members-status">
+        <option value="">All statuses</option>
+        <option value="active">Active</option>
+        <option value="pending">Pending</option>
+        <option value="suspended">Suspended</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <select id="members-tier">
+        <option value="">All tiers</option>
+        <option value="free">Free</option>
+        <option value="silver">Silver</option>
+        <option value="gold">Gold</option>
+        <option value="black">Black</option>
+      </select>
+      <select id="members-role">
+        <option value="">All roles</option>
+        <option value="member">Member</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div id="members-list"></div>
+    <div class="pagination" id="members-pagination" style="display:none;">
+      <button type="button" class="btn btn-line" id="members-prev">← Prev</button>
+      <span id="members-page-info"></span>
+      <button type="button" class="btn btn-line" id="members-next">Next →</button>
+    </div>
+  </div>
+
   <div class="tab-panel" id="panel-reports">
+    <div class="filters-row">
+      <select id="reports-status">
+        <option value="pending">Pending</option>
+        <option value="resolved">Resolved</option>
+        <option value="dismissed">Dismissed</option>
+      </select>
+    </div>
     <div id="reports-list"></div>
   </div>
 
   <div class="tab-panel" id="panel-privacy">
+    <div class="filters-row">
+      <select id="privacy-status">
+        <option value="pending">Pending</option>
+        <option value="completed">Completed</option>
+        <option value="dismissed">Dismissed</option>
+      </select>
+    </div>
     <div id="privacy-list"></div>
   </div>
 
   <div class="tab-panel" id="panel-membership">
+    <div class="filters-row">
+      <select id="membership-status">
+        <option value="pending">Pending</option>
+        <option value="granted">Granted</option>
+        <option value="declined">Declined</option>
+      </select>
+    </div>
     <div id="membership-list"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-chatrooms">
+    <div class="create-room-form">
+      <div class="field">
+        <label for="room-name">Name</label>
+        <input type="text" id="room-name" placeholder="e.g. Lounge" style="width:200px;">
+      </div>
+      <div class="field">
+        <label for="room-description">Description</label>
+        <input type="text" id="room-description" placeholder="Optional" style="width:280px;">
+      </div>
+      <div class="field">
+        <label for="room-min-tier">Min tier</label>
+        <select id="room-min-tier">
+          <option value="free">Free</option>
+          <option value="silver">Silver</option>
+          <option value="gold">Gold</option>
+          <option value="black">Black</option>
+        </select>
+      </div>
+      <button type="button" class="btn btn-gold" id="room-create-submit">Create room</button>
+    </div>
+    <div id="chatrooms-list"></div>
   </div>
 
   <div class="tab-panel" id="panel-grant">
@@ -162,6 +335,31 @@
   <p>Your account doesn't have admin access.</p>
 </div>
 
+<!-- generic confirm modal (reject applicant, suspend account) -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-modal">
+    <h3 id="confirm-title"></h3>
+    <p id="confirm-message"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-bordeaux btn-full" id="confirm-yes"></button>
+      <button type="button" class="btn btn-line btn-full" id="confirm-no">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- type-to-confirm modal (permanently delete account) -->
+<div class="confirm-overlay" id="danger-overlay">
+  <div class="confirm-modal">
+    <h3 id="danger-title"></h3>
+    <p id="danger-message"></p>
+    <input type="text" id="danger-input" placeholder="Type DELETE to confirm" autocomplete="off">
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-bordeaux btn-full" id="danger-yes" disabled>Permanently Delete</button>
+      <button type="button" class="btn btn-line btn-full" id="danger-no">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (async () => {
   if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
@@ -177,21 +375,80 @@
   document.getElementById('admin-wrap').style.display = 'block';
   document.getElementById('admin-name').textContent = me.display_name || me.email;
 
+  // ---- generic confirm modal ----
+  const confirmOverlay = document.getElementById('confirm-overlay');
+  const confirmYesBtn  = document.getElementById('confirm-yes');
+  let currentConfirmHandler = null;
+  function closeConfirm() {
+    confirmOverlay.classList.remove('show');
+    if (currentConfirmHandler) { confirmYesBtn.removeEventListener('click', currentConfirmHandler); currentConfirmHandler = null; }
+  }
+  function openConfirm(title, message, confirmLabel, onConfirm) {
+    closeConfirm();
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-message').textContent = message;
+    confirmYesBtn.textContent = confirmLabel;
+    confirmOverlay.classList.add('show');
+    currentConfirmHandler = async () => { closeConfirm(); await onConfirm(); };
+    confirmYesBtn.addEventListener('click', currentConfirmHandler);
+  }
+  document.getElementById('confirm-no').addEventListener('click', closeConfirm);
+  confirmOverlay.addEventListener('click', (e) => { if (e.target === confirmOverlay) closeConfirm(); });
+
+  // ---- type-to-confirm modal — for the single most destructive action in the
+  // app (permanently erasing an account); a plain confirm() is one accidental
+  // click away, so this requires typing DELETE before the button even enables.
+  const dangerOverlay = document.getElementById('danger-overlay');
+  const dangerInput = document.getElementById('danger-input');
+  const dangerYesBtn = document.getElementById('danger-yes');
+  let currentDangerHandler = null;
+  function closeDanger() {
+    dangerOverlay.classList.remove('show');
+    dangerInput.value = '';
+    dangerYesBtn.disabled = true;
+    if (currentDangerHandler) { dangerYesBtn.removeEventListener('click', currentDangerHandler); currentDangerHandler = null; }
+  }
+  function openDangerConfirm(title, message, onConfirm) {
+    closeDanger();
+    document.getElementById('danger-title').textContent = title;
+    document.getElementById('danger-message').textContent = message;
+    dangerOverlay.classList.add('show');
+    dangerInput.focus();
+    currentDangerHandler = async () => { closeDanger(); await onConfirm(); };
+    dangerYesBtn.addEventListener('click', currentDangerHandler);
+  }
+  dangerInput.addEventListener('input', () => { dangerYesBtn.disabled = dangerInput.value.trim() !== 'DELETE'; });
+  document.getElementById('danger-no').addEventListener('click', closeDanger);
+  dangerOverlay.addEventListener('click', (e) => { if (e.target === dangerOverlay) closeDanger(); });
+
   // ---- tabs ----
   const tabButtons = document.querySelectorAll('.tab-btn');
   const panels = {
+    overview: document.getElementById('panel-overview'),
     pending: document.getElementById('panel-pending'),
+    members: document.getElementById('panel-members'),
     reports: document.getElementById('panel-reports'),
     privacy: document.getElementById('panel-privacy'),
     membership: document.getElementById('panel-membership'),
+    chatrooms: document.getElementById('panel-chatrooms'),
     grant: document.getElementById('panel-grant'),
   };
+  // Lazy-load a tab's data the first time it's opened, rather than firing
+  // every query up front — members/chatrooms in particular aren't needed
+  // until an admin actually clicks over to them.
+  const lazyLoaders = { members: () => loadMembers(), chatrooms: () => loadChatrooms() };
+  const loadedTabs = new Set();
   tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       tabButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       Object.values(panels).forEach(p => p.classList.remove('active'));
       panels[btn.dataset.tab].classList.add('active');
+      const tab = btn.dataset.tab;
+      if (lazyLoaders[tab] && !loadedTabs.has(tab)) {
+        loadedTabs.add(tab);
+        lazyLoaders[tab]();
+      }
     });
   });
 
@@ -248,42 +505,52 @@
       const age = applicant.date_of_birth
         ? Math.floor((Date.now() - new Date(applicant.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
         : null;
-      list.appendChild(card({
-        title: `${applicant.display_name} — ${applicant.email}`,
-        meta: `Applied ${new Date(applicant.created_at).toLocaleDateString()}${age ? ` · ${age} years old` : ''}`,
-        body: applicant.bio || '',
-        actions: [
-          actionBtn('Approve', 'btn-gold', async () => {
-            const { ok, data: res } = await api.admin.approveUser(applicant.id);
-            if (ok) { showToast('Applicant approved.', 'info'); loadPending(); }
-            else showToast(res?.error || 'Could not approve.', 'error');
-          }),
-          actionBtn('Reject', 'btn-bordeaux', async () => {
-            if (!confirm(`Reject ${applicant.display_name}'s application? This deactivates the account.`)) return;
+      const actions = [];
+      if (applicant.id_document_id) {
+        actions.push(actionBtn('View ID', 'btn-line', () => {
+          window.open(`/api/admin/users/${applicant.id}/id-document`, '_blank');
+        }));
+      }
+      actions.push(
+        actionBtn('Approve', 'btn-gold', async () => {
+          const { ok, data: res } = await api.admin.approveUser(applicant.id);
+          if (ok) { showToast('Applicant approved.', 'info'); loadPending(); }
+          else showToast(res?.error || 'Could not approve.', 'error');
+        }),
+        actionBtn('Reject', 'btn-bordeaux', () => {
+          openConfirm('Reject this application?', `${applicant.display_name}'s account will be deactivated.`, 'Reject', async () => {
             const { ok, data: res } = await api.admin.rejectUser(applicant.id);
             if (ok) { showToast('Applicant rejected.', 'info'); loadPending(); }
             else showToast(res?.error || 'Could not reject.', 'error');
-          }),
-        ],
+          });
+        }),
+      );
+
+      list.appendChild(card({
+        title: `${applicant.display_name} — ${applicant.email}`,
+        meta: `Applied ${new Date(applicant.created_at).toLocaleDateString()}${age ? ` · ${age} years old` : ''}${applicant.id_document_id ? '' : ' · No ID on file'}`,
+        body: applicant.bio || '',
+        actions,
       }));
     });
   }
 
   // ---- reports ----
   async function loadReports() {
-    const { ok, data } = await api.admin.reports('pending');
+    const status = document.getElementById('reports-status').value;
+    const { ok, data } = await api.admin.reports(status);
     const list = document.getElementById('reports-list');
     list.innerHTML = '';
     if (!ok) { list.innerHTML = '<p class="empty">Could not load reports.</p>'; return; }
-    document.getElementById('count-reports').textContent = data.length || '';
-    if (!data.length) { list.innerHTML = '<p class="empty">No pending reports.</p>'; return; }
+    if (status === 'pending') document.getElementById('count-reports').textContent = data.length || '';
+    if (!data.length) { list.innerHTML = `<p class="empty">No ${status} reports.</p>`; return; }
 
     data.forEach(report => {
       list.appendChild(card({
         title: `${report.reporter_name} reported ${report.reported_name}`,
         meta: new Date(report.created_at).toLocaleString(),
         body: report.reason,
-        actions: [
+        actions: status !== 'pending' ? [] : [
           actionBtn('Resolve', 'btn-gold', async () => {
             const { ok, data: res } = await api.admin.resolveReport(report.id, 'resolved');
             if (ok) { showToast('Report resolved.', 'info'); loadReports(); }
@@ -298,6 +565,7 @@
       }));
     });
   }
+  document.getElementById('reports-status').addEventListener('change', loadReports);
 
   // ---- privacy requests ----
   const TYPE_LABELS = {
@@ -305,12 +573,13 @@
     object: 'Object to a use', portability: 'Export their data', delete: 'Delete their account',
   };
   async function loadPrivacy() {
-    const { ok, data } = await api.admin.privacyRequests('pending');
+    const status = document.getElementById('privacy-status').value;
+    const { ok, data } = await api.admin.privacyRequests(status);
     const list = document.getElementById('privacy-list');
     list.innerHTML = '';
     if (!ok) { list.innerHTML = '<p class="empty">Could not load requests.</p>'; return; }
-    document.getElementById('count-privacy').textContent = data.length || '';
-    if (!data.length) { list.innerHTML = '<p class="empty">No pending privacy requests.</p>'; return; }
+    if (status === 'pending') document.getElementById('count-privacy').textContent = data.length || '';
+    if (!data.length) { list.innerHTML = `<p class="empty">No ${status} privacy requests.</p>`; return; }
 
     data.forEach(req => {
       const isDelete = req.type === 'delete';
@@ -318,12 +587,18 @@
         title: `${TYPE_LABELS[req.type] || req.type} — ${req.display_name} (${req.email})`,
         meta: new Date(req.created_at).toLocaleString(),
         body: req.reason || '',
-        actions: [
+        actions: status !== 'pending' ? [] : [
           actionBtn(isDelete ? 'Delete account' : 'Mark completed', isDelete ? 'btn-bordeaux' : 'btn-gold', async () => {
-            if (isDelete && !confirm(`Permanently delete ${req.display_name}'s account? This cannot be undone.`)) return;
-            const { ok, data: res } = await api.admin.resolvePrivacyRequest(req.id, 'completed');
-            if (ok) { showToast('Request completed.', 'info'); loadPrivacy(); }
-            else showToast(res?.error || 'Could not update.', 'error');
+            const resolve = async () => {
+              const { ok, data: res } = await api.admin.resolvePrivacyRequest(req.id, 'completed');
+              if (ok) { showToast('Request completed.', 'info'); loadPrivacy(); }
+              else showToast(res?.error || 'Could not update.', 'error');
+            };
+            if (isDelete) {
+              openDangerConfirm('Permanently delete this account?', `${req.display_name}'s account and all their data will be erased. This cannot be undone.`, resolve);
+            } else {
+              await resolve();
+            }
           }),
           actionBtn('Dismiss', 'btn-line', async () => {
             const { ok, data: res } = await api.admin.resolvePrivacyRequest(req.id, 'dismissed');
@@ -334,22 +609,24 @@
       }));
     });
   }
+  document.getElementById('privacy-status').addEventListener('change', loadPrivacy);
 
   // ---- membership requests ----
   async function loadMembershipRequests() {
-    const { ok, data } = await api.admin.membershipRequests('pending');
+    const status = document.getElementById('membership-status').value;
+    const { ok, data } = await api.admin.membershipRequests(status);
     const list = document.getElementById('membership-list');
     list.innerHTML = '';
     if (!ok) { list.innerHTML = '<p class="empty">Could not load membership requests.</p>'; return; }
-    document.getElementById('count-membership').textContent = data.length || '';
-    if (!data.length) { list.innerHTML = '<p class="empty">No pending membership requests.</p>'; return; }
+    if (status === 'pending') document.getElementById('count-membership').textContent = data.length || '';
+    if (!data.length) { list.innerHTML = `<p class="empty">No ${status} membership requests.</p>`; return; }
 
     data.forEach(req => {
       list.appendChild(card({
         title: `${req.display_name} (${req.email}) — wants ${capitalize(req.requested_tier)}`,
         meta: `Currently ${capitalize(req.current_tier)} · Requested ${new Date(req.created_at).toLocaleString()}`,
         body: req.note || '',
-        actions: [
+        actions: status !== 'pending' ? [] : [
           actionBtn('Grant', 'btn-gold', async () => {
             const { ok, data: res } = await api.admin.resolveMembershipRequest(req.id, 'granted');
             if (ok) { showToast(`Granted ${capitalize(req.requested_tier)}.`, 'info'); loadMembershipRequests(); }
@@ -364,6 +641,227 @@
       }));
     });
   }
+  document.getElementById('membership-status').addEventListener('change', loadMembershipRequests);
+
+  // ---- overview ----
+  async function loadOverview() {
+    const body = document.getElementById('overview-body');
+    const { ok, data: s } = await api.admin.stats();
+    if (!ok) { body.innerHTML = '<p class="empty">Could not load stats.</p>'; return; }
+
+    body.innerHTML = '';
+
+    const grid = document.createElement('div');
+    grid.className = 'stats-grid';
+    const cards = [
+      { num: s.total_users, label: 'Total members' },
+      { num: s.pending_applicants, label: 'Pending applicants', warn: s.pending_applicants > 0 },
+      { num: s.pending_reports, label: 'Pending reports', warn: s.pending_reports > 0 },
+      { num: s.pending_privacy_requests, label: 'Pending privacy requests', warn: s.pending_privacy_requests > 0 },
+      { num: s.pending_membership_requests, label: 'Pending membership requests', warn: s.pending_membership_requests > 0 },
+      { num: s.signups_7d, label: 'Signups, last 7 days' },
+      { num: s.signups_30d, label: 'Signups, last 30 days' },
+    ];
+    cards.forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'stat-card' + (c.warn ? ' warn' : '');
+      el.innerHTML = `<div class="stat-num">${c.num}</div><div class="stat-label">${c.label}</div>`;
+      grid.appendChild(el);
+    });
+    body.appendChild(grid);
+
+    const tierTitle = document.createElement('div');
+    tierTitle.className = 'stats-section-title';
+    tierTitle.textContent = 'Membership tiers';
+    body.appendChild(tierTitle);
+    const tierRow = document.createElement('div');
+    tierRow.className = 'breakdown-row';
+    ['free', 'silver', 'gold', 'black'].forEach(tier => {
+      const pill = document.createElement('div');
+      pill.className = 'breakdown-pill';
+      pill.innerHTML = `<b>${s.by_tier[tier] ?? 0}</b> ${capitalize(tier)}`;
+      tierRow.appendChild(pill);
+    });
+    body.appendChild(tierRow);
+
+    const statusTitle = document.createElement('div');
+    statusTitle.className = 'stats-section-title';
+    statusTitle.textContent = 'Account status';
+    body.appendChild(statusTitle);
+    const statusRow = document.createElement('div');
+    statusRow.className = 'breakdown-row';
+    ['active', 'pending', 'suspended', 'rejected'].forEach(status => {
+      const pill = document.createElement('div');
+      pill.className = 'breakdown-pill';
+      pill.innerHTML = `<b>${s.by_status[status] ?? 0}</b> ${capitalize(status)}`;
+      statusRow.appendChild(pill);
+    });
+    body.appendChild(statusRow);
+  }
+
+  // ---- all members ----
+  let membersPage = 1;
+  let membersSearchTimer = null;
+
+  async function loadMembers() {
+    const list = document.getElementById('members-list');
+    const q      = document.getElementById('members-search').value.trim();
+    const status = document.getElementById('members-status').value;
+    const tier   = document.getElementById('members-tier').value;
+    const role   = document.getElementById('members-role').value;
+
+    const { ok, data } = await api.admin.users({ q, status, tier, role, page: membersPage, limit: 25 });
+    list.innerHTML = '';
+    if (!ok) { list.innerHTML = '<p class="empty">Could not load members.</p>'; return; }
+
+    const { users, total, limit } = data;
+    if (!users.length) { list.innerHTML = '<p class="empty">No members match those filters.</p>'; }
+
+    users.forEach(user => {
+      const row = document.createElement('div');
+      row.className = 'member-row';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'member-avatar';
+      if (user.avatar_url) {
+        avatar.style.backgroundImage = `url(${user.avatar_url})`;
+      } else {
+        avatar.textContent = (user.display_name || user.email).charAt(0).toUpperCase();
+      }
+      row.appendChild(avatar);
+
+      const main = document.createElement('div');
+      main.className = 'member-main';
+      main.innerHTML = `
+        <div class="member-name">${user.display_name || '(no name)'}</div>
+        <div class="member-email">${user.email}</div>
+      `;
+      row.appendChild(main);
+
+      const statusPill = document.createElement('span');
+      statusPill.className = `status-pill ${user.status}`;
+      statusPill.textContent = user.status;
+      row.appendChild(statusPill);
+
+      const controls = document.createElement('div');
+      controls.className = 'member-controls';
+
+      const roleSelect = document.createElement('select');
+      ['member', 'admin'].forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r; opt.textContent = capitalize(r);
+        if (r === user.role) opt.selected = true;
+        roleSelect.appendChild(opt);
+      });
+      roleSelect.addEventListener('change', async () => {
+        const newRole = roleSelect.value;
+        const { ok, data: res } = await api.admin.updateUserRole(user.id, newRole);
+        if (ok) { showToast(`Role updated to ${newRole}.`, 'info'); }
+        else { showToast(res?.error || 'Could not update role.', 'error'); roleSelect.value = user.role; }
+      });
+      controls.appendChild(roleSelect);
+
+      const tierSelect = document.createElement('select');
+      ['free', 'silver', 'gold', 'black'].forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t; opt.textContent = capitalize(t);
+        if (t === user.membership_tier) opt.selected = true;
+        tierSelect.appendChild(opt);
+      });
+      tierSelect.addEventListener('change', async () => {
+        const newTier = tierSelect.value;
+        const { ok, data: res } = await api.membership.grant(user.id, newTier);
+        if (ok) showToast(`Tier updated to ${capitalize(newTier)}.`, 'info');
+        else { showToast(res?.error || 'Could not update tier.', 'error'); tierSelect.value = user.membership_tier; }
+      });
+      controls.appendChild(tierSelect);
+
+      if (user.status === 'suspended' || user.status === 'rejected') {
+        controls.appendChild(actionBtn('Reactivate', 'btn-gold', async () => {
+          const { ok, data: res } = await api.admin.reactivateUser(user.id);
+          if (ok) { showToast('Account reactivated.', 'info'); loadMembers(); }
+          else showToast(res?.error || 'Could not reactivate.', 'error');
+        }));
+      } else if (user.status === 'active') {
+        controls.appendChild(actionBtn('Suspend', 'btn-bordeaux', () => {
+          openConfirm('Suspend this account?', `${user.display_name || user.email} will lose access until reactivated.`, 'Suspend', async () => {
+            const { ok, data: res } = await api.admin.suspendUser(user.id);
+            if (ok) { showToast('Account suspended.', 'info'); loadMembers(); }
+            else showToast(res?.error || 'Could not suspend.', 'error');
+          });
+        }));
+      }
+
+      row.appendChild(controls);
+      list.appendChild(row);
+    });
+
+    const pagination = document.getElementById('members-pagination');
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    pagination.style.display = total > limit ? 'flex' : 'none';
+    document.getElementById('members-page-info').textContent = `Page ${membersPage} of ${totalPages} (${total} total)`;
+    document.getElementById('members-prev').disabled = membersPage <= 1;
+    document.getElementById('members-next').disabled = membersPage >= totalPages;
+  }
+
+  document.getElementById('members-search').addEventListener('input', () => {
+    clearTimeout(membersSearchTimer);
+    membersSearchTimer = setTimeout(() => { membersPage = 1; loadMembers(); }, 350);
+  });
+  ['members-status', 'members-tier', 'members-role'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => { membersPage = 1; loadMembers(); });
+  });
+  document.getElementById('members-prev').addEventListener('click', () => { membersPage--; loadMembers(); });
+  document.getElementById('members-next').addEventListener('click', () => { membersPage++; loadMembers(); });
+
+  // ---- chatrooms ----
+  async function loadChatrooms() {
+    const list = document.getElementById('chatrooms-list');
+    const { ok, data } = await api.admin.chatrooms();
+    list.innerHTML = '';
+    if (!ok) { list.innerHTML = '<p class="empty">Could not load chatrooms.</p>'; return; }
+    if (!data.length) { list.innerHTML = '<p class="empty">No chatrooms yet — create one above.</p>'; return; }
+
+    data.forEach(room => {
+      const row = document.createElement('div');
+      row.className = 'room-row' + (room.is_active ? '' : ' room-inactive');
+
+      const main = document.createElement('div');
+      main.className = 'room-main';
+      main.innerHTML = `
+        <div class="room-name">${room.name} <span class="status-pill ${room.is_active ? 'active' : 'suspended'}">${room.is_active ? 'active' : 'inactive'}</span></div>
+        <div class="room-meta">Min tier: ${capitalize(room.min_tier)} · ${room.message_count} messages${room.description ? ' · ' + room.description : ''}</div>
+      `;
+      row.appendChild(main);
+
+      const actions = document.createElement('div');
+      actions.className = 'card-actions';
+      actions.appendChild(actionBtn(room.is_active ? 'Deactivate' : 'Reactivate', room.is_active ? 'btn-bordeaux' : 'btn-gold', async () => {
+        const { ok, data: res } = await api.admin.updateChatroom(room.id, { is_active: !room.is_active });
+        if (ok) { showToast(room.is_active ? 'Room deactivated.' : 'Room reactivated.', 'info'); loadChatrooms(); }
+        else showToast(res?.error || 'Could not update room.', 'error');
+      }));
+      row.appendChild(actions);
+
+      list.appendChild(row);
+    });
+  }
+
+  document.getElementById('room-create-submit').addEventListener('click', async () => {
+    const name = document.getElementById('room-name').value.trim();
+    const description = document.getElementById('room-description').value.trim();
+    const minTier = document.getElementById('room-min-tier').value;
+    if (!name) { showToast('Enter a room name.', 'warning'); return; }
+    const { ok, data } = await api.admin.createChatroom(name, description || undefined, minTier);
+    if (ok) {
+      showToast('Chatroom created.', 'info');
+      document.getElementById('room-name').value = '';
+      document.getElementById('room-description').value = '';
+      loadChatrooms();
+    } else {
+      showToast(data?.error || 'Could not create chatroom.', 'error');
+    }
+  });
 
   // ---- manual grant ----
   document.getElementById('grant-submit').addEventListener('click', async () => {
@@ -375,7 +873,7 @@
     if (ok) document.getElementById('grant-user-id').value = '';
   });
 
-  await Promise.all([loadPending(), loadReports(), loadPrivacy(), loadMembershipRequests()]);
+  await Promise.all([loadOverview(), loadPending(), loadReports(), loadPrivacy(), loadMembershipRequests()]);
 })();
 </script>
 

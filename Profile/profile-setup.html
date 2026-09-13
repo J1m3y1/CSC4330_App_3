@@ -53,6 +53,10 @@
   @keyframes btnPulse{ 0%{ box-shadow:0 0 0 0 rgba(199,166,92,0.5); } 100%{ box-shadow:0 0 0 14px rgba(199,166,92,0); } }
   .btn-gold{ background:var(--gold); color:var(--noir); }
   .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .btn-bordeaux{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .btn-bordeaux:hover{ background:rgba(113,26,46,0.12); }
   .btn:disabled{ opacity:0.35; cursor:not-allowed; transform:none; background:var(--line-strong); border-color:var(--line-strong); color:var(--smoke); }
   .btn-full{ width:100%; justify-content:center; }
 
@@ -85,7 +89,7 @@
   }
   .setup-heart{ color:var(--gold); flex-shrink:0; }
   .setup-skip{
-    font-family:var(--font-sans); font-size:11px; letter-spacing:0.04em; color:var(--smoke);
+    font-family:var(--font-sans); font-size:12px; letter-spacing:0.04em; color:var(--smoke);
     text-decoration:underline; margin-left:10px; flex-shrink:0; visibility:hidden;
   }
   .setup-skip.show{ visibility:visible; }
@@ -99,7 +103,7 @@
   @keyframes slideInBack{ from{ opacity:0; transform:translateX(-28px); } to{ opacity:1; transform:translateX(0); } }
 
   .setup-step h1{ font-size:26px; line-height:1.2; margin-bottom:10px; }
-  .setup-sub{ font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); line-height:1.7; margin-bottom:26px; }
+  .setup-sub{ font-family:var(--font-sans); font-size:13.5px; color:var(--smoke); line-height:1.7; margin-bottom:26px; }
 
   .setup-body{ flex:1; min-height:0; overflow-y:auto; }
 
@@ -128,14 +132,14 @@
   .loc-field{ position:relative; margin-bottom:18px; }
   .loc-field input{
     width:100%; background:none; border:1px solid var(--line-strong); border-radius:6px;
-    padding:13px 40px 13px 14px; color:var(--cream); font-family:var(--font-serif); font-size:14px; outline:none;
+    padding:13px 40px 13px 14px; color:var(--cream); font-family:var(--font-serif); font-size:15px; outline:none;
     transition:border-color .3s ease, box-shadow .3s ease;
   }
   .loc-field input:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(199,166,92,0.1); }
   .loc-clear{ position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--smoke); transition:transform .2s ease, color .3s ease; }
   .loc-clear:active{ transform:translateY(-50%) scale(0.85); }
   .use-location{
-    display:inline-flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:12px;
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:13px;
     color:var(--gold); transition:color .3s ease, transform .2s ease;
   }
   .use-location:hover{ color:var(--gold-bright); transform:translateX(2px); }
@@ -144,7 +148,7 @@
   .select-list{ display:flex; flex-direction:column; gap:10px; }
   .select-list-btn{
     width:100%; text-align:left; padding:14px 18px; border:1px solid var(--line-strong); border-radius:6px;
-    font-family:var(--font-serif); font-size:14px; color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; color:var(--cream);
     transition:border-color .3s ease, background .3s ease, color .3s ease, transform .15s ease, opacity .4s ease;
     opacity:0; transform:translateY(8px);
   }
@@ -162,7 +166,7 @@
   .tag-select{ display:flex; flex-wrap:wrap; gap:8px; }
   .tag-select-btn{
     padding:9px 15px; border:1px solid var(--line-strong); border-radius:20px;
-    font-family:var(--font-sans); font-size:11.5px; color:var(--smoke); cursor:pointer;
+    font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); cursor:pointer;
     transition:border-color .3s ease, color .3s ease, background .3s ease, transform .15s ease, opacity .4s ease;
     opacity:0; transform:scale(0.92);
   }
@@ -172,10 +176,36 @@
   .tag-select-btn.selected{ border-color:var(--gold); color:var(--gold-bright); background:rgba(199,166,92,0.1); }
   .tag-limit-note{ font-family:var(--font-sans); font-size:10px; color:var(--smoke-dim); margin-top:14px; }
 
+  /* interest tags — rated (level select shows once a tag is selected) + custom */
+  .tag-select-btn.rated{ display:inline-flex; align-items:center; gap:8px; padding-right:8px; }
+  .tag-level-select{
+    display:none; background:none; border:1px solid var(--gold-dim); border-radius:12px;
+    color:var(--gold-bright); font-family:var(--font-sans); font-size:10.5px; padding:3px 6px; outline:none; cursor:pointer;
+  }
+  .tag-select-btn.selected .tag-level-select{ display:inline-block; }
+  .tag-remove{ display:none; color:var(--smoke-dim); font-size:14px; line-height:1; padding:0 2px; transition:color .2s ease; }
+  .tag-select-btn.custom .tag-remove{ display:inline-block; }
+  .tag-remove:hover{ color:var(--bordeaux-bright); }
+  .tag-select-btn.custom{ border-style:dashed; }
+  .custom-tag-row{ margin-top:6px; }
+  .custom-tag-add{ display:flex; gap:8px; margin-top:12px; max-width:360px; }
+  .custom-tag-add input{
+    flex:1; background:none; border:1px solid var(--line-strong); border-radius:20px;
+    padding:9px 15px; color:var(--cream); font-family:var(--font-sans); font-size:12.5px; outline:none;
+  }
+  .custom-tag-add input:focus{ border-color:var(--gold); }
+  .custom-tag-add-btn{
+    padding:9px 18px; border:1px solid var(--line-strong); border-radius:20px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:var(--cream);
+    transition:border-color .3s ease, color .3s ease;
+  }
+  .custom-tag-add-btn:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .custom-tag-upsell{ font-family:var(--font-sans); font-size:11.5px; color:var(--smoke-dim); font-style:italic; margin-top:10px; }
+
   /* text entry (heading / about you) */
   .setup-textarea{
     width:100%; background:none; border:1px solid var(--line-strong); border-radius:6px;
-    padding:14px 16px; color:var(--cream); font-family:var(--font-serif); font-size:14px;
+    padding:14px 16px; color:var(--cream); font-family:var(--font-serif); font-size:15px;
     outline:none; resize:none; transition:border-color .3s ease, box-shadow .3s ease;
   }
   .setup-textarea:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(199,166,92,0.1); }
@@ -224,6 +254,20 @@
   .picker-item:nth-child(7), .select-list-btn:nth-child(7), .tag-select-btn:nth-child(7){ transition-delay:.33s; }
 
   .setup-footer{ margin-top:24px; }
+
+  /* ---------------- generic confirm modal ---------------- */
+  .confirm-overlay{
+    display:none; position:fixed; inset:0; z-index:9999; background:rgba(11,10,12,0.88); backdrop-filter:blur(8px);
+    align-items:center; justify-content:center; padding:24px;
+  }
+  .confirm-overlay.show{ display:flex; }
+  .confirm-modal{
+    width:min(400px, 100%); background:var(--noir-soft); border:1px solid var(--line-strong); border-radius:8px;
+    padding:30px 28px; text-align:center;
+  }
+  .confirm-modal h3{ font-size:18px; margin-bottom:10px; font-family:var(--font-display); font-style:italic; font-weight:300; }
+  .confirm-modal p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.7; margin-bottom:20px; }
+  .confirm-actions{ display:flex; flex-direction:column; gap:10px; }
 
   @media (max-width:520px){
     main{ padding:0; align-items:flex-start; }
@@ -359,34 +403,18 @@
     <!-- STEP 7 — interests (Fantasi's own vocabulary, not explicit fetish taxonomy) -->
     <div class="setup-step" data-step="7">
       <h1>What are you interested in?</h1>
-      <p class="setup-sub">Choose a few to help curate the right introductions. You can change this anytime.</p>
+      <p class="setup-sub">Choose a few to help curate the right introductions, then set how you feel about each one. Gold and Black members can add their own too. You can change this anytime.</p>
       <div class="setup-body">
-        <div class="tag-cat">
-          <span class="tag-cat-label">Arrangement Style</span>
-          <div class="tag-select" data-tagselect="interests">
-            <div class="tag-select-btn">Power exchange</div>
-            <div class="tag-select-btn">Mentorship</div>
-            <div class="tag-select-btn">Financial partnership</div>
-            <div class="tag-select-btn">Long-term arrangement</div>
+        <div id="setup-interests-groups"><!-- populated from GET /api/profile/interest-tags --></div>
+        <div class="custom-tag-row" id="custom-tag-row" style="display:none;">
+          <span class="tag-cat-label">Your own tags</span>
+          <div class="tag-select" id="custom-tags-list"></div>
+          <div class="custom-tag-add">
+            <input type="text" id="custom-tag-input" placeholder="Add your own…" maxlength="50">
+            <button type="button" class="custom-tag-add-btn" id="custom-tag-add-btn">Add</button>
           </div>
         </div>
-        <div class="tag-cat">
-          <span class="tag-cat-label">Lifestyle</span>
-          <div class="tag-select" data-tagselect="interests">
-            <div class="tag-select-btn">Travel companionship</div>
-            <div class="tag-select-btn">Fine dining</div>
-            <div class="tag-select-btn">Life of leisure</div>
-            <div class="tag-select-btn">Discretion</div>
-          </div>
-        </div>
-        <div class="tag-cat">
-          <span class="tag-cat-label">Connection</span>
-          <div class="tag-select" data-tagselect="interests">
-            <div class="tag-select-btn">Casual</div>
-            <div class="tag-select-btn">Emotional connection</div>
-            <div class="tag-select-btn">No strings attached</div>
-          </div>
-        </div>
+        <p class="custom-tag-upsell" id="custom-tag-upsell" style="display:none;">Upgrade to Gold to add your own interest tags.</p>
       </div>
     </div>
 
@@ -459,6 +487,17 @@
   </div>
 </main>
 
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-modal">
+    <h3 id="confirm-title"></h3>
+    <p id="confirm-message"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-bordeaux btn-full" id="confirm-yes"></button>
+      <button type="button" class="btn btn-line btn-full" id="confirm-no">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const steps = Array.from(document.querySelectorAll('.setup-step'));
   const totalSteps = steps.length;
@@ -524,15 +563,121 @@
         update: apiUnavailable,
         uploadAvatar: apiUnavailable,
         photos: { list: async () => ({ ok: false, data: [] }), add: apiUnavailable, delete: apiUnavailable },
+        interestTags: { get: async () => ({ ok: false, data: null }), set: apiUnavailable },
       },
     },
     requireSession: async () => null,
     showToast: (msg) => alert(msg),
   };
 
+  // ---- generic confirm modal ----
+  const confirmOverlay = document.getElementById('confirm-overlay');
+  const confirmYesBtn  = document.getElementById('confirm-yes');
+  let currentConfirmHandler = null;
+  function closeConfirm() {
+    confirmOverlay.classList.remove('show');
+    if (currentConfirmHandler) { confirmYesBtn.removeEventListener('click', currentConfirmHandler); currentConfirmHandler = null; }
+  }
+  function openConfirm(title, message, confirmLabel, onConfirm) {
+    closeConfirm();
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-message').textContent = message;
+    confirmYesBtn.textContent = confirmLabel;
+    confirmOverlay.classList.add('show');
+    currentConfirmHandler = async () => { closeConfirm(); await onConfirm(); };
+    confirmYesBtn.addEventListener('click', currentConfirmHandler);
+  }
+  document.getElementById('confirm-no').addEventListener('click', closeConfirm);
+  confirmOverlay.addEventListener('click', (e) => { if (e.target === confirmOverlay) closeConfirm(); });
+
+  // ---- interest tags — rated (into it / curious / soft limit / hard limit),
+  // with Gold+/Black-only custom tags. Same pattern as Profile/Profile.html;
+  // onboarding always starts blank (no prior selections to restore), but the
+  // fixed generic list and whether this member can add custom tags both still
+  // come from the server so it can never drift from what the API validates.
+  const LEVEL_LABELS = { into: 'Into it', curious: 'Curious', soft_limit: 'Soft limit', hard_limit: 'Hard limit' };
+
+  function buildTagPill(tagName, isCustom) {
+    const btn = document.createElement('div');
+    btn.className = 'tag-select-btn rated' + (isCustom ? ' custom' : '');
+    btn.dataset.tag = tagName;
+    btn.dataset.custom = isCustom ? '1' : '0';
+
+    const label = document.createElement('span');
+    label.className = 'tag-label';
+    label.textContent = tagName;
+    btn.appendChild(label);
+
+    const levelSelect = document.createElement('select');
+    levelSelect.className = 'tag-level-select';
+    Object.entries(LEVEL_LABELS).forEach(([val, text]) => {
+      const opt = document.createElement('option');
+      opt.value = val; opt.textContent = text;
+      if (val === 'into') opt.selected = true;
+      levelSelect.appendChild(opt);
+    });
+    levelSelect.addEventListener('click', (e) => e.stopPropagation());
+    btn.appendChild(levelSelect);
+
+    if (isCustom) {
+      btn.classList.add('selected');
+      const remove = document.createElement('span');
+      remove.className = 'tag-remove';
+      remove.textContent = '×';
+      remove.title = 'Remove';
+      remove.addEventListener('click', (e) => { e.stopPropagation(); btn.remove(); });
+      btn.appendChild(remove);
+    } else {
+      btn.addEventListener('click', () => btn.classList.toggle('selected'));
+    }
+
+    return btn;
+  }
+
+  async function loadInterestTags() {
+    const { ok, data } = await api.profile.interestTags.get();
+    if (!ok || !data) return;
+
+    const groupsEl = document.getElementById('setup-interests-groups');
+    groupsEl.innerHTML = '';
+    Object.entries(data.generic_groups).forEach(([groupName, tags]) => {
+      const cat = document.createElement('div');
+      cat.className = 'tag-cat';
+      const label = document.createElement('span');
+      label.className = 'tag-cat-label';
+      label.textContent = groupName;
+      cat.appendChild(label);
+      const list = document.createElement('div');
+      list.className = 'tag-select';
+      tags.forEach(tag => list.appendChild(buildTagPill(tag, false)));
+      cat.appendChild(list);
+      groupsEl.appendChild(cat);
+    });
+
+    document.getElementById('custom-tag-row').style.display = data.can_add_custom ? '' : 'none';
+    document.getElementById('custom-tag-upsell').style.display = data.can_add_custom ? 'none' : '';
+  }
+
+  document.getElementById('custom-tag-add-btn').addEventListener('click', () => {
+    const input = document.getElementById('custom-tag-input');
+    const tag = input.value.trim();
+    if (!tag) return;
+    const customList = document.getElementById('custom-tags-list');
+    if ([...customList.children].some(b => b.dataset.tag.toLowerCase() === tag.toLowerCase())) {
+      showToast('You already added that tag.', 'warning');
+      return;
+    }
+    customList.appendChild(buildTagPill(tag, true));
+    input.value = '';
+  });
+  document.getElementById('custom-tag-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('custom-tag-add-btn').click(); }
+  });
+
   (async () => {
     if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
     await requireSession();
+    loadInterestTags();
   })();
 
   // Gathers every step's current on-screen state into one PATCH payload.
@@ -552,7 +697,6 @@
       education: selectedText('[data-select="education"] .select-list-btn.selected'),
       relationship_status: selectedText('[data-select="relationship"] .select-list-btn.selected'),
       smoking: selectedText('[data-select="smoking"] .select-list-btn.selected'),
-      interests: selectedList('[data-tagselect="interests"] .tag-select-btn.selected'),
       looking_for: selectedList('#looking-for-tags .tag-select-btn.selected'),
       heading: headingInput.value.trim() || undefined,
       bio: aboutInput.value.trim() || undefined,
@@ -566,6 +710,24 @@
       showToast(data?.error || data?.errors?.[0]?.msg || 'Could not save your profile.', 'error');
       return false;
     }
+
+    const interestPills = [
+      ...document.querySelectorAll('#setup-interests-groups .tag-select-btn.selected'),
+      ...document.querySelectorAll('#custom-tags-list .tag-select-btn'),
+    ];
+    if (interestPills.length) {
+      const interestsPayload = interestPills.map(btn => ({
+        tag: btn.dataset.tag,
+        level: btn.querySelector('.tag-level-select').value,
+        is_custom: btn.dataset.custom === '1',
+      }));
+      const interestsRes = await api.profile.interestTags.set(interestsPayload);
+      if (!interestsRes.ok) {
+        showToast(interestsRes.data?.error || 'Could not save your interests.', 'error');
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -589,11 +751,12 @@
         tag.textContent = 'Primary';
         slot.appendChild(tag);
       }
-      slot.onclick = async () => {
-        if (!confirm('Delete this photo?')) return;
-        const { ok, data } = await api.profile.photos.delete(photo.id);
-        if (ok) await loadGalleryIntoSlots();
-        else showToast(data?.error || 'Could not delete.', 'error');
+      slot.onclick = () => {
+        openConfirm('Delete this photo?', 'This cannot be undone.', 'Delete', async () => {
+          const { ok, data } = await api.profile.photos.delete(photo.id);
+          if (ok) await loadGalleryIntoSlots();
+          else showToast(data?.error || 'Could not delete.', 'error');
+        });
       };
     } else {
       slot.style.backgroundImage = '';
@@ -633,7 +796,7 @@
       renderStep('fwd');
     } else {
       // skipping on the final step should behave the same as finishing, not do nothing
-      if (await saveAndFinish()) window.location.href = '/Dashboard/Profile.html';
+      if (await saveAndFinish()) window.location.href = '/Profile/Profile.html';
     }
   });
   continueBtn.addEventListener('click', async ()=>{
@@ -645,7 +808,7 @@
       const success = await saveAndFinish();
       if (success) {
         continueBtn.textContent = 'Saved ✓';
-        setTimeout(()=>{ window.location.href = '/Dashboard/Profile.html'; }, 900);
+        setTimeout(()=>{ window.location.href = '/Profile/Profile.html'; }, 900);
       } else {
         continueBtn.disabled = false;
         continueBtn.textContent = 'Finish';
@@ -681,11 +844,6 @@
         btn.classList.add('selected');
       });
     });
-  });
-
-  // interests — free multi-select, no cap
-  document.querySelectorAll('[data-tagselect="interests"] .tag-select-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=> btn.classList.toggle('selected'));
   });
 
   // "what are you looking for" — capped multi-select

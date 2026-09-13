@@ -12,7 +12,12 @@ const SHELL_URLS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(SHELL_URLS))
+      .then((cache) => Promise.all(
+        // Not cache.addAll(SHELL_URLS) — that does plain fetches, which can
+        // precache a bodyless 304 for the same reason described below, just
+        // at install time instead of at request time.
+        SHELL_URLS.map((url) => fetch(url, { cache: 'reload' }).then((res) => cache.put(url, res)))
+      ))
       .then(() => self.skipWaiting())
   );
 });
@@ -29,11 +34,19 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return; // never intercept third-party requests (fonts, CDNs) — a
+                                                     // service-worker-initiated fetch is subject to connect-src,
+                                                     // not style-src/font-src, so this silently broke Adobe Fonts
   if (url.pathname.startsWith('/api/')) return; // never cache API responses
 
   event.respondWith(
     caches.match(request).then((cached) => {
-      const network = fetch(request)
+      // `cache: 'reload'` forces a real round-trip instead of letting the
+      // browser's own HTTP cache satisfy this with a bodyless 304 (valid
+      // whenever it already holds a matching ETag from an earlier fetch) —
+      // a 304 has no body, so serving it straight to the page silently
+      // executed as an empty script with no error of any kind.
+      const network = fetch(request, { cache: 'reload' })
         .then((response) => {
           if (response.ok) {
             const copy = response.clone();

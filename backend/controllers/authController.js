@@ -3,6 +3,7 @@
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const crypto  = require('crypto');
+const fs      = require('fs');
 const { query, withTransaction } = require('../config/db');
 const { sendMail } = require('../utils/mailer');
 const { verifyProofToken } = require('./phoneController');
@@ -54,25 +55,43 @@ function hashToken(raw) {
   return crypto.createHash('sha256').update(raw).digest('hex');
 }
 
+// Registration is rejected in several places below (duplicate email, under
+// 18, bad phone proof) — by the time any of those run, multer has already
+// written the uploaded ID to disk, since it's route middleware ahead of this
+// controller. An orphaned file with no DB row is a stray sensitive document
+// sitting on disk for no reason, so every rejection path deletes it first.
+function cleanupUploadedId(req) {
+  if (req.file) fs.unlink(req.file.path, () => {});
+}
+
 // ── POST /api/auth/register ───────────────────────────────────────────────────
 async function register(req, res) {
   const { email, password, display_name, full_name, date_of_birth, phone, phone_verification_token } = req.body;
 
   try {
-    // 1. Check email not already taken
+    // 1. A government ID is required — no exceptions. This is what actually
+    // backs the "government ID required" claim made elsewhere in the app;
+    // previously there was no real upload at all.
+    if (!req.file) {
+      return res.status(422).json({ error: 'A government-issued ID (JPEG, PNG, or PDF) is required.' });
+    }
+
+    // 2. Check email not already taken
     const existing = await query('SELECT id FROM users WHERE email = $1', [email]);
     if (existing.rows.length) {
+      cleanupUploadedId(req);
       return res.status(409).json({ error: 'An account with that email already exists.' });
     }
 
-    // 2. Enforce minimum age (18+) server-side — never trust the client
+    // 3. Enforce minimum age (18+) server-side — never trust the client
     const dob = new Date(date_of_birth);
     const age = Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
     if (age < 18) {
+      cleanupUploadedId(req);
       return res.status(422).json({ error: 'You must be 18 or older to join Fantasi.' });
     }
 
-    // 2b. A phone number is only ever marked verified server-side, via a
+    // 3b. A phone number is only ever marked verified server-side, via a
     // signed proof issued by POST /api/phone/verify-code — never because the
     // client simply says so. If a phone was submitted but its proof is
     // missing, wrong, or expired, reject rather than silently storing an
@@ -81,15 +100,17 @@ async function register(req, res) {
     if (phone) {
       phoneVerified = verifyProofToken(phone_verification_token, phone);
       if (!phoneVerified) {
+        cleanupUploadedId(req);
         return res.status(422).json({ error: 'Phone verification expired or is invalid. Please verify your number again.' });
       }
     }
 
-    // 3. Hash password — cost factor 12 (strong but < 1s on modern hardware)
+    // 4. Hash password — cost factor 12 (strong but < 1s on modern hardware)
     const password_hash = await bcrypt.hash(password, 12);
 
-    // 4. Insert user + profile as one real transaction (single connection —
-    //    see withTransaction) so a failure never leaves a user with no profile.
+    // 5. Insert user + profile + ID document record as one real transaction
+    //    (single connection — see withTransaction) so a failure never leaves
+    //    a user with no profile, or an application with no ID on file.
     await withTransaction(async (client) => {
       const userRes = await client.query(
         `INSERT INTO users (email, password_hash)
@@ -104,15 +125,22 @@ async function register(req, res) {
          VALUES ($1, $2, $3, $4, $5, $6)`,
         [userId, display_name, full_name || null, date_of_birth, phone || null, phoneVerified]
       );
+
+      await client.query(
+        `INSERT INTO identity_documents (user_id, storage_key, original_filename, mime_type)
+         VALUES ($1, $2, $3, $4)`,
+        [userId, req.file.filename, req.file.originalname, req.file.mimetype]
+      );
     });
 
-    // 5. New accounts need admin approval before accessing dashboard
+    // 6. New accounts need admin approval before accessing dashboard
     return res.status(201).json({
       message: 'Registration received. Your application is pending review.',
       pending_approval: true,
     });
 
   } catch (err) {
+    cleanupUploadedId(req);
     console.error('[register]', err.message);
     res.status(500).json({ error: 'Registration failed. Please try again.' });
   }

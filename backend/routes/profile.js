@@ -3,14 +3,18 @@
 const router = require('express').Router();
 const { body, param } = require('express-validator');
 
-const { requireAuth, requireApproved } = require('../middleware/auth');
+const { requireAuth, requireApproved, requireTier } = require('../middleware/auth');
 const { validate }                     = require('../middleware/validate');
 const { avatarUpload, photoUpload }    = require('../middleware/upload');
 const {
   getMyProfile, updateMyProfile, uploadAvatar,
-  getProfile, blockUser, unblockUser, reportUser,
+  getProfile, blockUser, unblockUser, reportUser, listBlocked,
+  requestPhotoAccess, listPhotoRequests, respondPhotoRequest,
   createPrivacyRequest,
+  getMyInterestTags, setMyInterestTags,
+  listGeofences, addGeofence, deleteGeofence,
 } = require('../controllers/profileController');
+const { INTEREST_LEVELS } = require('../config/interestTags');
 const {
   listMyPhotos, addPhoto, deletePhoto, setPrimaryPhoto, reorderPhotos,
 } = require('../controllers/photosController');
@@ -35,6 +39,8 @@ router.patch('/me', [
   body('allow_messages_from').optional()
     .isIn(['members', 'gold_plus', 'nobody'])
     .withMessage('Invalid messages permission value.'),
+  body('blur_photos').optional().isBoolean(),
+  body('incognito').optional().isBoolean(),
   // ── Profile-setup fields ──────────────────────────────────────────────────
   body('heading').optional().trim().isLength({ max: 50 })
     .withMessage('Heading must be 50 characters or fewer.'),
@@ -60,6 +66,17 @@ router.post('/privacy-requests', [
   body('reason').optional().trim().isLength({ max: 1000 }),
 ], validate, createPrivacyRequest);
 
+// ── Interest tags (rated, with Gold+/Black custom tags) ──────────────────────────
+// Registered before the /:id catch-all for the same reason as the photo
+// routes below.
+router.get('/interest-tags', getMyInterestTags);
+router.put('/interest-tags', [
+  body('interests').isArray({ max: 20 }).withMessage('Interests must be an array of up to 20 tags.'),
+  body('interests.*.tag').trim().isLength({ min: 1, max: 50 }).withMessage('Each tag must be 1–50 characters.'),
+  body('interests.*.level').isIn(INTEREST_LEVELS).withMessage(`Level must be one of: ${INTEREST_LEVELS.join(', ')}.`),
+  body('interests.*.is_custom').optional().isBoolean(),
+], validate, setMyInterestTags);
+
 // ── Photo gallery ───────────────────────────────────────────────────────────────
 // Registered before the /:id catch-all below — otherwise Express would match
 // "/photos" as :id = "photos".
@@ -76,6 +93,32 @@ router.patch('/photos/:photoId/primary', [
   param('photoId').isUUID().withMessage('Invalid photo ID.'),
 ], validate, setPrimaryPhoto);
 
+// ── Blocked members list ──────────────────────────────────────────────────────
+// Registered before the /:id catch-all for the same reason as the photo and
+// interest-tag routes above.
+router.get('/blocked', listBlocked);
+
+// ── Photo access requests (blurred-photo mode) ────────────────────────────────
+// Also registered before /:id.
+router.get('/photo-requests', listPhotoRequests);
+router.post('/photo-requests/:viewerId/respond', [
+  param('viewerId').isUUID().withMessage('Invalid user ID.'),
+  body('status').isIn(['approved', 'denied']).withMessage('Status must be approved or denied.'),
+], validate, respondPhotoRequest);
+
+// ── Geofenced privacy (Black tier only) ───────────────────────────────────────
+// Registered before the /:id catch-all for the same reason as the other
+// literal-segment routes above.
+router.get('/geofences', requireTier('black'), listGeofences);
+router.post('/geofences', requireTier('black'), [
+  body('label').trim().isLength({ min: 1, max: 40 }).withMessage('Label must be 1–40 characters.'),
+  body('address').trim().isLength({ min: 3, max: 200 }).withMessage('Address must be 3–200 characters.'),
+  body('radius_miles').isFloat({ min: 0.5, max: 100 }).withMessage('Radius must be between 0.5 and 100 miles.'),
+], validate, addGeofence);
+router.delete('/geofences/:geofenceId', requireTier('black'), [
+  param('geofenceId').isInt().withMessage('Invalid zone ID.'),
+], validate, deleteGeofence);
+
 // ── Other members' profiles ───────────────────────────────────────────────────
 router.get('/:id', [
   param('id').isUUID().withMessage('Invalid profile ID.'),
@@ -84,6 +127,10 @@ router.get('/:id', [
 router.post('/:id/block', [
   param('id').isUUID().withMessage('Invalid user ID.'),
 ], validate, blockUser);
+
+router.post('/:id/photo-request', [
+  param('id').isUUID().withMessage('Invalid user ID.'),
+], validate, requestPhotoAccess);
 
 router.delete('/:id/block', [
   param('id').isUUID().withMessage('Invalid user ID.'),

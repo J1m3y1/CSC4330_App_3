@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Profile — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  h1,h2{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  h3{ font-family:var(--font-sans); font-weight:400; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .eyebrow{
+    font-family:var(--font-header); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .btn-small{ padding:8px 16px; font-size:10px; }
+  .btn-bordeaux{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .btn-bordeaux:hover{ background:rgba(113,26,46,0.12); }
+
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none;
+    opacity:0.04; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  .shell{ display:flex; min-height:100vh; }
+
+  .sidebar{
+    width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  }
+  .sidebar-brand{ padding:26px 24px; border-bottom:1px solid var(--line); }
+  .sidebar-brand .signet{ display:flex; align-items:center; gap:10px; }
+  .sidebar-brand .signet-logo{ height:55px; width:auto; }
+
+  .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; overflow-y:auto; }
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
+    font-family:var(--font-sans); font-size:13.5px; letter-spacing:0.02em; color:var(--smoke);
+    transition:background .25s ease, color .25s ease;
+  }
+  .nav-item svg{ flex-shrink:0; opacity:0.75; }
+  .nav-item:hover{ background:rgba(199,166,92,0.05); color:var(--cream); }
+  .nav-item.active{ background:rgba(199,166,92,0.09); color:var(--gold-bright); }
+  .nav-item.active svg{ opacity:1; }
+
+  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); }
+  .mini-account{ display:flex; align-items:center; gap:11px; }
+  .mini-avatar{
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, #3D3D3D, #0A0A0A); border:1px solid rgba(228,198,135,0.3);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--gold-bright);
+    background-size:cover; background-position:center;
+  }
+  .mini-account-name{ font-family:var(--font-sans); font-size:13px; color:var(--cream); }
+  .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold-bright); margin-top:1px; }
+
+  .main{ flex:1; min-width:0; padding:44px 56px 80px; }
+  .main-inner{ max-width:760px; }
+
+  .back-link{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:12px;
+    color:var(--smoke); margin-bottom:22px; transition:color .3s ease;
+  }
+  .back-link:hover{ color:var(--gold-bright); }
+
+  /* ---------------- profile header band ---------------- */
+  .profile-band{
+    position:relative; overflow:hidden; border-radius:6px; margin-bottom:32px;
+    background:linear-gradient(120deg, #F7EACB 0%, var(--gold-bright) 30%, var(--gold) 65%, var(--gold-dim) 100%);
+    padding:36px 40px; display:flex; align-items:center; gap:26px; flex-wrap:wrap;
+  }
+  .profile-avatar{
+    width:88px; height:88px; border-radius:50%; flex-shrink:0;
+    background:var(--noir-soft); border:3px solid rgba(11,10,12,0.15);
+    background-size:cover; background-position:center;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:36px; color:var(--gold-bright);
+    overflow:hidden; position:relative; z-index:1;
+  }
+  .profile-band-info{ position:relative; z-index:1; flex:1; min-width:200px; }
+  .profile-band-name{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:5px; }
+  .profile-band-name h2{ font-size:28px; color:var(--noir); font-style:italic; }
+  .tier-chip{
+    font-family:var(--font-sans); font-size:9px; letter-spacing:0.08em; text-transform:uppercase;
+    background:rgba(11,10,12,0.85); color:var(--gold-bright); padding:4px 11px; border-radius:20px;
+  }
+  .profile-band-meta{ font-family:var(--font-sans); font-size:13px; color:rgba(11,10,12,0.7); display:flex; gap:16px; flex-wrap:wrap; }
+  .profile-band-actions{ position:relative; z-index:1; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .profile-band .btn{ border-color:rgba(11,10,12,0.3); color:var(--noir); }
+  .profile-band .btn:hover{ background:rgba(11,10,12,0.08); }
+
+  /* ---------------- "..." menu ---------------- */
+  .menu-wrap{ position:relative; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid rgba(11,10,12,0.3); color:var(--noir);
+    display:flex; align-items:center; justify-content:center; transition:background .3s ease;
+  }
+  .icon-btn:hover{ background:rgba(11,10,12,0.08); }
+  .dropdown-menu{
+    display:none; position:absolute; top:46px; right:0; min-width:180px;
+    background:var(--noir-soft); border:1px solid var(--line-strong); border-radius:6px; padding:6px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.5); z-index:50;
+  }
+  .dropdown-menu.show{ display:block; }
+  .dropdown-item{
+    display:block; width:100%; text-align:left; padding:10px 12px; border-radius:4px;
+    font-family:var(--font-sans); font-size:13px; color:var(--cream); transition:background .2s ease;
+  }
+  .dropdown-item:hover{ background:rgba(199,166,92,0.08); }
+  .dropdown-item.danger{ color:var(--bordeaux-bright); }
+  .dropdown-item.danger:hover{ background:rgba(113,26,46,0.1); }
+
+  /* ---------------- block confirmation ---------------- */
+  .confirm-overlay{
+    display:none; position:fixed; inset:0; z-index:9999; background:rgba(11,10,12,0.88); backdrop-filter:blur(8px);
+    align-items:center; justify-content:center; padding:24px;
+  }
+  .confirm-overlay.show{ display:flex; }
+  .confirm-modal{
+    width:min(420px, 100%); background:var(--noir-soft); border:1px solid var(--bordeaux-bright); border-radius:8px;
+    padding:32px 30px; text-align:center;
+  }
+  .confirm-modal h3{ font-size:19px; margin-bottom:10px; font-family:var(--font-display); font-style:italic; font-weight:300; }
+  .confirm-modal p{ font-family:var(--font-sans); font-size:13.5px; color:var(--smoke); line-height:1.7; margin-bottom:22px; }
+  .confirm-actions{ display:flex; flex-direction:column; gap:10px; }
+
+  /* ---------------- report panel ---------------- */
+  .report-panel{
+    display:none; border:1px solid var(--bordeaux-bright); border-radius:4px; padding:22px 24px; margin-bottom:32px;
+    background:rgba(113,26,46,0.06);
+  }
+  .report-panel.show{ display:block; }
+  .report-panel h4{ font-family:var(--font-serif); font-size:15px; color:var(--cream); margin-bottom:8px; }
+  .report-panel p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.7; margin-bottom:16px; }
+  .report-reasons{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .report-reason-btn{
+    font-family:var(--font-sans); font-size:12px; color:var(--smoke); border:1px solid var(--line-strong);
+    padding:8px 14px; border-radius:20px; cursor:pointer; transition:border-color .3s ease, color .3s ease;
+  }
+  .report-reason-btn:hover, .report-reason-btn.selected{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .report-actions{ display:flex; gap:10px; }
+  .report-confirm{ display:none; text-align:center; padding:6px 0; }
+  .report-confirm.show{ display:block; }
+  .report-confirm p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
+  .report-confirm strong{ color:var(--cream); }
+
+  /* ---------------- sections ---------------- */
+  .section{ margin-bottom:36px; }
+  .section-head{ margin-bottom:16px; }
+  .section-head h3{ font-size:17px; font-family:var(--font-sans); }
+  .section-body p{ font-family:var(--font-serif); font-size:15px; color:var(--cream); line-height:1.75; white-space:pre-wrap; }
+  .empty-note{ font-family:var(--font-sans); font-size:13px; color:var(--smoke-dim); font-style:italic; }
+
+  .tag-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag-pill{
+    padding:8px 14px; border:1px solid var(--line-strong); border-radius:20px;
+    font-family:var(--font-sans); font-size:12.5px; color:var(--smoke);
+  }
+  .tag-pill .level{ color:var(--gold-dim); font-size:10.5px; margin-left:6px; }
+
+  .detail-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:16px; }
+  .detail-item{ border-top:1px solid var(--line); padding-top:10px; }
+  .detail-label{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--smoke-dim); margin-bottom:5px; }
+  .detail-value{ font-family:var(--font-sans); font-size:14px; color:var(--cream); }
+
+  .photo-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+  .photo-tile{
+    aspect-ratio:3/4; border-radius:4px; background:var(--noir-soft); border:1px solid var(--line-strong);
+    background-size:cover; background-position:center;
+  }
+
+  /* ---------------- blurred-photo mode: hidden state ---------------- */
+  .photo-hidden-notice{
+    display:flex; align-items:center; gap:14px; border:1px dashed var(--line-strong); border-radius:6px;
+    padding:18px 20px; margin-bottom:28px;
+  }
+  .photo-hidden-notice svg{ flex-shrink:0; color:var(--gold-dim); }
+  .photo-hidden-notice-text{ flex:1; font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.6; }
+  .photo-hidden-notice-text strong{ color:var(--cream); font-weight:500; }
+  .photo-hidden-notice .btn{ flex-shrink:0; }
+
+  .not-found{ text-align:center; padding:100px 20px; }
+  .not-found h2{ font-size:26px; margin-bottom:10px; }
+  .not-found p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
+
+  @media (max-width:900px){
+    .sidebar{ display:none; }
+    .main{ padding:32px 22px 60px; }
+    .photo-grid{ grid-template-columns:repeat(3, 1fr); }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a class="signet" href="/LandingPage/Landing.html">
+        <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/Dashboard/Discover.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Discover
+      </a>
+      <a class="nav-item" href="/Dashboard/Search.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="13" cy="13" r="8" stroke="currentColor" stroke-width="1"/><path d="M19 19l6 6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Search
+      </a>
+      <a class="nav-item" href="/Dashboard/Interests.html">
+        <svg width="16" height="16" viewBox="0 0 20 18" fill="none"><path d="M10 17s-6.5-4.2-8.4-8.7C.4 5.6 2.2 2 5.4 2c1.8 0 3.3 1 4.2 2.4C10.4 3 11.9 2 13.7 2c3.2 0 5 3.6 3.8 6.3C15.5 12.8 10 17 10 17z" stroke="currentColor" stroke-width="1"/></svg>
+        Interests
+      </a>
+      <a class="nav-item" href="/Dashboard/Messages.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>
+        Messages
+      </a>
+      <a class="nav-item" href="/Dashboard/Chatrooms.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M6 14a9 9 0 1 0 18 0 9 9 0 0 0-18 0z" stroke="currentColor" stroke-width="1"/><path d="M6 20a9 9 0 0 0 12 5.5M24 20a9 9 0 0 1-12 5.5" stroke="currentColor" stroke-width="1"/></svg>
+        Chatrooms
+      </a>
+      <a class="nav-item" href="/Dashboard/Forum.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H16l-6 4.5V21H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/><path d="M10 12h10M10 16h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Forum
+      </a>
+      <a class="nav-item" href="/Profile/Profile.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        My Profile
+      </a>
+      <a class="nav-item" href="/Dashboard/Privacy.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1"/></svg>
+        Privacy &amp; Data
+      </a>
+      <a class="nav-item" href="/Dashboard/Membership.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+        Membership
+      </a>
+      <a class="nav-item" href="/LandingPage/Safety.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
+        Safety
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="mini-account">
+        <div class="mini-avatar" id="side-avatar"></div>
+        <div>
+          <div class="mini-account-name" id="side-name">Loading…</div>
+          <div class="mini-account-tier" id="side-tier"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+
+      <a class="back-link" href="javascript:history.back()">
+        <svg width="12" height="9" viewBox="0 0 29 20" fill="none"><path fill-rule="evenodd" fill="currentColor" d="M29 10C29 9.73479 28.8947 9.48044 28.7071 9.29291C28.5196 9.10537 28.2652 9.00001 28 9.00001H4.41402L10.7082 2.70801C10.801 2.61504 10.8747 2.50466 10.9251 2.38318C10.9754 2.2617 11.0013 2.1315 11.0013 2.00001C11.0013 1.86852 10.9754 1.73832 10.9251 1.61685C10.8747 1.49537 10.801 1.38499 10.708 1.29201C10.615 1.19904 10.5047 1.12528 10.3832 1.07497C10.2617 1.02465 10.1315 0.998749 10 0.998749C9.86853 0.998749 9.73833 1.02465 9.61685 1.07497C9.49537 1.12528 9.38499 1.19904 9.29202 1.29201L1.29202 9.29201C1.19889 9.3849 1.12501 9.49525 1.07459 9.61674C1.02418 9.73824 0.99823 9.86848 0.99823 10C0.99823 10.1315 1.02418 10.2618 1.07459 10.3833C1.12501 10.5048 1.19889 10.6151 1.29202 10.708L9.29202 18.708C9.38499 18.801 9.49537 18.8747 9.61685 18.9251C9.73833 18.9754 9.86853 19.0013 10 19.0013C10.1315 19.0013 10.2617 18.9754 10.3832 18.9251C10.5047 18.8747 10.615 18.801 10.708 18.708C10.801 18.615 10.8747 18.5047 10.9251 18.3832C10.9754 18.2617 11.0013 18.1315 11.0013 18C11.0013 17.8685 10.9754 17.7383 10.9251 17.6168C10.8747 17.4954 10.801 17.385 10.708 17.292L4.41402 11H28C28.2652 11 28.5196 10.8947 28.7071 10.7071C28.8947 10.5196 29 10.2652 29 10Z"/></svg>
+        Back
+      </a>
+
+      <div id="profile-content" style="display:none;">
+
+        <div class="profile-band">
+          <div class="profile-avatar" id="p-avatar"></div>
+          <div class="profile-band-info">
+            <div class="profile-band-name">
+              <h2 id="p-name"></h2>
+              <span class="tier-chip" id="p-tier" style="display:none;"></span>
+            </div>
+            <div class="profile-band-meta">
+              <span id="p-location" style="display:none;"></span>
+              <span id="p-last-active" style="display:none;"></span>
+            </div>
+          </div>
+          <div class="profile-band-actions">
+            <button type="button" class="btn btn-gold btn-small" id="p-message">Message</button>
+            <div class="menu-wrap">
+              <button type="button" class="icon-btn" id="p-menu-btn" title="More">
+                <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="4" r="1.3" fill="currentColor"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/><circle cx="10" cy="16" r="1.3" fill="currentColor"/></svg>
+              </button>
+              <div class="dropdown-menu" id="p-menu">
+                <button type="button" class="dropdown-item" id="menu-block">Block member</button>
+                <button type="button" class="dropdown-item danger" id="menu-report">Report member</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="photo-hidden-notice" id="photo-hidden-notice" style="display:none;">
+          <svg width="20" height="20" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1"/></svg>
+          <div class="photo-hidden-notice-text">
+            <strong id="photo-hidden-title">This member's photos are private.</strong><br>
+            <span id="photo-hidden-sub">They've turned on blurred-photo mode — request access and they'll be notified.</span>
+          </div>
+          <button type="button" class="btn btn-line btn-small" id="photo-request-btn">Request to see</button>
+        </div>
+
+        <div class="report-panel" id="report-panel">
+          <h4>Report this member</h4>
+          <p>Reports go directly to our safety team and are reviewed by a person — not automatically dismissed or ignored.</p>
+          <div class="report-reasons" id="report-reasons">
+            <div class="report-reason-btn" data-reason="Harassment">Harassment</div>
+            <div class="report-reason-btn" data-reason="Fake profile">Fake profile</div>
+            <div class="report-reason-btn" data-reason="Inappropriate content">Inappropriate content</div>
+            <div class="report-reason-btn" data-reason="Scam or spam">Scam or spam</div>
+            <div class="report-reason-btn" data-reason="Feels unsafe">Feels unsafe</div>
+          </div>
+          <div class="report-actions">
+            <button type="button" class="btn btn-bordeaux btn-small" id="report-submit">Submit Report</button>
+            <button type="button" class="btn btn-line btn-small" id="report-cancel">Cancel</button>
+          </div>
+          <div class="report-confirm" id="report-confirm">
+            <p><strong>Report received.</strong> Our safety team reviews every report personally.</p>
+          </div>
+        </div>
+
+        <div class="section" id="section-heading" style="display:none;">
+          <div class="section-body"><p id="p-heading" style="font-style:italic; font-size:20px;"></p></div>
+        </div>
+
+        <div class="section">
+          <div class="section-head"><h3>About</h3></div>
+          <div class="section-body"><p id="p-bio"></p></div>
+        </div>
+
+        <div class="section" id="section-photos" style="display:none;">
+          <div class="section-head"><h3>Photos</h3></div>
+          <div class="photo-grid" id="p-photos"></div>
+        </div>
+
+        <div class="section" id="section-interests" style="display:none;">
+          <div class="section-head"><h3>Interests</h3></div>
+          <div class="tag-row" id="p-interests"></div>
+        </div>
+
+        <div class="section" id="section-looking-for" style="display:none;">
+          <div class="section-head"><h3>Looking For</h3></div>
+          <div class="tag-row" id="p-looking-for"></div>
+        </div>
+
+        <div class="section" id="section-details" style="display:none;">
+          <div class="section-head"><h3>Details</h3></div>
+          <div class="detail-grid" id="p-details"></div>
+        </div>
+
+      </div>
+
+      <div class="not-found" id="not-found" style="display:none;">
+        <h2>Profile not available.</h2>
+        <p>This member may not exist, or you may not be able to view their profile.</p>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="confirm-overlay" id="block-overlay">
+  <div class="confirm-modal">
+    <h3>Block <span id="block-name"></span>?</h3>
+    <p>You won't see each other on Fantasi anymore. You can undo this later from Privacy &amp; Data.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-bordeaux btn-full" id="block-confirm">Yes, Block</button>
+      <button type="button" class="btn btn-line btn-full" id="block-dismiss">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(async () => {
+  if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+  const { api, initDashboard, capitalize, initials, showToast } = window.FantasiAPI;
+
+  const me = await initDashboard();
+  if (!me) return;
+  document.getElementById('side-avatar').textContent = initials(me.display_name || me.email);
+  document.getElementById('side-name').textContent = me.display_name || me.email;
+  document.getElementById('side-tier').textContent = `${capitalize(me.membership_tier)} Member`;
+
+  const targetId = new URLSearchParams(location.search).get('id');
+  if (!targetId) { document.getElementById('not-found').style.display = 'block'; return; }
+  if (targetId === me.id) { window.location.href = '/Profile/Profile.html'; return; }
+
+  const { ok, data: p } = await api.profile.get(targetId);
+  if (!ok) { document.getElementById('not-found').style.display = 'block'; return; }
+
+  document.getElementById('profile-content').style.display = 'block';
+
+  const avatarEl = document.getElementById('p-avatar');
+  if (p.avatar_url) { avatarEl.style.backgroundImage = `url(${p.avatar_url})`; }
+  else avatarEl.textContent = initials(p.display_name);
+
+  document.getElementById('p-name').textContent = p.display_name;
+
+  // ---- blurred-photo mode: real photo bytes never reached this page at all
+  // when hidden (see profileController.getProfile) — this just renders that
+  // state and offers the request-access action.
+  if (p.photos_hidden) {
+    const notice = document.getElementById('photo-hidden-notice');
+    const btn = document.getElementById('photo-request-btn');
+    notice.style.display = 'flex';
+    if (p.photo_request_status === 'pending') {
+      document.getElementById('photo-hidden-sub').textContent = "You've asked to see their photos — waiting for them to respond.";
+      btn.textContent = 'Request sent'; btn.disabled = true;
+    } else if (p.photo_request_status === 'denied') {
+      document.getElementById('photo-hidden-sub').textContent = "Your last request wasn't approved. You can ask again.";
+      btn.textContent = 'Request again';
+    }
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      const { ok: rok, data: rdata } = await api.profile.requestPhoto(p.user_id);
+      if (rok) { showToast('Request sent.', 'info'); btn.textContent = 'Request sent'; }
+      else { btn.disabled = false; showToast(rdata?.error || 'Could not send request.', 'error'); }
+    });
+  }
+
+  if (p.membership_tier !== 'free') {
+    const tierEl = document.getElementById('p-tier');
+    tierEl.textContent = capitalize(p.membership_tier);
+    tierEl.style.display = 'inline-flex';
+  }
+
+  if (p.location) {
+    const el = document.getElementById('p-location');
+    el.textContent = p.location;
+    el.style.display = 'inline-flex';
+  }
+  if (p.last_active_at) {
+    const el = document.getElementById('p-last-active');
+    el.textContent = `Active ${new Date(p.last_active_at).toLocaleDateString()}`;
+    el.style.display = 'inline-flex';
+  }
+
+  if (p.heading) {
+    document.getElementById('p-heading').textContent = p.heading;
+    document.getElementById('section-heading').style.display = 'block';
+  }
+
+  document.getElementById('p-bio').textContent = p.bio || "This member hasn't written a bio yet.";
+
+  if (p.photos && p.photos.length) {
+    const grid = document.getElementById('p-photos');
+    p.photos.forEach(photo => {
+      const tile = document.createElement('div');
+      tile.className = 'photo-tile';
+      tile.style.backgroundImage = `url(${photo.url})`;
+      grid.appendChild(tile);
+    });
+    document.getElementById('section-photos').style.display = 'block';
+  }
+
+  const LEVEL_LABELS = { into: 'Into it', curious: 'Curious', soft_limit: 'Soft limit', hard_limit: 'Hard limit' };
+  if (p.rated_interests && p.rated_interests.length) {
+    const row = document.getElementById('p-interests');
+    p.rated_interests.forEach(ri => {
+      const pill = document.createElement('span');
+      pill.className = 'tag-pill';
+      pill.textContent = ri.tag;
+      const level = document.createElement('span');
+      level.className = 'level';
+      level.textContent = LEVEL_LABELS[ri.level] || '';
+      pill.appendChild(level);
+      row.appendChild(pill);
+    });
+    document.getElementById('section-interests').style.display = 'block';
+  } else if (p.interests && p.interests.length) {
+    const row = document.getElementById('p-interests');
+    p.interests.forEach(tag => {
+      const pill = document.createElement('span');
+      pill.className = 'tag-pill';
+      pill.textContent = tag;
+      row.appendChild(pill);
+    });
+    document.getElementById('section-interests').style.display = 'block';
+  }
+
+  if (p.looking_for && p.looking_for.length) {
+    const row = document.getElementById('p-looking-for');
+    p.looking_for.forEach(tag => {
+      const pill = document.createElement('span');
+      pill.className = 'tag-pill';
+      pill.textContent = tag;
+      row.appendChild(pill);
+    });
+    document.getElementById('section-looking-for').style.display = 'block';
+  }
+
+  const details = [
+    ['Height', p.height_label],
+    ['Weight', p.weight_label],
+    ['Education', p.education],
+    ['Relationship status', p.relationship_status],
+    ['Smoking', p.smoking],
+  ].filter(([, v]) => v);
+  if (details.length) {
+    const grid = document.getElementById('p-details');
+    details.forEach(([label, value]) => {
+      const item = document.createElement('div');
+      item.className = 'detail-item';
+      item.innerHTML = `<div class="detail-label">${label}</div><div class="detail-value"></div>`;
+      item.querySelector('.detail-value').textContent = value;
+      grid.appendChild(item);
+    });
+    document.getElementById('section-details').style.display = 'block';
+  }
+
+  document.getElementById('p-message').addEventListener('click', () => {
+    window.location.href = `/Dashboard/Messages.html?to=${p.user_id}`;
+  });
+
+  // ---- "..." menu: block / report ----
+  const menuBtn = document.getElementById('p-menu-btn');
+  const menu = document.getElementById('p-menu');
+  menuBtn.addEventListener('click', (e) => { e.stopPropagation(); menu.classList.toggle('show'); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.menu-wrap')) menu.classList.remove('show'); });
+
+  const blockOverlay = document.getElementById('block-overlay');
+  document.getElementById('menu-block').addEventListener('click', () => {
+    menu.classList.remove('show');
+    document.getElementById('block-name').textContent = p.display_name;
+    blockOverlay.classList.add('show');
+  });
+  document.getElementById('block-dismiss').addEventListener('click', () => blockOverlay.classList.remove('show'));
+  blockOverlay.addEventListener('click', (e) => { if (e.target === blockOverlay) blockOverlay.classList.remove('show'); });
+  document.getElementById('block-confirm').addEventListener('click', async () => {
+    const btn = document.getElementById('block-confirm');
+    btn.disabled = true;
+    const { ok, data } = await api.profile.block(p.user_id);
+    if (ok) { showToast('Member blocked.', 'info'); window.location.href = '/Dashboard/Discover.html'; }
+    else { showToast(data?.error || 'Could not block member.', 'error'); btn.disabled = false; }
+  });
+
+  const reportPanel = document.getElementById('report-panel');
+  const reportConfirm = document.getElementById('report-confirm');
+  document.getElementById('menu-report').addEventListener('click', () => {
+    menu.classList.remove('show');
+    reportPanel.classList.add('show');
+    reportPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  document.getElementById('report-cancel').addEventListener('click', () => reportPanel.classList.remove('show'));
+
+  let selectedReason = null;
+  document.querySelectorAll('.report-reason-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.report-reason-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedReason = btn.dataset.reason;
+    });
+  });
+  document.getElementById('report-submit').addEventListener('click', async () => {
+    if (!selectedReason) { showToast('Choose a reason first.', 'warning'); return; }
+    const { ok, data } = await api.profile.report(p.user_id, selectedReason);
+    if (ok) reportConfirm.classList.add('show');
+    else showToast(data?.error || 'Could not submit report.', 'error');
+  });
+})();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>

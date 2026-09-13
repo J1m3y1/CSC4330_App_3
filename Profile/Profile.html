@@ -77,7 +77,7 @@
   .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; }
   .nav-item{
     display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
-    font-family:var(--font-sans); font-size:12.5px; letter-spacing:0.02em; color:var(--smoke);
+    font-family:var(--font-sans); font-size:13.5px; letter-spacing:0.02em; color:var(--smoke);
     transition:background .25s ease, color .25s ease;
   }
   .nav-item svg{ flex-shrink:0; opacity:0.75; }
@@ -99,7 +99,7 @@
     font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--noir);
   }
   .mini-account-info{ min-width:0; }
-  .mini-account-name{ font-family:var(--font-sans); font-size:12px; color:var(--cream); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mini-account-name{ font-family:var(--font-sans); font-size:13px; color:var(--cream); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
 
   /* ---------------- main content ---------------- */
@@ -108,7 +108,7 @@
 
   .page-head{ margin-bottom:36px; }
   .page-head h1{ font-size:32px; margin-bottom:6px; }
-  .page-head p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
+  .page-head p{ font-family:var(--font-sans); font-size:14px; color:var(--smoke); }
 
   /* ---------------- profile header band ---------------- */
   .profile-band{
@@ -145,7 +145,7 @@
     font-family:var(--font-sans); font-size:9px; letter-spacing:0.08em; text-transform:uppercase;
     background:rgba(11,10,12,0.85); color:var(--gold-bright); padding:4px 11px; border-radius:20px;
   }
-  .profile-band-meta{ font-family:var(--font-sans); font-size:12px; color:rgba(11,10,12,0.7); display:flex; gap:16px; flex-wrap:wrap; }
+  .profile-band-meta{ font-family:var(--font-sans); font-size:13px; color:rgba(11,10,12,0.7); display:flex; gap:16px; flex-wrap:wrap; }
   .profile-band-meta span{ display:inline-flex; align-items:center; gap:6px; }
   .profile-band .btn{ position:relative; z-index:1; border-color:rgba(11,10,12,0.3); color:var(--noir); }
   .profile-band .btn:hover{ background:rgba(11,10,12,0.08); }
@@ -154,7 +154,7 @@
   .section{ margin-bottom:40px; }
   .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px; }
   .section-head h3{ font-size:18px; font-family: var(--font-sans); }
-  .section-head .link-btn{ font-family:var(--font-sans); font-size:11px; letter-spacing:0.04em; color:var(--smoke); transition:color .3s ease; }
+  .section-head .link-btn{ font-family:var(--font-sans); font-size:12px; letter-spacing:0.04em; color:var(--smoke); transition:color .3s ease; }
   .section-head .link-btn:hover{ color:var(--gold-bright); }
 
   /* ---------------- photos grid ---------------- */
@@ -182,20 +182,20 @@
   .photo-slot-actions{ position:absolute; top:6px; right:6px; display:flex; gap:4px; z-index:2; }
   .photo-slot-actions button{
     width:22px; height:22px; border-radius:50%; background:rgba(11,10,12,0.75); color:var(--cream);
-    display:flex; align-items:center; justify-content:center; font-size:12px; transition:background .2s ease, color .2s ease;
+    display:flex; align-items:center; justify-content:center; font-size:13px; transition:background .2s ease, color .2s ease;
   }
   .photo-slot-actions button:hover{ background:var(--gold); color:var(--noir); }
   .photo-slot-actions button.star.active{ background:var(--gold); color:var(--noir); }
 
   /* ---------------- inline edit fields (display state / editor state) ---------------- */
   .field-display{ border:1px solid var(--line-strong); border-radius:4px; padding:18px 22px; }
-  .field-display-value{ font-family:var(--font-serif); font-size:14px; color:var(--cream); line-height:1.75; }
+  .field-display-value{ font-family:var(--font-sans); font-size:15px; color:var(--cream); line-height:1.75; }
   .field-editor{ display:none; border:1px solid var(--gold-dim); border-radius:4px; padding:20px 22px; background:rgba(199,166,92,0.03); }
   .field-editor.show{ display:block; }
   .field-display.hide{ display:none; }
   .editor-textarea{
     width:100%; background:none; border:1px solid var(--line-strong); border-radius:4px; padding:12px 14px;
-    color:var(--cream); font-family:var(--font-serif); font-size:14px; line-height:1.7; resize:vertical;
+    color:var(--cream); font-family:var(--font-serif); font-size:15px; line-height:1.7; resize:vertical;
     outline:none; transition:border-color .3s ease;
   }
   .editor-textarea:focus{ border-color:var(--gold); }
@@ -212,19 +212,45 @@
   .tag-select{ display:flex; flex-wrap:wrap; gap:8px; }
   .tag-select-btn{
     padding:9px 15px; border:1px solid var(--line-strong); border-radius:20px;
-    font-family:var(--font-sans); font-size:11.5px; color:var(--smoke); cursor:pointer;
+    font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); cursor:pointer;
     transition:border-color .3s ease, color .3s ease, background .3s ease;
   }
   .tag-select-btn:hover{ border-color:var(--gold-dim); }
   .tag-select-btn.selected{ border-color:var(--gold); color:var(--gold-bright); background:rgba(199,166,92,0.1); }
-  .tag-limit-note{ font-family:var(--font-sans); font-size:10px; color:var(--smoke-dim); margin-top:14px; }
+  .tag-limit-note{ font-family:var(--font-serif); font-size:10px; color:var(--smoke-dim); margin-top:14px; }
+
+  /* interest tags — rated (level select shows once a tag is selected) + custom */
+  .interests-hint{ font-family:var(--font-sans); font-size:12px; color:var(--smoke-dim); margin-bottom:16px; max-width:60ch; }
+  .tag-cat{ margin-bottom:20px; }
+  .tag-select-btn.rated{ display:inline-flex; align-items:center; gap:8px; padding-right:8px; }
+  .tag-select-btn.rated .tag-label{ cursor:pointer; }
+  .tag-level-select{
+    display:none; background:none; border:1px solid var(--gold-dim); border-radius:12px;
+    color:var(--gold-bright); font-family:var(--font-sans); font-size:10.5px; padding:3px 6px; outline:none; cursor:pointer;
+  }
+  .tag-select-btn.selected .tag-level-select{ display:inline-block; }
+  .tag-remove{
+    display:none; color:var(--smoke-dim); font-size:14px; line-height:1; padding:0 2px;
+    transition:color .2s ease;
+  }
+  .tag-select-btn.custom .tag-remove{ display:inline-block; }
+  .tag-remove:hover{ color:var(--bordeaux-bright); }
+  .tag-select-btn.custom{ border-style:dashed; }
+  .custom-tag-row{ margin-top:6px; }
+  .custom-tag-add{ display:flex; gap:8px; margin-top:12px; max-width:360px; }
+  .custom-tag-add input{
+    flex:1; background:none; border:1px solid var(--line-strong); border-radius:20px;
+    padding:9px 15px; color:var(--cream); font-family:var(--font-sans); font-size:12.5px; outline:none;
+  }
+  .custom-tag-add input:focus{ border-color:var(--gold); }
+  .custom-tag-upsell{ font-family:var(--font-serif); font-size:11.5px; color:var(--smoke-dim); font-style:italic; margin-top:10px; }
 
   /* details list — weight/height/education/relationship/smoking */
   .detail-list{ border-top:1px solid var(--line); }
   .detail-row{ padding:18px 0; border-bottom:1px solid var(--line); }
   .detail-row-top{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
   .detail-row-label{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--smoke-dim); }
-  .detail-row-display{ display:flex; align-items:center; gap:12px; font-family:var(--font-sans); font-size:14px; color:var(--cream); }
+  .detail-row-display{ display:flex; align-items:center; gap:12px; font-family:var(--font-sans); font-size:15px; color:var(--cream); }
   .visibility-pill{
     font-family:var(--font-sans); font-size:9px; letter-spacing:0.05em; text-transform:uppercase;
     border:1px solid var(--line-strong); color:var(--smoke); padding:3px 9px; border-radius:20px;
@@ -242,7 +268,7 @@
   .select-list-inline{ display:flex; gap:8px; flex-wrap:wrap; }
   .select-list-inline .select-list-btn{
     padding:9px 14px; border:1px solid var(--line-strong); border-radius:4px;
-    font-family:var(--font-sans); font-size:12px; color:var(--cream);
+    font-family:var(--font-sans); font-size:13px; color:var(--cream);
     transition:border-color .3s ease, background .3s ease, color .3s ease;
   }
   .select-list-inline .select-list-btn:hover{ border-color:var(--gold-dim); }
@@ -255,9 +281,9 @@
     padding:20px 0; border-bottom:1px solid var(--line);
   }
   .toggle-row-text h4{
-    font-family:var(--font-sans); font-size:14.5px; font-weight:400; color:var(--cream); margin-bottom:4px;
+    font-family:var(--font-sans); font-size:15.5px; font-weight:400; color:var(--cream); margin-bottom:4px;
   }
-  .toggle-row-text p{ font-family:var(--font-sans); font-size:11.5px; color:var(--smoke); line-height:1.6; max-width:440px; }
+  .toggle-row-text p{ font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); line-height:1.6; max-width:440px; }
   .toggle-row-text .locked-note{ color:var(--gold-dim); }
 
   .toggle{
@@ -277,7 +303,7 @@
   .geofence-entry{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
   .geofence-input{
     background:none; border:1px solid var(--line-strong); border-radius:3px;
-    padding:9px 11px; color:var(--cream); font-family:var(--font-sans); font-size:12px; outline:none;
+    padding:9px 11px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;
     transition:border-color .3s ease;
   }
   .geofence-input:focus{ border-color:var(--gold); }
@@ -285,9 +311,15 @@
   .geofence-input-wide{ flex:1; min-width:160px; }
   select.geofence-input{ cursor:pointer; }
   .geofence-add{
-    font-family:var(--font-sans); font-size:11px; color:var(--gold); transition:color .3s ease;
+    font-family:var(--font-sans); font-size:12px; color:var(--gold); transition:color .3s ease;
   }
   .geofence-add:hover{ color:var(--gold-bright); }
+  .geofence-saved{ align-items:center; }
+  .geofence-saved span{ font-family:var(--font-sans); font-size:13px; color:var(--cream); }
+  .geofence-meta{ color:var(--smoke) !important; font-size:12px !important; }
+  .geofence-remove{ color:var(--bordeaux-bright); }
+  .geofence-remove:hover{ text-decoration:underline; }
+  .geofence-empty-note{ font-family:var(--font-sans); font-size:12.5px; color:var(--smoke-dim); margin-bottom:12px; }
 
   /* ---------------- verification ---------------- */
   .verify-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
@@ -301,8 +333,8 @@
     border:1px solid var(--line-strong); color:var(--smoke-dim);
   }
   .verify-card.done .verify-icon{ border-color:var(--gold); color:var(--gold); background:rgba(199,166,92,0.1); }
-  .verify-card h4{ font-family:var(--font-sans); font-size:14px; font-weight:400; color:var(--cream); margin-bottom:4px; }
-  .verify-card p{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); line-height:1.6; margin-bottom:10px; }
+  .verify-card h4{ font-family:var(--font-sans); font-size:15px; font-weight:400; color:var(--cream); margin-bottom:4px; }
+  .verify-card p{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.6; margin-bottom:10px; }
   .verify-status{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); }
 
   /* ---------------- account info rows ---------------- */
@@ -312,9 +344,51 @@
     padding:16px 0; border-bottom:1px solid var(--line);
   }
   .info-row-label{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--smoke-dim); }
-  .info-row-value{ font-family:var(--font-serif); font-size:14px; color:var(--cream); }
-  .info-row .link-btn{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); transition:color .3s ease; }
+  .info-row-value{ font-family:var(--font-serif); font-size:15px; color:var(--cream); }
+  .info-row .link-btn{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); transition:color .3s ease; }
   .info-row .link-btn:hover{ color:var(--gold-bright); }
+
+  /* ---------------- photo access requests ---------------- */
+  .photo-request-row{
+    display:flex; align-items:center; gap:12px; border:1px solid var(--line-strong); border-radius:5px;
+    padding:14px 16px; margin-bottom:10px;
+  }
+  .photo-request-avatar{
+    width:38px; height:38px; border-radius:50%; flex-shrink:0; background-size:cover; background-position:center;
+    background:linear-gradient(135deg, #3D3D3D, #0A0A0A); border:1px solid rgba(228,198,135,0.25);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--gold-bright);
+  }
+  .photo-request-info{ flex:1; min-width:0; }
+  .photo-request-name{ font-family:var(--font-sans); font-size:14px; color:var(--cream); }
+  .photo-request-meta{ font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); margin-top:2px; }
+  .photo-request-actions{ display:flex; gap:8px; flex-shrink:0; }
+
+  /* ---------------- generic confirm modal ---------------- */
+  .confirm-overlay{
+    display:none; position:fixed; inset:0; z-index:9999; background:rgba(11,10,12,0.88); backdrop-filter:blur(8px);
+    align-items:center; justify-content:center; padding:24px;
+  }
+  .confirm-overlay.show{ display:flex; }
+  .confirm-modal{
+    width:min(400px, 100%); background:var(--noir-soft); border:1px solid var(--line-strong); border-radius:8px;
+    padding:30px 28px; text-align:center;
+  }
+  .confirm-modal h3{ font-size:18px; margin-bottom:10px; font-family:var(--font-display); font-style:italic; font-weight:300; }
+  .confirm-modal p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.7; margin-bottom:20px; }
+  .confirm-actions{ display:flex; flex-direction:column; gap:10px; }
+  .confirm-modal .req-field{ text-align:left; margin-bottom:16px; }
+  .confirm-modal .req-field label{
+    display:block; font-family:var(--font-sans); font-size:10px; letter-spacing:0.07em; text-transform:uppercase;
+    color:var(--smoke-dim); margin-bottom:8px;
+  }
+  .confirm-modal .req-field input{
+    width:100%; background:none; border:1px solid var(--line-strong); border-radius:3px;
+    padding:10px 12px; color:var(--cream); font-family:var(--font-sans); font-size:14px; outline:none;
+    transition:border-color .3s ease;
+  }
+  .confirm-modal .req-field input:focus{ border-color:var(--gold); }
+  .confirm-modal .req-hint{ font-family:var(--font-sans); font-size:10.5px; color:var(--smoke-dim); margin-top:6px; text-align:left; line-height:1.5; }
 
   @media (max-width:900px){
     .sidebar{ display:none; }
@@ -369,7 +443,11 @@
         Chatrooms
         <span class="nav-lock-badge">Black</span>
       </a>
-      <a class="nav-item active" href="/Dashboard/Profile.html">
+      <a class="nav-item" href="/Dashboard/Forum.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H16l-6 4.5V21H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/><path d="M10 12h10M10 16h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Forum
+      </a>
+      <a class="nav-item active" href="/Profile/Profile.html">
         <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
         My Profile
       </a>
@@ -484,24 +562,17 @@
           <h3>Interests</h3>
           <button type="button" class="link-btn" id="interests-save">Save</button>
         </div>
-        <div class="tag-cat">
-          <span class="tag-cat-label">Arrangement Style</span>
-          <div class="tag-select" data-tagselect>
-            <div class="tag-select-btn" data-value="Power exchange">Power exchange</div>
-            <div class="tag-select-btn" data-value="Mentorship">Mentorship</div>
-            <div class="tag-select-btn" data-value="Financial partnership">Financial partnership</div>
-            <div class="tag-select-btn" data-value="Long-term arrangement">Long-term arrangement</div>
+        <p class="interests-hint">Tap a tag to add it, then set how you feel about it. Gold and Black members can add their own tags too.</p>
+        <div id="interests-groups"><!-- populated from GET /api/profile/interest-tags --></div>
+        <div class="custom-tag-row" id="custom-tag-row" style="display:none;">
+          <span class="tag-cat-label">Your own tags</span>
+          <div class="tag-select" id="custom-tags-list"></div>
+          <div class="custom-tag-add">
+            <input type="text" id="custom-tag-input" placeholder="Add your own…" maxlength="50">
+            <button type="button" class="btn btn-line btn-small" id="custom-tag-add-btn">Add</button>
           </div>
         </div>
-        <div class="tag-cat">
-          <span class="tag-cat-label">Lifestyle</span>
-          <div class="tag-select" data-tagselect>
-            <div class="tag-select-btn" data-value="Travel companionship">Travel companionship</div>
-            <div class="tag-select-btn" data-value="Fine dining">Fine dining</div>
-            <div class="tag-select-btn" data-value="Life of leisure">Life of leisure</div>
-            <div class="tag-select-btn" data-value="Discretion">Discretion</div>
-          </div>
-        </div>
+        <p class="custom-tag-upsell" id="custom-tag-upsell" style="display:none;">Upgrade to Gold to add your own interest tags.</p>
       </div>
 
       <!-- what you're looking for -->
@@ -677,35 +748,38 @@
               <h4>Blurred-photo mode</h4>
               <p>Your real photo stays hidden until you personally approve someone to see it.</p>
             </div>
-            <div class="toggle on" data-toggle></div>
+            <div class="toggle" id="blur-toggle"></div>
           </div>
           <div class="toggle-row">
             <div class="toggle-row-text">
               <h4>Incognito browsing</h4>
-              <p>Browse without appearing in anyone's "who viewed you" list.</p>
+              <p id="incognito-desc">Browse without appearing in anyone's "who viewed you" list.</p>
             </div>
-            <div class="toggle" data-toggle></div>
+            <div class="toggle" id="incognito-toggle" data-toggle="locked"></div>
           </div>
           <div class="toggle-row" style="flex-direction:column; align-items:stretch;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:20px;">
               <div class="toggle-row-text">
                 <h4>Geofenced privacy</h4>
-                <p>Automatically hide your profile from discovery near a location you choose — home, work, anywhere you'd rather not be recognized.</p>
+                <p id="geofence-desc">Automatically hide your profile from discovery near a location you choose — home, work, anywhere you'd rather not be recognized.</p>
               </div>
-              <div class="toggle on" id="geofence-toggle" data-toggle="geofence"></div>
+              <div class="toggle" id="geofence-toggle" data-toggle="locked"></div>
             </div>
-            <div class="geofence-settings show" id="geofence-settings">
-              <div class="geofence-entry">
-                <input type="text" class="geofence-input" placeholder="Label — e.g. Home" value="Home">
-                <input type="text" class="geofence-input geofence-input-wide" placeholder="Address" value="Baton Rouge, LA">
-                <select class="geofence-input">
-                  <option>1 mile</option>
-                  <option selected>5 miles</option>
-                  <option>10 miles</option>
-                  <option>25 miles</option>
+            <div class="geofence-settings" id="geofence-settings">
+              <div id="geofence-list"></div>
+              <div class="geofence-entry" id="geofence-new-entry" style="display:none;">
+                <input type="text" class="geofence-input" id="geofence-new-label" placeholder="Label — e.g. Home">
+                <input type="text" class="geofence-input geofence-input-wide" id="geofence-new-address" placeholder="Address">
+                <select class="geofence-input" id="geofence-new-radius">
+                  <option value="1">1 mile</option>
+                  <option value="5" selected>5 miles</option>
+                  <option value="10">10 miles</option>
+                  <option value="25">25 miles</option>
                 </select>
+                <button type="button" class="btn btn-gold btn-small" id="geofence-save">Save</button>
+                <button type="button" class="btn btn-line btn-small" id="geofence-cancel">Cancel</button>
               </div>
-              <button type="button" class="geofence-add" id="geofence-add">+ Add another location</button>
+              <button type="button" class="geofence-add" id="geofence-add">+ Add a location</button>
             </div>
           </div>
           <div class="toggle-row">
@@ -723,6 +797,15 @@
             <button type="button" class="btn btn-line btn-small" disabled style="opacity:0.4; cursor:not-allowed;">Locked</button>
           </div>
         </div>
+      </div>
+
+      <!-- photo access requests — only relevant while blurred-photo mode is on -->
+      <div class="section" id="photo-requests-section" style="display:none;">
+        <div class="section-head">
+          <h3>Photo Access Requests</h3>
+        </div>
+        <div id="photo-requests-list"></div>
+        <p class="empty-note" id="photo-requests-empty" style="display:none; font-family:var(--font-sans); font-size:12.5px; color:var(--smoke-dim);">No pending requests.</p>
       </div>
 
       <!-- verification -->
@@ -788,6 +871,55 @@
   </main>
 </div>
 
+<!-- generic confirm modal (photo delete, etc.) -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-modal">
+    <h3 id="confirm-title"></h3>
+    <p id="confirm-message"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-bordeaux btn-full" id="confirm-yes"></button>
+      <button type="button" class="btn btn-line btn-full" id="confirm-no">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- change password -->
+<div class="confirm-overlay" id="password-overlay">
+  <div class="confirm-modal">
+    <h3>Change your password</h3>
+    <p>You'll need to sign in again afterward.</p>
+    <div class="req-field">
+      <label for="password-current-input">Current password</label>
+      <input type="password" id="password-current-input" autocomplete="current-password">
+    </div>
+    <div class="req-field">
+      <label for="password-new-input">New password</label>
+      <input type="password" id="password-new-input" autocomplete="new-password">
+      <div class="req-hint">10+ characters, with an uppercase letter, a number, and a symbol.</div>
+    </div>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-gold btn-full" id="password-submit">Change Password</button>
+      <button type="button" class="btn btn-line btn-full" id="password-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- change email -->
+<div class="confirm-overlay" id="email-overlay">
+  <div class="confirm-modal">
+    <h3>Change your email</h3>
+    <p>We'll follow up at your new address to confirm the change.</p>
+    <div class="req-field">
+      <label for="email-new-input">New email address</label>
+      <input type="email" id="email-new-input" autocomplete="email">
+    </div>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-gold btn-full" id="email-submit">Submit Request</button>
+      <button type="button" class="btn btn-line btn-full" id="email-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (async () => {
   if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
@@ -830,11 +962,6 @@
     document.getElementById('about-input').value = profile.bio || '';
     document.getElementById('about-count').textContent = (profile.bio || '').length;
 
-    const interests = profile.interests || [];
-    document.querySelectorAll('.tag-cat .tag-select-btn').forEach(btn => {
-      btn.classList.toggle('selected', interests.includes(btn.dataset.value));
-    });
-
     const lookingFor = profile.looking_for || [];
     const lookingForTags = document.getElementById('looking-for-tags');
     lookingForTags.querySelectorAll('.tag-select-btn').forEach(btn => {
@@ -864,11 +991,119 @@
 
     document.getElementById('account-fullname').textContent = profile.full_name || '—';
     document.getElementById('account-email').textContent = profile.email;
+
+    document.getElementById('blur-toggle').classList.toggle('on', !!profile.blur_photos);
+    document.getElementById('photo-requests-section').style.display = profile.blur_photos ? 'block' : 'none';
+    document.getElementById('incognito-toggle').classList.toggle('on', !!profile.incognito);
   }
+
+  // ---- interest tags — rated (into it / curious / soft limit / hard limit),
+  // with Gold+/Black-only custom tags. The fixed generic list and whether
+  // this member can add custom tags both come from the server, not
+  // hardcoded here, so it can never drift from what the API validates.
+  const LEVEL_LABELS = { into: 'Into it', curious: 'Curious', soft_limit: 'Soft limit', hard_limit: 'Hard limit' };
+
+  function buildTagPill(tagName, existing, isCustom) {
+    const btn = document.createElement('div');
+    btn.className = 'tag-select-btn rated' + (isCustom ? ' custom' : '') + (existing ? ' selected' : '');
+    btn.dataset.tag = tagName;
+    btn.dataset.custom = isCustom ? '1' : '0';
+
+    const label = document.createElement('span');
+    label.className = 'tag-label';
+    label.textContent = tagName;
+    btn.appendChild(label);
+
+    const levelSelect = document.createElement('select');
+    levelSelect.className = 'tag-level-select';
+    Object.entries(LEVEL_LABELS).forEach(([val, text]) => {
+      const opt = document.createElement('option');
+      opt.value = val; opt.textContent = text;
+      if (existing ? existing.level === val : val === 'into') opt.selected = true;
+      levelSelect.appendChild(opt);
+    });
+    levelSelect.addEventListener('click', (e) => e.stopPropagation());
+    btn.appendChild(levelSelect);
+
+    if (isCustom) {
+      const remove = document.createElement('span');
+      remove.className = 'tag-remove';
+      remove.textContent = '×';
+      remove.title = 'Remove';
+      remove.addEventListener('click', (e) => { e.stopPropagation(); btn.remove(); });
+      btn.appendChild(remove);
+    } else {
+      btn.addEventListener('click', () => btn.classList.toggle('selected'));
+    }
+
+    return btn;
+  }
+
+  async function loadInterestTags() {
+    const { ok, data } = await api.profile.interestTags.get();
+    if (!ok) { showToast('Could not load interest tags.', 'error'); return; }
+
+    const existingByTag = new Map(data.tags.map(t => [t.tag, t]));
+
+    const groupsEl = document.getElementById('interests-groups');
+    groupsEl.innerHTML = '';
+    Object.entries(data.generic_groups).forEach(([groupName, tags]) => {
+      const cat = document.createElement('div');
+      cat.className = 'tag-cat';
+      const label = document.createElement('span');
+      label.className = 'tag-cat-label';
+      label.textContent = groupName;
+      cat.appendChild(label);
+      const list = document.createElement('div');
+      list.className = 'tag-select';
+      tags.forEach(tag => list.appendChild(buildTagPill(tag, existingByTag.get(tag), false)));
+      cat.appendChild(list);
+      groupsEl.appendChild(cat);
+    });
+
+    const customList = document.getElementById('custom-tags-list');
+    customList.innerHTML = '';
+    data.tags.filter(t => t.is_custom).forEach(t => customList.appendChild(buildTagPill(t.tag, t, true)));
+
+    document.getElementById('custom-tag-row').style.display = data.can_add_custom ? '' : 'none';
+    document.getElementById('custom-tag-upsell').style.display = data.can_add_custom ? 'none' : '';
+  }
+
+  document.getElementById('custom-tag-add-btn').addEventListener('click', () => {
+    const input = document.getElementById('custom-tag-input');
+    const tag = input.value.trim();
+    if (!tag) return;
+    const customList = document.getElementById('custom-tags-list');
+    if ([...customList.children].some(b => b.dataset.tag.toLowerCase() === tag.toLowerCase())) {
+      showToast('You already added that tag.', 'warning');
+      return;
+    }
+    customList.appendChild(buildTagPill(tag, { level: 'into' }, true));
+    input.value = '';
+  });
+  document.getElementById('custom-tag-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('custom-tag-add-btn').click(); }
+  });
+
+  document.getElementById('interests-save').addEventListener('click', async () => {
+    const pills = [
+      ...document.querySelectorAll('#interests-groups .tag-select-btn.selected'),
+      ...document.querySelectorAll('#custom-tags-list .tag-select-btn'),
+    ];
+    const payload = pills.map(btn => ({
+      tag: btn.dataset.tag,
+      level: btn.querySelector('.tag-level-select').value,
+      is_custom: btn.dataset.custom === '1',
+    }));
+    const { ok, data } = await api.profile.interestTags.set(payload);
+    if (ok) { showToast('Interests saved.', 'info'); loadInterestTags(); }
+    else showToast(data?.error || 'Could not save interests.', 'error');
+  });
 
   const { ok, data: profile } = await api.profile.me();
   if (!ok) { showToast('Could not load your profile.', 'error'); return; }
   applyProfileData(profile);
+  loadInterestTags();
 
   // ---- avatar band click — jumps straight to the gallery's "add" slot ----
   const avatarEl = document.getElementById('profile-avatar');
@@ -916,12 +1151,13 @@
     const delBtn = document.createElement('button');
     delBtn.type = 'button'; delBtn.title = 'Delete photo';
     delBtn.textContent = '✕';
-    delBtn.addEventListener('click', async (e) => {
+    delBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!confirm('Delete this photo?')) return;
-      const { ok, data } = await api.profile.photos.delete(photo.id);
-      if (ok) { await loadGallery(); showToast('Photo deleted.', 'info'); }
-      else showToast(data?.error || 'Could not delete.', 'error');
+      openConfirm('Delete this photo?', 'This cannot be undone.', 'Delete', async () => {
+        const { ok, data } = await api.profile.photos.delete(photo.id);
+        if (ok) { await loadGallery(); showToast('Photo deleted.', 'info'); }
+        else showToast(data?.error || 'Could not delete.', 'error');
+      });
     });
 
     actions.append(starBtn, delBtn);
@@ -1023,17 +1259,6 @@
     document.getElementById('about-count').textContent = this.value.length;
   });
 
-  // interests — free multi-select, explicit Save
-  document.querySelectorAll('.tag-cat .tag-select-btn').forEach(btn => {
-    btn.addEventListener('click', () => btn.classList.toggle('selected'));
-  });
-  document.getElementById('interests-save').addEventListener('click', async () => {
-    const selected = [...document.querySelectorAll('.tag-cat .tag-select-btn.selected')].map(b => b.dataset.value);
-    const { ok, data } = await api.profile.update({ interests: selected });
-    if (ok) { Object.assign(profile, data); showToast('Interests saved.', 'info'); }
-    else showToast(data?.error || 'Could not save interests.', 'error');
-  });
-
   // "what you're looking for" — capped multi-select, explicit Save
   const lookingForTags = document.getElementById('looking-for-tags');
   const tagLimitNote = document.getElementById('tag-limit-note');
@@ -1073,48 +1298,227 @@
     });
   });
 
+  // blurred-photo mode — the one toggle in this section that's actually real:
+  // it withholds the real photo URL from anyone not individually approved
+  // (see ViewProfile.html / Discover.html / Search.html), not just a CSS blur.
+  const blurToggle = document.getElementById('blur-toggle');
+  blurToggle.addEventListener('click', async () => {
+    const next = !blurToggle.classList.contains('on');
+    blurToggle.classList.toggle('on', next);
+    document.getElementById('photo-requests-section').style.display = next ? 'block' : 'none';
+    const { ok, data } = await api.profile.update({ blur_photos: next });
+    if (ok) { Object.assign(profile, data); if (next) loadPhotoRequests(); }
+    else { blurToggle.classList.toggle('on', !next); showToast(data?.error || 'Could not update.', 'error'); }
+  });
+
+  async function loadPhotoRequests() {
+    const { ok, data } = await api.profile.photoRequests();
+    const list = document.getElementById('photo-requests-list');
+    list.innerHTML = '';
+    if (!ok) return;
+    document.getElementById('photo-requests-empty').style.display = data.length ? 'none' : 'block';
+    data.forEach(reqst => {
+      const row = document.createElement('div');
+      row.className = 'photo-request-row';
+      const avatar = document.createElement('div');
+      avatar.className = 'photo-request-avatar';
+      if (reqst.avatar_url) avatar.style.backgroundImage = `url(${reqst.avatar_url})`;
+      else avatar.textContent = initials(reqst.display_name);
+      row.appendChild(avatar);
+      const info = document.createElement('div');
+      info.className = 'photo-request-info';
+      info.innerHTML = `<div class="photo-request-name"></div><div class="photo-request-meta">Requested ${new Date(reqst.created_at).toLocaleDateString()}</div>`;
+      info.querySelector('.photo-request-name').textContent = reqst.display_name;
+      row.appendChild(info);
+      const actions = document.createElement('div');
+      actions.className = 'photo-request-actions';
+      const approveBtn = document.createElement('button');
+      approveBtn.type = 'button'; approveBtn.className = 'btn btn-gold btn-small'; approveBtn.textContent = 'Approve';
+      const denyBtn = document.createElement('button');
+      denyBtn.type = 'button'; denyBtn.className = 'btn btn-line btn-small'; denyBtn.textContent = 'Deny';
+      const respond = async (status) => {
+        const { ok: rok, data: rdata } = await api.profile.respondPhotoRequest(reqst.viewer_id, status);
+        if (rok) { showToast(`Request ${status}.`, 'info'); row.remove(); if (!list.children.length) document.getElementById('photo-requests-empty').style.display = 'block'; }
+        else showToast(rdata?.error || 'Could not update request.', 'error');
+      };
+      approveBtn.addEventListener('click', () => respond('approved'));
+      denyBtn.addEventListener('click', () => respond('denied'));
+      actions.append(approveBtn, denyBtn);
+      row.appendChild(actions);
+      list.appendChild(row);
+    });
+  }
+  if (profile.blur_photos) loadPhotoRequests();
+
   // toggle switches — visual state only; no backend field exists for these yet
-  // (blurred-photo mode, incognito browsing, geofencing) — see the audit notes.
+  // (self-destructing messages, video-liveness clips — real features not
+  // built, unlike incognito/geofencing below which are Black-gated for real).
   document.querySelectorAll('.toggle[data-toggle]').forEach(t => {
     if (t.getAttribute('data-toggle') === 'locked') return;
     t.addEventListener('click', () => t.classList.toggle('on'));
   });
 
-  const geofenceToggle = document.getElementById('geofence-toggle');
-  const geofenceSettings = document.getElementById('geofence-settings');
-  if (geofenceToggle && geofenceSettings) {
-    geofenceToggle.addEventListener('click', () => {
-      geofenceSettings.classList.toggle('show', geofenceToggle.classList.contains('on'));
+  const isBlack = profile.membership_tier === 'black';
+
+  // incognito browsing — Black tier only. Real: skips the "profile_views"
+  // write entirely on the backend, so an incognito member never appears in
+  // anyone's "who viewed you" list (see profileController.js getProfile).
+  const incognitoToggle = document.getElementById('incognito-toggle');
+  const incognitoDesc   = document.getElementById('incognito-desc');
+  if (isBlack) {
+    incognitoToggle.removeAttribute('data-toggle');
+    incognitoToggle.classList.toggle('on', !!profile.incognito);
+    incognitoToggle.addEventListener('click', async () => {
+      const next = !incognitoToggle.classList.contains('on');
+      incognitoToggle.classList.toggle('on', next);
+      const { ok, data } = await api.profile.update({ incognito: next });
+      if (ok) Object.assign(profile, data);
+      else { incognitoToggle.classList.toggle('on', !next); showToast(data?.error || 'Could not update.', 'error'); }
     });
+  } else {
+    incognitoToggle.classList.add('disabled');
+    incognitoDesc.textContent = 'Black tier only — upgrade to unlock this control.';
+    incognitoDesc.classList.add('locked-note');
   }
-  const geofenceAdd = document.getElementById('geofence-add');
-  if (geofenceAdd) {
-    geofenceAdd.addEventListener('click', () => {
-      const entry = document.createElement('div');
-      entry.className = 'geofence-entry';
-      entry.innerHTML = `
-        <input type="text" class="geofence-input" placeholder="Label — e.g. Work">
-        <input type="text" class="geofence-input geofence-input-wide" placeholder="Address">
-        <select class="geofence-input">
-          <option>1 mile</option>
-          <option selected>5 miles</option>
-          <option>10 miles</option>
-          <option>25 miles</option>
-        </select>
-      `;
-      geofenceAdd.parentElement.insertBefore(entry, geofenceAdd);
+
+  // geofenced privacy — Black tier only. Also real: each saved zone is a row
+  // in profile_geofences, geocoded server-side via Nominatim, and enforced
+  // directly in the discovery query (see discoverController.js) — not just
+  // a client-side filter. The toggle itself is only an expand/collapse
+  // convenience; the zones existing (or not) is what actually does anything.
+  const geofenceToggle    = document.getElementById('geofence-toggle');
+  const geofenceDesc      = document.getElementById('geofence-desc');
+  const geofenceSettings  = document.getElementById('geofence-settings');
+  const geofenceList      = document.getElementById('geofence-list');
+  const geofenceAdd       = document.getElementById('geofence-add');
+  const geofenceNewEntry  = document.getElementById('geofence-new-entry');
+  const geofenceLabelIn   = document.getElementById('geofence-new-label');
+  const geofenceAddressIn = document.getElementById('geofence-new-address');
+  const geofenceRadiusIn  = document.getElementById('geofence-new-radius');
+  const geofenceSaveBtn   = document.getElementById('geofence-save');
+  const geofenceCancelBtn = document.getElementById('geofence-cancel');
+
+  function renderGeofences(zones) {
+    geofenceList.innerHTML = '';
+    if (!zones.length) {
+      const empty = document.createElement('p');
+      empty.className = 'geofence-empty-note';
+      empty.textContent = 'No hidden zones yet — you show up in discovery everywhere until you add one.';
+      geofenceList.appendChild(empty);
+      return;
+    }
+    zones.forEach(zone => {
+      const row = document.createElement('div');
+      row.className = 'geofence-entry geofence-saved';
+      const label = document.createElement('span');
+      label.style.minWidth = '70px';
+      label.textContent = zone.label;
+      const meta = document.createElement('span');
+      meta.className = 'geofence-input-wide geofence-meta';
+      meta.textContent = `${zone.address} · ${zone.radius_miles} mi`;
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'geofence-add geofence-remove';
+      removeBtn.textContent = 'Remove';
+      removeBtn.addEventListener('click', async () => {
+        removeBtn.disabled = true;
+        const { ok, data } = await api.profile.geofences.delete(zone.id);
+        if (ok) loadGeofences();
+        else { removeBtn.disabled = false; showToast(data?.error || 'Could not remove.', 'error'); }
+      });
+      row.append(label, meta, removeBtn);
+      geofenceList.appendChild(row);
     });
   }
 
-  // ---- account: password change (two prompts) and email change (routed through
-  // the same reviewed request queue as Privacy.html's "correct my data") ----
-  document.getElementById('password-change-btn').addEventListener('click', async () => {
-    const current = prompt('Enter your current password:');
-    if (current === null) return;
-    const next = prompt('Enter your new password (10+ characters, with an uppercase letter, a number, and a symbol):');
-    if (next === null) return;
+  async function loadGeofences() {
+    const { ok, data } = await api.profile.geofences.list();
+    if (ok) renderGeofences(data);
+  }
+
+  if (isBlack) {
+    geofenceToggle.removeAttribute('data-toggle');
+    geofenceToggle.classList.add('on');
+    geofenceSettings.classList.add('show');
+    geofenceToggle.addEventListener('click', () => {
+      const open = geofenceToggle.classList.toggle('on');
+      geofenceSettings.classList.toggle('show', open);
+    });
+    geofenceAdd.addEventListener('click', () => {
+      geofenceNewEntry.style.display = 'flex';
+      geofenceAdd.style.display = 'none';
+      geofenceLabelIn.focus();
+    });
+    geofenceCancelBtn.addEventListener('click', () => {
+      geofenceNewEntry.style.display = 'none';
+      geofenceAdd.style.display = '';
+      geofenceLabelIn.value = '';
+      geofenceAddressIn.value = '';
+    });
+    geofenceSaveBtn.addEventListener('click', async () => {
+      const label = geofenceLabelIn.value.trim();
+      const address = geofenceAddressIn.value.trim();
+      const radius_miles = parseInt(geofenceRadiusIn.value, 10);
+      if (!label || !address) { showToast('Fill in both a label and an address.', 'warning'); return; }
+      geofenceSaveBtn.disabled = true;
+      geofenceSaveBtn.textContent = 'Locating…';
+      const { ok, data } = await api.profile.geofences.add(label, address, radius_miles);
+      geofenceSaveBtn.disabled = false;
+      geofenceSaveBtn.textContent = 'Save';
+      if (ok) { geofenceCancelBtn.click(); loadGeofences(); }
+      else showToast(data?.error || 'Could not find that address.', 'error');
+    });
+    loadGeofences();
+  } else {
+    geofenceToggle.classList.add('disabled');
+    geofenceDesc.textContent = 'Black tier only — upgrade to unlock this control.';
+    geofenceDesc.classList.add('locked-note');
+    geofenceSettings.style.display = 'none';
+  }
+
+  // ---- generic confirm modal ----
+  const confirmOverlay = document.getElementById('confirm-overlay');
+  const confirmYesBtn  = document.getElementById('confirm-yes');
+  let currentConfirmHandler = null;
+  function closeConfirm() {
+    confirmOverlay.classList.remove('show');
+    if (currentConfirmHandler) { confirmYesBtn.removeEventListener('click', currentConfirmHandler); currentConfirmHandler = null; }
+  }
+  function openConfirm(title, message, confirmLabel, onConfirm) {
+    closeConfirm();
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-message').textContent = message;
+    confirmYesBtn.textContent = confirmLabel;
+    confirmOverlay.classList.add('show');
+    currentConfirmHandler = async () => { closeConfirm(); await onConfirm(); };
+    confirmYesBtn.addEventListener('click', currentConfirmHandler);
+  }
+  document.getElementById('confirm-no').addEventListener('click', closeConfirm);
+  confirmOverlay.addEventListener('click', (e) => { if (e.target === confirmOverlay) closeConfirm(); });
+
+  // ---- account: password change and email change (routed through the same
+  // reviewed request queue as Privacy.html's "correct my data") ----
+  const passwordOverlay = document.getElementById('password-overlay');
+  const passwordCurrentInput = document.getElementById('password-current-input');
+  const passwordNewInput = document.getElementById('password-new-input');
+  document.getElementById('password-change-btn').addEventListener('click', () => {
+    passwordCurrentInput.value = '';
+    passwordNewInput.value = '';
+    passwordOverlay.classList.add('show');
+    passwordCurrentInput.focus();
+  });
+  document.getElementById('password-cancel').addEventListener('click', () => passwordOverlay.classList.remove('show'));
+  passwordOverlay.addEventListener('click', (e) => { if (e.target === passwordOverlay) passwordOverlay.classList.remove('show'); });
+  document.getElementById('password-submit').addEventListener('click', async () => {
+    const current = passwordCurrentInput.value;
+    const next = passwordNewInput.value;
+    if (!current || !next) { showToast('Fill in both fields.', 'warning'); return; }
+    const btn = document.getElementById('password-submit');
+    btn.disabled = true;
     const { ok, data } = await api.auth.changePassword(current, next);
+    btn.disabled = false;
     if (ok) {
+      passwordOverlay.classList.remove('show');
       showToast('Password changed. Please sign in again.', 'info');
       setTimeout(() => { window.location.href = '/SignInProcess/SignIn.html'; }, 1500);
     } else {
@@ -1122,11 +1526,24 @@
     }
   });
 
-  document.getElementById('email-change-btn').addEventListener('click', async () => {
-    const newEmail = prompt('What email address would you like to use instead?');
-    if (!newEmail) return;
-    const { ok, data } = await api.profile.privacyRequest('correct', `Change email to: ${newEmail.trim()}`);
-    showToast(ok ? 'Request received — our team will follow up by email.' : (data?.error || 'Could not submit request.'), ok ? 'info' : 'error');
+  const emailOverlay = document.getElementById('email-overlay');
+  const emailNewInput = document.getElementById('email-new-input');
+  document.getElementById('email-change-btn').addEventListener('click', () => {
+    emailNewInput.value = '';
+    emailOverlay.classList.add('show');
+    emailNewInput.focus();
+  });
+  document.getElementById('email-cancel').addEventListener('click', () => emailOverlay.classList.remove('show'));
+  emailOverlay.addEventListener('click', (e) => { if (e.target === emailOverlay) emailOverlay.classList.remove('show'); });
+  document.getElementById('email-submit').addEventListener('click', async () => {
+    const newEmail = emailNewInput.value.trim();
+    if (!newEmail) { showToast('Enter an email address.', 'warning'); return; }
+    const btn = document.getElementById('email-submit');
+    btn.disabled = true;
+    const { ok, data } = await api.profile.privacyRequest('correct', `Change email to: ${newEmail}`);
+    btn.disabled = false;
+    if (ok) { emailOverlay.classList.remove('show'); showToast('Request received — our team will follow up by email.', 'info'); }
+    else showToast(data?.error || 'Could not submit request.', 'error');
   });
 })();
 </script>

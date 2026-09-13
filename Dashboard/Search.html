@@ -78,7 +78,7 @@
   .sidebar-nav{ flex:1; padding:20px 12px; display:flex; flex-direction:column; gap:2px; }
   .nav-item{
     display:flex; align-items:center; gap:12px; padding:11px 13px; border-radius:4px;
-    font-family:var(--font-sans); font-size:12px; letter-spacing:0.02em; color:var(--smoke);
+    font-family:var(--font-sans); font-size:13px; letter-spacing:0.02em; color:var(--smoke);
     transition:background .25s ease, color .25s ease;
   }
   .nav-item svg{ flex-shrink:0; opacity:0.75; }
@@ -96,9 +96,9 @@
     width:32px; height:32px; border-radius:50%; flex-shrink:0;
     background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
     display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-display); font-style:italic; font-size:13px; color:var(--noir);
+    font-family:var(--font-display); font-style:italic; font-size:14px; color:var(--noir);
   }
-  .mini-account-name{ font-family:var(--font-sans); font-size:11.5px; color:var(--cream); }
+  .mini-account-name{ font-family:var(--font-sans); font-size:12.5px; color:var(--cream); }
   .mini-account-tier{ font-family:var(--font-sans); font-size:9.5px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
 
   /* ---------------- filters sidebar ---------------- */
@@ -132,15 +132,15 @@
   .radio-row, .check-row{ display:flex; align-items:center; gap:9px; margin-bottom:11px; }
   .radio-row:last-child, .check-row:last-child{ margin-bottom:0; }
   .radio-row input, .check-row input{ accent-color:var(--gold); }
-  .radio-row label, .check-row label{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); }
+  .radio-row label, .check-row label{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
 
   .locked-note{
-    font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); line-height:1.6;
+    font-family:var(--font-sans); font-size:12px; color:var(--smoke-dim); line-height:1.6;
     display:flex; align-items:center; gap:8px;
   }
   .locked-note a{ color:var(--gold); text-decoration:underline; flex-shrink:0; }
 
-  .range-label{ font-family:var(--font-sans); font-size:12px; color:var(--cream); margin-bottom:10px; }
+  .range-label{ font-family:var(--font-sans); font-size:13px; color:var(--cream); margin-bottom:10px; }
   .range-slider{ width:100%; accent-color:var(--gold); }
   .range-dual{ position:relative; height:4px; background:var(--line-strong); border-radius:2px; margin:14px 0 4px; }
   .range-dual-fill{ position:absolute; height:100%; background:var(--gold); border-radius:2px; left:10%; right:25%; }
@@ -152,7 +152,7 @@
   .tag-select{ display:flex; flex-wrap:wrap; gap:7px; }
   .tag-select-btn{
     padding:7px 13px; border:1px solid var(--line-strong); border-radius:18px;
-    font-family:var(--font-sans); font-size:11px; color:var(--smoke); cursor:pointer;
+    font-family:var(--font-sans); font-size:12px; color:var(--smoke); cursor:pointer;
     transition:border-color .3s ease, color .3s ease, background .3s ease;
   }
   .tag-select-btn:hover{ border-color:var(--gold-dim); }
@@ -161,7 +161,7 @@
   .select-list{ display:flex; flex-direction:column; gap:8px; }
   .select-list-btn{
     text-align:left; padding:9px 12px; border:1px solid var(--line-strong); border-radius:4px;
-    font-family:var(--font-sans); font-size:12px; color:var(--cream);
+    font-family:var(--font-sans); font-size:13px; color:var(--cream);
     transition:border-color .3s ease, background .3s ease, color .3s ease;
   }
   .select-list-btn:hover{ border-color:var(--gold-dim); }
@@ -170,11 +170,11 @@
   /* ---------------- results ---------------- */
   .results{ flex:1; min-width:0; padding:34px 40px 70px; }
   .results-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:14px; }
-  .results-count{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); }
+  .results-count{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
   .results-count strong{ color:var(--cream); }
   .sort-select{
     background:none; border:1px solid var(--line-strong); border-radius:20px; padding:9px 16px;
-    color:var(--cream); font-family:var(--font-sans); font-size:11.5px; outline:none; cursor:pointer;
+    color:var(--cream); font-family:var(--font-sans); font-size:12.5px; outline:none; cursor:pointer;
   }
 
   .results-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; }
@@ -203,10 +203,13 @@
   .tier-badge.silver{ background:rgba(166,171,177,0.85); color:#1C1D1E; }
   .tier-badge.gold{ background:rgba(199,166,92,0.9); color:var(--noir); }
   .tier-badge.black{ background:rgba(10,10,10,0.85); color:var(--gold-bright); border:1px solid rgba(228,198,135,0.3); }
-  .blur-tag{
-    position:absolute; bottom:10px; left:10px; right:10px; z-index:2; text-align:center;
-    font-family:var(--font-sans); font-size:9px; letter-spacing:0.05em; text-transform:uppercase;
-    background:rgba(11,10,12,0.72); color:var(--gold-bright); padding:6px 4px; border-radius:3px;
+  /* Blurred-photo mode: the real image is never sent to an unapproved viewer
+     (see discoverController.js) — this labels the initials-fallback state. */
+  .photo-hidden-badge{
+    position:absolute; top:9px; left:9px; z-index:2; display:flex; align-items:center; gap:5px;
+    font-family:var(--font-sans); font-size:8px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:4px 9px; border-radius:20px; background:rgba(11,10,12,0.75); color:var(--gold-bright);
+    backdrop-filter:blur(4px);
   }
   .card-actions-overlay{
     position:absolute; bottom:10px; right:10px; z-index:2; display:flex; gap:6px;
@@ -223,14 +226,14 @@
   .result-name-row{ display:flex; align-items:center; gap:6px; }
   .result-name-row h3{ font-size:15px; color:var(--cream); }
   .result-verify{ color:var(--gold); flex-shrink:0; }
-  .result-meta{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); margin-top:3px; }
+  .result-meta{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); margin-top:3px; }
 
   .empty-state{
     text-align:center; padding:60px 20px; border:1px dashed var(--line-strong); border-radius:6px;
     display:none;
   }
   .empty-state.show{ display:block; }
-  .empty-state p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
+  .empty-state p{ font-family:var(--font-sans); font-size:14px; color:var(--smoke); }
 
   @media (max-width:1150px){ .results-grid{ grid-template-columns:repeat(2, 1fr); } }
   @media (max-width:980px){
@@ -273,7 +276,11 @@
         Chatrooms
         <span class="nav-lock-badge">Black</span>
       </a>
-      <a class="nav-item" href="/Dashboard/Profile.html">
+      <a class="nav-item" href="/Dashboard/Forum.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H16l-6 4.5V21H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/><path d="M10 12h10M10 16h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Forum
+      </a>
+      <a class="nav-item" href="/Profile/Profile.html">
         <svg width="15" height="15" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
         My Profile
       </a>
@@ -317,14 +324,14 @@
     <div class="filter-group">
       <div class="range-label" style="margin-bottom:8px;">Name or interest</div>
       <input type="text" id="filter-keyword" placeholder="e.g. Charlotte, travel…"
-             style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:4px; padding:9px 12px; color:var(--cream); font-family:var(--font-sans); font-size:12px; outline:none;">
+             style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:4px; padding:9px 12px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;">
     </div>
 
     <!-- location -->
     <div class="filter-group">
       <div class="range-label" style="margin-bottom:8px;">Location</div>
       <input type="text" id="filter-location" placeholder="City, state…"
-             style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:4px; padding:9px 12px; color:var(--cream); font-family:var(--font-sans); font-size:12px; outline:none;">
+             style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:4px; padding:9px 12px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;">
     </div>
 
     <!-- membership tier -->
@@ -494,12 +501,24 @@
 
     const photo = document.createElement('div');
     photo.className = 'result-photo';
+    photo.style.cursor = 'pointer';
+    photo.addEventListener('click', (e) => {
+      if (e.target.closest('.card-actions-overlay')) return;
+      window.location.href = `/Profile/ViewProfile.html?id=${member.user_id}`;
+    });
 
     if (member.membership_tier !== 'free') {
       const badge = document.createElement('span');
       badge.className = `tier-badge ${member.membership_tier}`;
       badge.textContent = capitalize(member.membership_tier);
       photo.appendChild(badge);
+    }
+
+    if (member.photos_hidden) {
+      const hiddenBadge = document.createElement('span');
+      hiddenBadge.className = 'photo-hidden-badge';
+      hiddenBadge.innerHTML = '<svg width="9" height="9" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1.5"/></svg> Private';
+      photo.appendChild(hiddenBadge);
     }
 
     const fill = document.createElement('div');
@@ -522,15 +541,18 @@
     msgBtn.addEventListener('click', () => { window.location.href = `/Dashboard/Messages.html?to=${member.user_id}`; });
 
     const likeBtn = document.createElement('button');
-    likeBtn.type = 'button'; likeBtn.className = 'card-action-btn like-btn'; likeBtn.title = 'Like';
+    likeBtn.type = 'button'; likeBtn.className = 'card-action-btn like-btn' + (member.liked_by_me ? ' liked' : ''); likeBtn.title = 'Like';
     likeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 17s-6.5-4-8.2-8.3C.6 5.6 2.3 3 5.2 3c1.7 0 3.1.9 4 2.2C10 3.9 11.4 3 13.1 3c2.9 0 4.6 2.6 3.4 5.7C14.9 13 10 17 10 17z" stroke="currentColor" stroke-width="1.3"/></svg>';
     likeBtn.addEventListener('click', async () => {
       const wasLiked = likeBtn.classList.contains('liked');
       likeBtn.classList.toggle('liked');
-      const { ok } = wasLiked
+      const { ok, data } = wasLiked
         ? await api.interests.unlike(member.user_id)
         : await api.interests.like(member.user_id);
-      if (!ok) likeBtn.classList.toggle('liked');
+      if (!ok) {
+        likeBtn.classList.toggle('liked');
+        showToast(data?.error || 'Could not update like.', 'error');
+      }
     });
 
     overlay.append(msgBtn, likeBtn);
@@ -542,6 +564,8 @@
     nameRow.className = 'result-name-row';
     const h3 = document.createElement('h3');
     h3.textContent = member.display_name;
+    h3.style.cursor = 'pointer';
+    h3.addEventListener('click', () => { window.location.href = `/Profile/ViewProfile.html?id=${member.user_id}`; });
     nameRow.appendChild(h3);
     const meta = document.createElement('div');
     meta.className = 'result-meta';

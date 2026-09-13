@@ -44,7 +44,7 @@
 
   header{ padding:26px 0; border-bottom:1px solid var(--line); }
   header .container{ display:flex; align-items:center; justify-content:space-between; max-width:1000px; }
-  .signet-logo{ height:26px; width:auto; }
+  .signet-logo{ height:55px; width:auto; }
   .header-close{ font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke); transition:color .3s ease; }
   .header-close:hover{ color:var(--gold-bright); }
 
@@ -219,6 +219,7 @@
     .tier-card-band h4{ font-size:30px; }
     .benefit-row{ flex-direction:column; gap:26px; }
     main{ padding:50px 0; }
+    .signet-logo{ height:42px; }
   }
 </style>
 <meta name="robots" content="noindex, nofollow">
@@ -333,7 +334,7 @@
       <span class="step-sub">Fantasi is by private invitation. Our team reviews every request personally.</span>
 
       <div class="field">
-        <label for="billing-note">Anything we should know? (optional)</label>
+        <label for="billing-note">Anything you'd like our team to know with your <span id="billing-tier-label-2">Gold</span> request? (optional)</label>
         <textarea id="billing-note" rows="3" placeholder="Tell us a little about what you're looking for" style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:6px; padding:12px 14px; color:var(--cream); font-family:inherit; font-size:14px; resize:none;"></textarea>
       </div>
 
@@ -356,7 +357,7 @@
       <div class="confirm">
         <h2>Request received.</h2>
         <p>Our team will review your request personally. In the meantime, let's build the profile the rest of the community will actually see.</p>
-        <a class="btn btn-gold full-btn" href="/Dashboard/profile-setup.html" data-cursor="Begin">Build My Profile</a>
+        <a class="btn btn-gold full-btn" href="/Profile/profile-setup.html" data-cursor="Begin">Build My Profile</a>
       </div>
     </div>
 
@@ -430,6 +431,7 @@
   document.querySelectorAll('.tier-card').forEach(card=>{
     card.addEventListener('click', ()=>{
       document.getElementById('billing-tier-label').textContent = card.getAttribute('data-tier');
+      document.getElementById('billing-tier-label-2').textContent = card.getAttribute('data-tier');
       showStep(stepBilling);
     });
   });

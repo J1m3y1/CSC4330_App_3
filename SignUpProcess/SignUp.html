@@ -158,6 +158,8 @@
   .check-row{ display:flex; align-items:flex-start; gap:10px; margin-bottom:24px; }
   .check-row input[type="checkbox"]{ margin-top:3px; accent-color:var(--gold); flex-shrink:0; }
   .check-row label{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.6; }
+  .check-row label a{ color:var(--gold); text-decoration:underline; }
+  .check-row label a:hover{ color:var(--gold-bright); }
 
   /* spectrum sliders — the subtle preference questions */
   .spectrum{ margin-bottom:30px; }
@@ -260,6 +262,8 @@
   }
   .upload .lbl{ font-family:var(--font-sans); font-size:13px; color:var(--cream); margin-bottom:4px; }
   .upload .dim{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; color:var(--smoke-dim); }
+  .upload.has-file{ border-style:solid; border-color:var(--gold-dim); }
+  .visually-hidden{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
   /* refer a friend */
   .referral-link-row{ display:flex; gap:10px; align-items:center; }
@@ -330,6 +334,7 @@
     .wizard-card{ padding:36px 22px; border-radius:6px; }
     .row{ flex-direction:column; gap:0; }
     main{ padding:50px 0; }
+    .signet-logo{ height:42px; }
   }
 </style>
 <meta name="api-base" content="/api">
@@ -534,11 +539,12 @@
       <h1 class="step-title">Verify your identity</h1>
       <span class="step-sub">Kept strictly confidential. Never shown on your profile.</span>
 
-      <div class="upload" id="upload" tabindex="0">
+      <label class="upload" id="upload" for="id-document-input">
         <div class="mark">+</div>
-        <div class="lbl">Upload government-issued ID</div>
-        <div class="dim">JPG, PNG, or PDF</div>
-      </div>
+        <div class="lbl" id="upload-label">Upload government-issued ID</div>
+        <div class="dim" id="upload-dim">JPG, PNG, or PDF · max 10MB</div>
+        <input type="file" id="id-document-input" class="visually-hidden" accept="image/jpeg,image/png,application/pdf">
+      </label>
 
       <div class="check-row">
         <input type="checkbox" id="p-consent">
@@ -618,6 +624,11 @@
         <button type="button" class="share-btn" id="share-native" title="More sharing options" data-cursor="Share" style="display:none;">
           <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><path d="M21 10a3 3 0 1 0-2.83-4H18a3 3 0 0 0 .1 3.2L11.9 13a3 3 0 1 0 0 4l6.2 3.8a3 3 0 1 0 .77-1.72L12.7 15.3a3 3 0 0 0 0-.6l6.17-3.78c.31.28.68.5 1.1.63" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>
         </button>
+      </div>
+
+      <div class="check-row">
+        <input type="checkbox" id="p-terms">
+        <label for="p-terms">I agree to the <a href="/LandingPage/Terms.html" target="_blank" rel="noopener">Terms of Service</a> and <a href="/LandingPage/PrivacyPolicy.html" target="_blank" rel="noopener">Privacy Policy</a>.</label>
       </div>
 
       <button class="btn btn-gold full-btn" id="submit-application" data-cursor="Submit">Submit Application</button>
@@ -953,11 +964,28 @@
     });
   });
 
-  const uploadBox = document.getElementById('upload');
-  if(uploadBox){
-    uploadBox.addEventListener('click', ()=>{
-      uploadBox.querySelector('.lbl').textContent = 'ID selected ✓';
-      uploadBox.querySelector('.dim').textContent = 'Ready to submit';
+  // Real file selection — this used to just rewrite its own label text on
+  // click with nothing actually selected or sent. Now the file the member
+  // picks here is the one actually attached to the registration request
+  // (see the submit-application handler below) and reviewed by an admin
+  // via GET /api/admin/users/:id/id-document.
+  const uploadBox   = document.getElementById('upload');
+  const uploadInput = document.getElementById('id-document-input');
+  const uploadLabel = document.getElementById('upload-label');
+  const uploadDim   = document.getElementById('upload-dim');
+  if (uploadInput) {
+    uploadInput.addEventListener('change', () => {
+      const file = uploadInput.files[0];
+      if (!file) return;
+      const maxBytes = 10 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        showToast('ID file must be under 10MB.', 'error');
+        uploadInput.value = '';
+        return;
+      }
+      uploadBox.classList.add('has-file');
+      uploadLabel.textContent = file.name;
+      uploadDim.textContent = 'Selected — click to change';
     });
   }
 
@@ -1147,6 +1175,7 @@
     const birthdayInput = document.getElementById('p-birthday');
     const ageCheck      = document.getElementById('p-age');
     const consentCheck  = document.getElementById('p-consent');
+    const termsCheck    = document.getElementById('p-terms');
 
     [emailInput, passwordInput, nameInput, displayInput, birthdayInput].forEach(el => el && clearFieldError(el));
 
@@ -1159,11 +1188,21 @@
     require(passwordInput, 'Password is required.');
     require(birthdayInput, 'Date of birth is required.');
 
+    const idFile = document.getElementById('id-document-input')?.files[0];
+
     if (!ageCheck?.checked)     { showToast('You must confirm you are 18 or older.', 'error');      valid = false; }
     if (!consentCheck?.checked) { showToast('You must consent to the background review.', 'error'); valid = false; }
+    if (!idFile)                { showToast('A government-issued ID is required.', 'error');        valid = false; }
+    if (!termsCheck?.checked)   { showToast('You must agree to the Terms of Service and Privacy Policy.', 'error'); valid = false; }
     if (!valid) {
-      // send them back to whichever earlier step actually has the problem
-      showStep(document.getElementById('step-form'));
+      // send them back to step-form on an age/consent failure (existing
+      // behavior); the ID and terms checks live on later steps already
+      // visible, so those failures just stay put — no need to jump anywhere.
+      if (!ageCheck?.checked || !consentCheck?.checked) {
+        showStep(document.getElementById('step-form'));
+      } else if (!idFile) {
+        showStep(document.getElementById('step-verify'));
+      }
       return;
     }
 
@@ -1188,7 +1227,7 @@
       // Sending them here is harmless (unvalidated fields typically pass
       // through unless a controller explicitly rejects unknown keys), but
       // they won't be PERSISTED until the backend is extended to accept them.
-    });
+    }, idFile);
 
     if (ok) {
       showStep(stepSubmitted);

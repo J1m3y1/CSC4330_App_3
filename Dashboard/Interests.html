@@ -65,7 +65,7 @@
   .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; }
   .nav-item{
     display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
-    font-family:var(--font-sans); font-size:12.5px; letter-spacing:0.02em; color:var(--smoke);
+    font-family:var(--font-sans); font-size:13.5px; letter-spacing:0.02em; color:var(--smoke);
     transition:background .25s ease, color .25s ease;
   }
   .nav-item svg{ flex-shrink:0; opacity:0.75; }
@@ -85,7 +85,7 @@
     display:flex; align-items:center; justify-content:center;
     font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--noir);
   }
-  .mini-account-name{ font-family:var(--font-sans); font-size:12px; color:var(--cream); }
+  .mini-account-name{ font-family:var(--font-sans); font-size:13px; color:var(--cream); }
   .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
 
   .main{ flex:1; min-width:0; }
@@ -94,27 +94,27 @@
 
   .page-head{ margin-bottom:24px; }
   .page-head h1{ font-size:32px; margin-bottom:6px; }
-  .page-head p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); }
+  .page-head p{ font-family:var(--font-sans); font-size:14px; color:var(--smoke); }
 
   /* visibility notice banner */
   .notice-banner{
     background:var(--bordeaux); border-bottom:1px solid var(--bordeaux-bright);
     padding:14px 56px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;
   }
-  .notice-banner p{ font-family:var(--font-sans); font-size:12.5px; color:var(--cream); }
+  .notice-banner p{ font-family:var(--font-sans); font-size:13.5px; color:var(--cream); }
   .notice-banner strong{ text-decoration:underline; font-weight:500; }
   .notice-chevron{ color:var(--cream); flex-shrink:0; transition:transform .3s ease; }
   .notice-banner.open .notice-chevron{ transform:rotate(180deg); }
   .notice-detail{ display:none; padding:14px 56px 18px; background:rgba(78,18,32,0.4); }
   .notice-detail.show{ display:block; }
-  .notice-detail p{ font-family:var(--font-sans); font-size:12px; color:var(--cream); line-height:1.8; max-width:640px; }
+  .notice-detail p{ font-family:var(--font-sans); font-size:13px; color:var(--cream); line-height:1.8; max-width:640px; }
   .notice-detail a{ color:var(--gold-bright); text-decoration:underline; }
 
   /* tabs */
   .tabs-row{ display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); margin-bottom:28px; flex-wrap:wrap; gap:14px; }
   .tabs{ display:flex; gap:28px; }
   .tab-btn{
-    font-family:var(--font-sans); font-size:13px; letter-spacing:0.02em; color:var(--smoke);
+    font-family:var(--font-sans); font-size:14px; letter-spacing:0.02em; color:var(--smoke);
     padding-bottom:14px; border-bottom:2px solid transparent; transition:color .3s ease, border-color .3s ease;
   }
   .tab-btn:hover{ color:var(--cream); }
@@ -124,7 +124,7 @@
   }
   .sort-select{
     background:none; border:1px solid var(--line-strong); border-radius:20px; padding:8px 14px;
-    color:var(--cream); font-family:var(--font-sans); font-size:11px; outline:none; cursor:pointer; margin-bottom:14px;
+    color:var(--cream); font-family:var(--font-sans); font-size:12px; outline:none; cursor:pointer; margin-bottom:14px;
   }
 
   /* result cards, matching Search/Discover */
@@ -169,12 +169,12 @@
   .result-name-row{ display:flex; align-items:center; gap:6px; }
   .result-name-row h3{ font-size:15px; color:var(--cream); }
   .result-verify{ color:var(--gold); flex-shrink:0; }
-  .result-meta{ font-family:var(--font-sans); font-size:11px; color:var(--smoke); margin-top:3px; }
+  .result-meta{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); margin-top:3px; }
 
   /* empty state */
   .empty-state{ text-align:center; padding:70px 20px; border:1px solid var(--line-strong); border-radius:6px; }
   .empty-state h2{ font-family:var(--font-display); font-style:italic; font-weight:300; font-size:22px; color:var(--cream); margin-bottom:10px; }
-  .empty-state p{ font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); }
+  .empty-state p{ font-family:var(--font-sans); font-size:13.5px; color:var(--smoke); }
 
   .tab-panel{ display:none; }
   .tab-panel.active{ display:block; }
@@ -220,7 +220,11 @@
         Chatrooms
         <span class="nav-lock-badge">Black</span>
       </a>
-      <a class="nav-item" href="/Dashboard/Profile.html">
+      <a class="nav-item" href="/Dashboard/Forum.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H16l-6 4.5V21H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/><path d="M10 12h10M10 16h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Forum
+      </a>
+      <a class="nav-item" href="/Profile/Profile.html">
         <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
         My Profile
       </a>
@@ -256,7 +260,7 @@
       <svg class="notice-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
     </div>
     <div class="notice-detail" id="notice-detail">
-      <p>Profiles with a photo are shown more often in Discover and Search results, and are less likely to be filtered out by other members' preferences. <a href="/Dashboard/profile-setup.html">Add a photo</a> to improve your visibility.</p>
+      <p>Profiles with a photo are shown more often in Discover and Search results, and are less likely to be filtered out by other members' preferences. <a href="/Profile/profile-setup.html">Add a photo</a> to improve your visibility.</p>
     </div>
 
     <div class="main-pad">

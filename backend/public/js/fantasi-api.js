@@ -6,6 +6,19 @@
  */
 'use strict';
 
+// Wrapped in an IIFE so none of these top-level names (api, showFieldError,
+// clearFieldError, showToast, etc.) leak into the shared global scope. This
+// file is loaded as a classic <script src>, not a module, so without this
+// wrapper every one of these declarations becomes a real global — and every
+// page that does `const { api, showFieldError, ... } = window.FantasiAPI`
+// then redeclares those exact identifiers at its own top level. Two
+// top-level const/function declarations with the same name in the same
+// global scope is a SyntaxError, which silently kills the *entire* script
+// block it's in (parse-time failure, not a runtime one) — including every
+// click handler defined below it. That was the actual cause of pages'
+// buttons appearing completely dead with no console output.
+(function () {
+
 const _base = (() => {
   const meta = document.querySelector('meta[name="api-base"]');
   return meta ? meta.content.replace(/\/$/, '') : '/api';
@@ -42,11 +55,26 @@ const api = {
   get:    (path)        => _fetch('GET',    path),
   post:   (path, body)  => _fetch('POST',   path, body),
   patch:  (path, body)  => _fetch('PATCH',  path, body),
+  put:    (path, body)  => _fetch('PUT',    path, body),
   delete: (path)        => _fetch('DELETE', path),
 
   // ── Auth ───────────────────────────────────────────────────────────────────
   auth: {
-    register: (data)  => api.post('/auth/register', data),
+    // Registration always carries a required ID file, so it's multipart —
+    // can't go through the JSON-only _fetch helper (same reason
+    // profile.uploadAvatar below bypasses it).
+    async register(data, idFile) {
+      const form = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) form.append(key, value);
+      });
+      form.append('id_document', idFile);
+      const res = await fetch(`${_base}/auth/register`, {
+        method: 'POST', credentials: 'include', body: form,
+      });
+      const responseData = await res.json().catch(() => null);
+      return { ok: res.ok, status: res.status, data: responseData };
+    },
     login:    (data)  => api.post('/auth/login',    data),
     logout:   ()      => api.post('/auth/logout'),
     me:       ()      => api.get('/auth/me'),
@@ -71,8 +99,19 @@ const api = {
     get:    (id)       => api.get(`/profile/${id}`),
     block:  (id)       => api.post(`/profile/${id}/block`),
     unblock:(id)       => api.delete(`/profile/${id}/block`),
+    blocked:()         => api.get('/profile/blocked'),
+    requestPhoto:      (id) => api.post(`/profile/${id}/photo-request`),
+    photoRequests:     ()   => api.get('/profile/photo-requests'),
+    respondPhotoRequest: (viewerId, status) => api.post(`/profile/photo-requests/${viewerId}/respond`, { status }),
     report: (id, reason) => api.post(`/profile/${id}/report`, { reason }),
     privacyRequest: (type, reason) => api.post('/profile/privacy-requests', { type, reason }),
+
+    // Geofenced privacy — Black tier only
+    geofences: {
+      list:   ()                                    => api.get('/profile/geofences'),
+      add:    (label, address, radius_miles)        => api.post('/profile/geofences', { label, address, radius_miles }),
+      delete: (id)                                  => api.delete(`/profile/geofences/${id}`),
+    },
 
     async uploadAvatar(file) {
       const form = new FormData();
@@ -82,6 +121,12 @@ const api = {
       });
       const data = await res.json().catch(() => null);
       return { ok: res.ok, status: res.status, data };
+    },
+
+    // ── Interest tags (rated, with Gold+/Black custom tags) ─────────────────────
+    interestTags: {
+      get: () => api.get('/profile/interest-tags'),
+      set: (interests) => api.put('/profile/interest-tags', { interests }),
     },
 
     // ── Photo gallery ──────────────────────────────────────────────────────────
@@ -153,6 +198,25 @@ const api = {
     viewedMe: ()   => api.get('/interests/viewed-me'),
   },
 
+  // ── Forum ─────────────────────────────────────────────────────────────────
+  // Feed viewing/liking/commenting is open to any approved member; only
+  // posting/reposting requires Gold or Black (enforced server-side).
+  forum: {
+    feed:        (page = 1, limit = 20) => api.get(`/forum/posts?page=${page}&limit=${limit}`),
+    createPost:  (body, repost_of_id, mentioned_user_ids) =>
+      api.post('/forum/posts', { body: body || undefined, repost_of_id: repost_of_id || undefined, mentioned_user_ids }),
+    deletePost:  (id) => api.delete(`/forum/posts/${id}`),
+    like:        (id) => api.post(`/forum/posts/${id}/like`),
+    unlike:      (id) => api.delete(`/forum/posts/${id}/like`),
+    comments:    (id) => api.get(`/forum/posts/${id}/comments`),
+    addComment:  (id, body) => api.post(`/forum/posts/${id}/comments`, { body }),
+    deleteComment: (id) => api.delete(`/forum/comments/${id}`),
+    mentionCandidates: (q) => api.get(`/forum/mention-candidates?q=${encodeURIComponent(q)}`),
+    notifications:     () => api.get('/forum/notifications'),
+    unreadCount:       () => api.get('/forum/notifications/unread-count'),
+    markNotificationsRead: () => api.post('/forum/notifications/read'),
+  },
+
   // ── Admin ─────────────────────────────────────────────────────────────────
   admin: {
     pending:              ()             => api.get('/admin/pending'),
@@ -164,6 +228,21 @@ const api = {
     resolvePrivacyRequest:(id, status)   => api.post(`/admin/privacy-requests/${id}/resolve`, { status }),
     membershipRequests:      (status)    => api.get(`/admin/membership-requests?status=${status || 'pending'}`),
     resolveMembershipRequest:(id, status)=> api.post(`/admin/membership-requests/${id}/resolve`, { status }),
+
+    stats:      ()          => api.get('/admin/stats'),
+    users:      (params = {}) => {
+      const qs = new URLSearchParams(
+        Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''))
+      ).toString();
+      return api.get(`/admin/users${qs ? '?' + qs : ''}`);
+    },
+    suspendUser:    (id)         => api.post(`/admin/users/${id}/suspend`),
+    reactivateUser: (id)         => api.post(`/admin/users/${id}/reactivate`),
+    updateUserRole: (id, role)   => api.patch(`/admin/users/${id}/role`, { role }),
+
+    chatrooms:       ()                                  => api.get('/admin/chatrooms'),
+    createChatroom:  (name, description, min_tier)       => api.post('/chatrooms', { name, description, min_tier }),
+    updateChatroom:  (id, fields)                        => api.patch(`/chatrooms/${id}`, fields),
   },
 };
 
@@ -284,3 +363,5 @@ window.FantasiAPI = {
   initDashboard, populateSidebarAccount, initials, capitalize,
   requestMembershipUpgrade,
 };
+
+})();

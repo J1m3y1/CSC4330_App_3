@@ -84,7 +84,7 @@
   .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; }
   .nav-item{
     display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
-    font-family:var(--font-sans); font-size:12.5px; letter-spacing:0.02em; color:var(--smoke);
+    font-family:var(--font-sans); font-size:13.5px; letter-spacing:0.02em; color:var(--smoke);
     transition:background .25s ease, color .25s ease;
   }
   .nav-item svg{ flex-shrink:0; opacity:0.75; }
@@ -105,7 +105,7 @@
     display:flex; align-items:center; justify-content:center;
     font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--noir);
   }
-  .mini-account-name{ font-family:var(--font-sans); font-size:12px; color:var(--cream); }
+  .mini-account-name{ font-family:var(--font-sans); font-size:13px; color:var(--cream); }
   .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
 
   .main{ flex:1; min-width:0; padding:44px 56px 80px; }
@@ -113,7 +113,7 @@
 
   .page-head{ margin-bottom:32px; }
   .page-head h1{ font-size:32px; margin-bottom:6px; }
-  .page-head p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); max-width:560px; }
+  .page-head p{ font-family:var(--font-sans); font-size:14px; color:var(--smoke); max-width:560px; }
 
   .intro-note{
     display:flex; align-items:flex-start; gap:14px;
@@ -121,7 +121,7 @@
     background:rgba(199,166,92,0.03);
   }
   .intro-note svg{ flex-shrink:0; margin-top:2px; color:var(--gold); }
-  .intro-note p{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.7; }
+  .intro-note p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.7; }
   .intro-note strong{ color:var(--cream); font-weight:500; }
 
   /* ---------------- request cards ---------------- */
@@ -137,9 +137,28 @@
     background:rgba(199,166,92,0.06); display:flex; align-items:center; justify-content:center;
     margin-bottom:16px; color:var(--gold);
   }
+
+  /* ---------------- blocked members ---------------- */
+  .section{ margin-top:44px; }
+  .section-head{ margin-bottom:16px; }
+  .section-head h3{ font-size:18px; font-family:var(--font-sans); }
+  .blocked-row{
+    display:flex; align-items:center; gap:12px; border:1px solid var(--line-strong); border-radius:5px;
+    padding:14px 16px; margin-bottom:10px;
+  }
+  .blocked-avatar{
+    width:38px; height:38px; border-radius:50%; flex-shrink:0; background-size:cover; background-position:center;
+    background:linear-gradient(135deg, #3D3D3D, #0A0A0A); border:1px solid rgba(228,198,135,0.25);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--gold-bright);
+  }
+  .blocked-info{ flex:1; min-width:0; }
+  .blocked-name{ font-family:var(--font-sans); font-size:14px; color:var(--cream); }
+  .blocked-meta{ font-family:var(--font-sans); font-size:11px; color:var(--smoke-dim); margin-top:2px; }
+  .blocked-empty{ font-family:var(--font-sans); font-size:13px; color:var(--smoke-dim); padding:8px 0; }
   .request-card.danger .request-icon{ color:var(--bordeaux-bright); border-color:rgba(113,26,46,0.4); background:rgba(113,26,46,0.06); }
   .request-card h3{ font-size:16px; color:var(--cream); margin-bottom:8px; }
-  .request-card p{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.7; margin-bottom:18px; flex:1; }
+  .request-card p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.7; margin-bottom:18px; flex:1; }
 
   /* ---------------- request overlay ---------------- */
   .req-overlay{
@@ -161,7 +180,7 @@
   }
   .req-modal.danger .req-modal-icon{ color:var(--bordeaux-bright); border-color:rgba(113,26,46,0.4); background:rgba(113,26,46,0.06); }
   .req-modal h3{ font-size:21px; text-align:center; margin-bottom:8px; }
-  .req-modal-sub{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); text-align:center; margin-bottom:26px; display:block; line-height:1.7; }
+  .req-modal-sub{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); text-align:center; margin-bottom:26px; display:block; line-height:1.7; }
 
   .req-field{ margin-bottom:18px; }
   .req-field label{
@@ -170,14 +189,14 @@
   }
   .req-field select, .req-field textarea{
     width:100%; background:none; border:1px solid var(--line-strong); border-radius:3px;
-    padding:10px 12px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;
+    padding:10px 12px; color:var(--cream); font-family:var(--font-sans); font-size:14px; outline:none;
     transition:border-color .3s ease; resize:none;
   }
   .req-field select:focus, .req-field textarea:focus{ border-color:var(--gold); }
 
   .confirm-check{ display:flex; align-items:flex-start; gap:10px; margin-bottom:22px; }
   .confirm-check input{ margin-top:3px; accent-color:var(--bordeaux-bright); flex-shrink:0; }
-  .confirm-check label{ font-family:var(--font-sans); font-size:11.5px; color:var(--smoke); line-height:1.6; }
+  .confirm-check label{ font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); line-height:1.6; }
 
   .req-legal{ font-family:var(--font-sans); font-size:10px; color:var(--smoke-dim); text-align:center; margin-top:16px; line-height:1.6; }
 
@@ -192,7 +211,7 @@
   .req-step{ display:none; }
   .req-step.active{ display:block; }
   .req-confirm{ text-align:center; padding:6px 0; }
-  .req-confirm p{ font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); line-height:1.8; margin-bottom:26px; }
+  .req-confirm p{ font-family:var(--font-sans); font-size:13.5px; color:var(--smoke); line-height:1.8; margin-bottom:26px; }
   .req-confirm strong{ color:var(--cream); }
 
   @media (max-width:900px){
@@ -237,7 +256,11 @@
         Chatrooms
         <span class="nav-lock-badge">Black</span>
       </a>
-      <a class="nav-item" href="/Dashboard/Profile.html">
+      <a class="nav-item" href="/Dashboard/Forum.html">
+        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H16l-6 4.5V21H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/><path d="M10 12h10M10 16h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Forum
+      </a>
+      <a class="nav-item" href="/Profile/Profile.html">
         <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
         My Profile
       </a>
@@ -326,6 +349,12 @@
 
       </div>
 
+      <div class="section">
+        <div class="section-head"><h3>Blocked members</h3></div>
+        <div id="blocked-list"></div>
+        <p class="blocked-empty" id="blocked-empty" style="display:none;">You haven't blocked anyone.</p>
+      </div>
+
     </div>
   </main>
 </div>
@@ -375,10 +404,50 @@
 <script>
 (async () => {
   if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
-  const { api, initDashboard, showToast } = window.FantasiAPI;
+  const { api, initDashboard, initials, showToast } = window.FantasiAPI;
 
   const me = await initDashboard();
   if (!me) return;
+
+  // ---- blocked members ----
+  async function loadBlocked() {
+    const { ok, data } = await api.profile.blocked();
+    const list = document.getElementById('blocked-list');
+    list.innerHTML = '';
+    if (!ok) { list.innerHTML = '<p class="blocked-empty">Could not load blocked members.</p>'; return; }
+    document.getElementById('blocked-empty').style.display = data.length ? 'none' : 'block';
+
+    data.forEach(member => {
+      const row = document.createElement('div');
+      row.className = 'blocked-row';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'blocked-avatar';
+      if (member.avatar_url) avatar.style.backgroundImage = `url(${member.avatar_url})`;
+      else avatar.textContent = initials(member.display_name);
+      row.appendChild(avatar);
+
+      const info = document.createElement('div');
+      info.className = 'blocked-info';
+      info.innerHTML = `<div class="blocked-name"></div><div class="blocked-meta">Blocked ${new Date(member.blocked_at).toLocaleDateString()}</div>`;
+      info.querySelector('.blocked-name').textContent = member.display_name;
+      row.appendChild(info);
+
+      const unblockBtn = document.createElement('button');
+      unblockBtn.type = 'button';
+      unblockBtn.className = 'btn btn-line btn-small';
+      unblockBtn.textContent = 'Unblock';
+      unblockBtn.addEventListener('click', async () => {
+        const { ok, data: res } = await api.profile.unblock(member.user_id);
+        if (ok) { showToast('Member unblocked.', 'info'); row.remove(); if (!list.children.length) document.getElementById('blocked-empty').style.display = 'block'; }
+        else showToast(res?.error || 'Could not unblock member.', 'error');
+      });
+      row.appendChild(unblockBtn);
+
+      list.appendChild(row);
+    });
+  }
+  loadBlocked();
 
   const requestData = {
     access:      { title: "Access your data",   sub: "We'll compile a copy of everything on file and send it to your verified email.", danger:false, confirm: "Your data export will be ready within <strong>30 days</strong> — you'll get an email when it's available." },

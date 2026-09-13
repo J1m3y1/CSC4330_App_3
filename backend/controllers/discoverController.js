@@ -36,7 +36,14 @@ async function discoverMembers(req, res) {
         p.user_id,
         p.display_name,
         p.bio,
-        p.avatar_url,
+        -- Blurred-photo mode: withhold the real URL from anyone not
+        -- individually approved, same rule as getProfile.
+        CASE WHEN NOT p.blur_photos OR EXISTS(
+          SELECT 1 FROM photo_approvals WHERE owner_id = p.user_id AND viewer_id = $1 AND status = 'approved'
+        ) THEN p.avatar_url ELSE NULL END AS avatar_url,
+        p.blur_photos AND NOT EXISTS(
+          SELECT 1 FROM photo_approvals WHERE owner_id = p.user_id AND viewer_id = $1 AND status = 'approved'
+        ) AS photos_hidden,
         p.interests,
         p.looking_for,
         p.heading,
@@ -44,7 +51,8 @@ async function discoverMembers(req, res) {
         CASE WHEN p.show_location    THEN p.location       ELSE NULL END AS location,
         CASE WHEN p.show_last_active THEN p.last_active_at ELSE NULL END AS last_active_at,
         u.membership_tier,
-        u.created_at AS member_since
+        u.created_at AS member_since,
+        EXISTS(SELECT 1 FROM profile_likes WHERE liker_id = $1 AND liked_id = p.user_id) AS liked_by_me
       FROM profiles p
       JOIN users u ON u.id = p.user_id
       WHERE u.id <> $1
@@ -56,6 +64,19 @@ async function discoverMembers(req, res) {
           SELECT 1 FROM blocks b
           WHERE (b.blocker_id = $1 AND b.blocked_id = u.id)
              OR (b.blocker_id = u.id AND b.blocked_id = $1)
+        )
+        -- Geofenced privacy (Black tier): exclude this member if the viewer's
+        -- own geocoded location falls within one of their hidden zones. Fails
+        -- open — a viewer with no geocoded location on file is never excluded.
+        AND NOT EXISTS (
+          SELECT 1 FROM profile_geofences g, profiles vp
+          WHERE g.user_id = p.user_id
+            AND vp.user_id = $1
+            AND vp.lat IS NOT NULL AND vp.lon IS NOT NULL
+            AND 3959 * acos(LEAST(1, GREATEST(-1,
+                  cos(radians(vp.lat)) * cos(radians(g.lat)) * cos(radians(g.lon) - radians(vp.lon))
+                  + sin(radians(vp.lat)) * sin(radians(g.lat))
+                ))) <= g.radius_miles
         )
     `;
 
@@ -158,11 +179,17 @@ async function searchMembers(req, res) {
         p.user_id,
         p.display_name,
         p.bio,
-        p.avatar_url,
+        CASE WHEN NOT p.blur_photos OR EXISTS(
+          SELECT 1 FROM photo_approvals WHERE owner_id = p.user_id AND viewer_id = $1 AND status = 'approved'
+        ) THEN p.avatar_url ELSE NULL END AS avatar_url,
+        p.blur_photos AND NOT EXISTS(
+          SELECT 1 FROM photo_approvals WHERE owner_id = p.user_id AND viewer_id = $1 AND status = 'approved'
+        ) AS photos_hidden,
         p.interests,
         CASE WHEN p.show_location    THEN p.location       ELSE NULL END AS location,
         CASE WHEN p.show_last_active THEN p.last_active_at ELSE NULL END AS last_active_at,
         u.membership_tier,
+        EXISTS(SELECT 1 FROM profile_likes WHERE liker_id = $1 AND liked_id = p.user_id) AS liked_by_me,
         COUNT(*) OVER () AS total_count
       FROM profiles p
       JOIN users u ON u.id = p.user_id
@@ -174,6 +201,16 @@ async function searchMembers(req, res) {
           SELECT 1 FROM blocks b
           WHERE (b.blocker_id = $1 AND b.blocked_id = u.id)
              OR (b.blocker_id = u.id AND b.blocked_id = $1)
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM profile_geofences g, profiles vp
+          WHERE g.user_id = p.user_id
+            AND vp.user_id = $1
+            AND vp.lat IS NOT NULL AND vp.lon IS NOT NULL
+            AND 3959 * acos(LEAST(1, GREATEST(-1,
+                  cos(radians(vp.lat)) * cos(radians(g.lat)) * cos(radians(g.lon) - radians(vp.lon))
+                  + sin(radians(vp.lat)) * sin(radians(g.lat))
+                ))) <= g.radius_miles
         )
         AND (
           p.display_name ILIKE $2

@@ -23,6 +23,7 @@ const chatroomsRoutes  = require('./routes/chatrooms');
 const adminRoutes      = require('./routes/admin');
 const interestsRoutes  = require('./routes/interests');
 const phoneRoutes      = require('./routes/phone');
+const forumRoutes      = require('./routes/forum');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -104,7 +105,7 @@ app.use('/uploads', express.static(path.join(__dirname, process.env.UPLOAD_DIR |
 // SameSite=strict auth cookies (which never cross origins) actually reach
 // the API. Each folder is mounted individually rather than the whole repo
 // root, which would otherwise also serve backend/.env and source over HTTP.
-const FRONTEND_DIRS = ['LandingPage', 'Dashboard', 'SignInProcess', 'SignUpProcess', 'AdminPage'];
+const FRONTEND_DIRS = ['LandingPage', 'Dashboard', 'Profile', 'SignInProcess', 'SignUpProcess', 'AdminPage'];
 for (const dir of FRONTEND_DIRS) {
   app.use(`/${dir}`, express.static(path.join(FRONTEND_ROOT, dir), {
     dotfiles: 'deny',
@@ -112,6 +113,10 @@ for (const dir of FRONTEND_DIRS) {
   }));
 }
 app.get('/manifest.json', (_req, res) => res.sendFile(path.join(FRONTEND_ROOT, 'manifest.json')));
+// Browsers request this by default with no <link rel="icon"> anywhere in the
+// markup to opt out of — serving the existing logo here avoids a 404 on
+// every single page load instead of adding an icon link to every page.
+app.get('/favicon.ico', (_req, res) => res.sendFile(path.join(FRONTEND_ROOT, 'LandingPage/videos/fantasi-logo-gold.png')));
 app.get('/sw.js', (_req, res) => res.type('application/javascript').sendFile(path.join(FRONTEND_ROOT, 'sw.js')));
 app.get('/', (_req, res) => res.redirect('/LandingPage/Landing.html'));
 
@@ -128,6 +133,7 @@ app.use('/api/chatrooms',  chatroomsRoutes);
 app.use('/api/admin',      adminRoutes);
 app.use('/api/interests',  interestsRoutes);
 app.use('/api/phone',      phoneRoutes);
+app.use('/api/forum',      forumRoutes);
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));

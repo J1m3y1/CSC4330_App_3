@@ -4,7 +4,7 @@ const path = require('path');
 const fs   = require('fs');
 const { query, withTransaction } = require('../config/db');
 
-const MAX_PHOTOS = 6; // matches the six slots in Dashboard/profile-setup.html
+const MAX_PHOTOS = 6; // matches the six slots in Profile/profile-setup.html
 
 /**
  * Keeps profiles.avatar_url (the fast, denormalized "primary photo" every

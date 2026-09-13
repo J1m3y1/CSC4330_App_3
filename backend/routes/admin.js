@@ -6,9 +6,11 @@ const { param, body, query: qv } = require('express-validator');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
 const {
-  listPending, approveUser, rejectUser, listReports, resolveReport,
+  listPending, approveUser, rejectUser, getIdentityDocument, listReports, resolveReport,
   listPrivacyRequests, resolvePrivacyRequest,
   listMembershipRequests, resolveMembershipRequest,
+  listUsers, suspendUser, reactivateUser, updateUserRole,
+  getStats, listAllChatrooms,
 } = require('../controllers/adminController');
 
 // Every route here requires an authenticated admin. Deliberately does not
@@ -26,6 +28,10 @@ router.post('/users/:id/approve', [
 router.post('/users/:id/reject', [
   param('id').isUUID().withMessage('Invalid user ID.'),
 ], validate, rejectUser);
+
+router.get('/users/:id/id-document', [
+  param('id').isUUID().withMessage('Invalid user ID.'),
+], validate, getIdentityDocument);
 
 router.get('/reports', [
   qv('status').optional().isIn(['pending', 'reviewed', 'resolved', 'dismissed']),
@@ -53,5 +59,30 @@ router.post('/membership-requests/:id/resolve', [
   param('id').isUUID().withMessage('Invalid request ID.'),
   body('status').isIn(['granted', 'declined']).withMessage('Status must be granted or declined.'),
 ], validate, resolveMembershipRequest);
+
+router.get('/stats', getStats);
+
+router.get('/chatrooms', listAllChatrooms);
+
+router.get('/users', [
+  qv('role').optional().isIn(['member', 'admin']),
+  qv('tier').optional().isIn(['free', 'silver', 'gold', 'black']),
+  qv('status').optional().isIn(['pending', 'active', 'suspended', 'rejected']),
+  qv('page').optional().isInt({ min: 1 }).toInt(),
+  qv('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
+], validate, listUsers);
+
+router.post('/users/:id/suspend', [
+  param('id').isUUID().withMessage('Invalid user ID.'),
+], validate, suspendUser);
+
+router.post('/users/:id/reactivate', [
+  param('id').isUUID().withMessage('Invalid user ID.'),
+], validate, reactivateUser);
+
+router.patch('/users/:id/role', [
+  param('id').isUUID().withMessage('Invalid user ID.'),
+  body('role').isIn(['member', 'admin']).withMessage('Role must be member or admin.'),
+], validate, updateUserRole);
 
 module.exports = router;

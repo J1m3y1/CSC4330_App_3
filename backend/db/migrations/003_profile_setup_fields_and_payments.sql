@@ -1,6 +1,6 @@
 -- ============================================================
 -- Fantasi — Migration 003
--- Adds the profile-setup fields that Dashboard/profile-setup.html
+-- Adds the profile-setup fields that Profile/profile-setup.html
 -- collects (heading, looking_for, weight/height, education,
 -- relationship status, smoking), widens `bio` to match the "about
 -- you" step's 4000-character limit, and adds the column the Stripe
