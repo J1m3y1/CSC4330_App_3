@@ -129,20 +129,14 @@
   .picker-item.selected{ color:var(--gold-bright); font-weight:500; font-size:18px; background:rgba(199,166,92,0.08); }
 
   /* location field */
-  .loc-field{ position:relative; margin-bottom:18px; }
-  .loc-field input{
-    width:100%; background:none; border:1px solid var(--line-strong); border-radius:6px;
-    padding:13px 40px 13px 14px; color:var(--cream); font-family:var(--font-serif); font-size:15px; outline:none;
+  .loc-field-row{ display:flex; gap:12px; margin-bottom:18px; }
+  .loc-field-row select{
+    flex:1; width:100%; background:none; border:1px solid var(--line-strong); border-radius:6px;
+    padding:13px 14px; color:var(--cream); font-family:var(--font-serif); font-size:15px; outline:none;
     transition:border-color .3s ease, box-shadow .3s ease;
   }
-  .loc-field input:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(199,166,92,0.1); }
-  .loc-clear{ position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--smoke); transition:transform .2s ease, color .3s ease; }
-  .loc-clear:active{ transform:translateY(-50%) scale(0.85); }
-  .use-location{
-    display:inline-flex; align-items:center; gap:8px; font-family:var(--font-sans); font-size:13px;
-    color:var(--gold); transition:color .3s ease, transform .2s ease;
-  }
-  .use-location:hover{ color:var(--gold-bright); transform:translateX(2px); }
+  .loc-field-row select:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(199,166,92,0.1); }
+  .loc-field-row select:disabled{ opacity:0.5; cursor:not-allowed; }
 
   /* single-select list (education / relationship / smoking) */
   .select-list{ display:flex; flex-direction:column; gap:10px; }
@@ -342,16 +336,10 @@
       <h1>What is your location?</h1>
       <p class="setup-sub">We use this to show you members nearby. Visible by default — you can always change it later.</p>
       <div class="setup-body">
-        <div class="loc-field">
-          <input type="text" id="loc-input" value="Baton Rouge, Louisiana, United States">
-          <button type="button" class="loc-clear" id="loc-clear" aria-label="Clear">
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          </button>
+        <div class="loc-field-row">
+          <select id="loc-state"><option value="">State…</option></select>
+          <select id="loc-city"><option value="">City…</option></select>
         </div>
-        <a href="#" class="use-location">
-          <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 16-6-4-6 4 6-16z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-          Use my current location
-        </a>
       </div>
     </div>
 
@@ -430,14 +418,27 @@
           <div class="tag-select-btn">Fine dining</div>
           <div class="tag-select-btn">Monogamous</div>
           <div class="tag-select-btn">Non-monogamous</div>
+          <div class="tag-select-btn">Polyamorous</div>
+          <div class="tag-select-btn">D/s dynamic</div>
+          <div class="tag-select-btn">Play partner</div>
+          <div class="tag-select-btn">Mentor/mentee dynamic</div>
           <div class="tag-select-btn">No strings attached</div>
           <div class="tag-select-btn">Open relationship</div>
+          <div class="tag-select-btn">Long-distance</div>
           <div class="tag-select-btn">Travel partner</div>
           <div class="tag-select-btn">Will travel</div>
           <div class="tag-select-btn">Passport ready</div>
           <div class="tag-select-btn">Life of leisure</div>
           <div class="tag-select-btn">Emotional connection</div>
           <div class="tag-select-btn">Financial partnership</div>
+          <div class="tag-select-btn">Ethical non-monogamy</div>
+          <div class="tag-select-btn">Kitchen-table poly</div>
+          <div class="tag-select-btn">Solo poly</div>
+          <div class="tag-select-btn">Service dynamic</div>
+          <div class="tag-select-btn">Brat / brat tamer</div>
+          <div class="tag-select-btn">Caregiver / little</div>
+          <div class="tag-select-btn">Protocol &amp; structure</div>
+          <div class="tag-select-btn">Exploration partner</div>
         </div>
         <p class="tag-limit-note" id="tag-limit-note">0 of 7 selected</p>
       </div>
@@ -557,7 +558,7 @@
     console.error('FantasiAPI failed to load — is the backend running, and is this page served through it rather than opened as a file:// URL?');
   }
   const apiUnavailable = async () => ({ ok: false, data: { error: 'API unavailable — check that the backend is running.' } });
-  const { api, requireSession, showToast } = window.FantasiAPI || {
+  const { api, requireSession, showToast, US_STATES_CITIES, wireLocationSelects } = window.FantasiAPI || {
     api: {
       profile: {
         update: apiUnavailable,
@@ -568,7 +569,15 @@
     },
     requireSession: async () => null,
     showToast: (msg) => alert(msg),
+    US_STATES_CITIES: {},
+    wireLocationSelects: () => (() => ''),
   };
+  // State/city fields replaced the former free-text box. Keep one formatter
+  // and use it at save time so setup, profile editing, and search agree on
+  // the same "City, State, United States" value.
+  const currentLocation = wireLocationSelects(
+    document.getElementById('loc-state'), document.getElementById('loc-city')
+  );
 
   // ---- generic confirm modal ----
   const confirmOverlay = document.getElementById('confirm-overlay');
@@ -693,7 +702,7 @@
       weight_visible: document.querySelector('[data-toggle="weight-visibility"] button.active')?.dataset.value === 'visible',
       height_label: selectedText('[data-picker="height"] .picker-item.selected'),
       height_unit: document.querySelector('[data-toggle="height-unit"] button.active')?.dataset.value || 'ft',
-      location: document.getElementById('loc-input').value.trim() || undefined,
+      location: currentLocation() || undefined,
       education: selectedText('[data-select="education"] .select-list-btn.selected'),
       relationship_status: selectedText('[data-select="relationship"] .select-list-btn.selected'),
       smoking: selectedText('[data-select="smoking"] .select-list-btn.selected'),
@@ -874,11 +883,6 @@
   aboutInput.addEventListener('input', ()=>{
     aboutCount.textContent = aboutInput.value.length;
     updateContinueState();
-  });
-
-  // location clear
-  document.getElementById('loc-clear').addEventListener('click', ()=>{
-    document.getElementById('loc-input').value = '';
   });
 
   renderStep();

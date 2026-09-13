@@ -66,9 +66,6 @@
     width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
     display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
   }
-  .sidebar-brand{ padding:26px 24px; border-bottom:1px solid var(--line); }
-  .sidebar-brand .signet{ display:flex; align-items:center; gap:10px; }
-  .sidebar-brand .signet-logo{ height:55px; width:auto; }
 
   .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; overflow-y:auto; }
   .nav-item{
@@ -254,11 +251,6 @@
 <div class="shell">
 
   <aside class="sidebar">
-    <div class="sidebar-brand">
-      <a class="signet" href="/LandingPage/Landing.html">
-        <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
-      </a>
-    </div>
 
     <nav class="sidebar-nav">
       <a class="nav-item" href="/Dashboard/Discover.html">
@@ -378,7 +370,7 @@
 <script>
 (async () => {
   if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
-  const { api, initDashboard, capitalize, initials, showToast } = window.FantasiAPI;
+  const { api, initDashboard, capitalize, initials, showToast, watermarkPhoto } = window.FantasiAPI;
 
   const me = await initDashboard();
   if (!me) return;
@@ -425,7 +417,7 @@
   function avatarEl(name, url, sizeClass, userId) {
     const el = document.createElement('div');
     el.className = 'mini-avatar' + (sizeClass ? ' ' + sizeClass : '');
-    if (url) { el.style.backgroundImage = `url(${url})`; }
+    if (url) { el.style.backgroundImage = `url(${url})`; watermarkPhoto(el); }
     else el.textContent = initials(name);
     if (userId) {
       el.style.cursor = 'pointer';

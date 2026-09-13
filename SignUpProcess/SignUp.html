@@ -221,21 +221,9 @@
   .dob-item:hover{ color:var(--cream); background:rgba(199,166,92,0.05); }
   .dob-item.selected{ color:var(--gold-bright); font-weight:500; font-size:16px; background:rgba(199,166,92,0.08); }
 
-  /* location dropdown */
-  .location-wrap{ position:relative; }
-  .location-wrap input{ padding-right:28px; }
-  .location-suggestions{
-    position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:200;
-    background:var(--noir-soft); border:1px solid var(--line-strong); border-radius:4px;
-    max-height:220px; overflow-y:auto; display:none;
-  }
-  .location-suggestions.open{ display:block; }
-  .location-suggestion{
-    padding:11px 14px; font-family:var(--font-sans); font-size:13px; color:var(--smoke);
-    cursor:pointer; transition:background .2s ease, color .2s ease;
-  }
-  .location-suggestion:hover, .location-suggestion.focused{ background:rgba(199,166,92,0.08); color:var(--cream); }
-  .location-suggestion mark{ background:none; color:var(--gold-bright); font-style:normal; }
+  /* location menu */
+  .location-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .location-row select{ width:100%; }
 
   /* SMS code entry */
   .code-row{ display:flex; gap:10px; justify-content:center; margin-bottom:8px; }
@@ -307,7 +295,7 @@
   .confirm{ text-align:center; padding:20px 0; }
   .confirm h2{ font-size:32px; margin-bottom:16px; }
   .confirm p{ font-family:var(--font-sans); color:var(--smoke); font-size:14px; line-height:1.85; max-width:380px; margin:0 auto 34px; }
-  .confirm .btn{ width:100%; justify-content:center; }
+  .confirm .btn{ width:100%; justify-content:center; font-family:var(--font-sans); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; font-weight:500; }
 
   .identity-group{ margin-bottom:32px; }
   .identity-label{
@@ -503,11 +491,12 @@
         <input type="email" id="p-email" placeholder="you@example.com" autocomplete="off">
       </div>
       <div class="field">
-        <label for="p-location">Location</label>
-        <div class="location-wrap">
-          <input type="text" id="p-location" placeholder="Start typing a city…" autocomplete="off" autocomplete="off">
-          <div class="location-suggestions" id="location-suggestions"></div>
+        <label for="p-state">Location</label>
+        <div class="location-row">
+          <select id="p-state" aria-label="State"><option value="">State…</option></select>
+          <select id="p-city" aria-label="City" disabled><option value="">City…</option></select>
         </div>
+        <input type="hidden" id="p-location">
       </div>
       <div class="field">
         <label for="p-occupation">Occupation</label>
@@ -830,6 +819,9 @@
 
     const input       = document.getElementById('p-location');
     const suggestions = document.getElementById('location-suggestions');
+    // Kept only as a safe no-op for cached copies of this script; the visible
+    // control is now the shared state/city picker below.
+    if (!suggestions) return;
     let focusedIdx    = -1;
 
     function highlight(text, query) {
@@ -885,6 +877,21 @@
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.location-wrap')) suggestions.classList.remove('open');
     });
+  })();
+
+  // Shared US state/city menu. Keep the existing hidden location field for
+  // the registration payload, which stores the same canonical text used by
+  // profile setup and search.
+  (function() {
+    const { wireLocationSelects } = window.FantasiAPI || {};
+    if (!wireLocationSelects) return;
+    const state = document.getElementById('p-state');
+    const city = document.getElementById('p-city');
+    const hiddenLocation = document.getElementById('p-location');
+    const currentLocation = wireLocationSelects(state, city);
+    const sync = () => { hiddenLocation.value = currentLocation(); };
+    state.addEventListener('change', sync);
+    city.addEventListener('change', sync);
   })();
 
   // ---- wizard logic ----
@@ -973,14 +980,20 @@
   const uploadInput = document.getElementById('id-document-input');
   const uploadLabel = document.getElementById('upload-label');
   const uploadDim   = document.getElementById('upload-dim');
+  function resetUploadBox() {
+    uploadBox.classList.remove('has-file');
+    uploadLabel.textContent = 'Upload government-issued ID';
+    uploadDim.textContent = 'JPG, PNG, or PDF · max 10MB';
+  }
   if (uploadInput) {
     uploadInput.addEventListener('change', () => {
       const file = uploadInput.files[0];
-      if (!file) return;
+      if (!file) { resetUploadBox(); return; }
       const maxBytes = 10 * 1024 * 1024;
       if (file.size > maxBytes) {
         showToast('ID file must be under 10MB.', 'error');
         uploadInput.value = '';
+        resetUploadBox(); // otherwise the box keeps showing the rejected file as "selected"
         return;
       }
       uploadBox.classList.add('has-file');

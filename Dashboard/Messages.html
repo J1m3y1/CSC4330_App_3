@@ -67,8 +67,6 @@
     width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
     display:flex; flex-direction:column; height:100vh;
   }
-  .sidebar-brand{ padding:26px 24px; border-bottom:1px solid var(--line); }
-  .sidebar-brand .signet-logo{ height:55px; width:auto; }
   .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; overflow-y:auto; }
   .nav-item{
     display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
@@ -150,6 +148,11 @@
     color:var(--smoke-dim); border:1px solid var(--line-strong); padding:6px 11px; border-radius:20px;
     opacity:0.5; cursor:not-allowed;
   }
+  .destruct-pill.active{ opacity:1; cursor:pointer; color:var(--gold-bright); border-color:var(--gold); }
+  .destruct-pill.on{ background:rgba(199,166,92,0.12); }
+  .destruct-note{
+    font-family:var(--font-sans); font-size:9.5px; color:var(--smoke-dim); text-align:center; padding:0 28px 12px;
+  }
   .icon-btn{
     width:34px; height:34px; border-radius:50%; border:1px solid var(--line-strong); display:flex;
     align-items:center; justify-content:center; color:var(--smoke); transition:border-color .3s ease, color .3s ease;
@@ -171,6 +174,7 @@
   .dropdown-item:hover{ background:rgba(199,166,92,0.08); }
   .dropdown-item.danger{ color:var(--bordeaux-bright); }
   .dropdown-item.danger:hover{ background:rgba(113,26,46,0.1); }
+  .dropdown-item.selected{ color:var(--gold-bright); }
 
   /* ---------------- report overlay ---------------- */
   .report-overlay{
@@ -225,10 +229,6 @@
   }
   .send-btn:hover{ background:var(--gold-bright); transform:scale(1.05); }
 
-  .screenshot-note{
-    font-family:var(--font-sans); font-size:9.5px; color:var(--smoke-dim); text-align:center; padding:0 28px 12px;
-  }
-
   @media (max-width:980px){
     .sidebar{ display:none; }
     .convo-list{ width:260px; }
@@ -243,9 +243,6 @@
 <div class="shell">
 
   <aside class="sidebar">
-    <div class="sidebar-brand">
-      <a href="/LandingPage/Landing.html"><img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo"></a>
-    </div>
     <nav class="sidebar-nav">
       <a class="nav-item" href="/Dashboard/Discover.html">
         <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
@@ -324,9 +321,18 @@
         </div>
       </div>
       <div class="chat-header-actions">
-        <div class="destruct-pill" title="Black tier only">
-          <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><rect x="6" y="6" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
-          Self-destruct
+        <div class="menu-wrap" id="destruct-wrap">
+          <div class="destruct-pill" id="destruct-pill" title="Black tier only">
+            <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><rect x="6" y="6" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span id="destruct-pill-label">Self-destruct</span>
+          </div>
+          <div class="dropdown-menu" id="destruct-menu">
+            <button type="button" class="dropdown-item" data-seconds="">Off</button>
+            <button type="button" class="dropdown-item" data-seconds="300">5 minutes</button>
+            <button type="button" class="dropdown-item" data-seconds="3600">1 hour</button>
+            <button type="button" class="dropdown-item" data-seconds="86400">24 hours</button>
+            <button type="button" class="dropdown-item" data-seconds="604800">7 days</button>
+          </div>
         </div>
         <div class="menu-wrap">
           <button type="button" class="icon-btn" id="chat-more-btn" title="Report or block">
@@ -340,13 +346,13 @@
       </div>
     </div>
 
+    <div class="destruct-note" id="destruct-note" style="display:none;"></div>
     <div class="chat-messages" id="chat-messages">
       <p id="chat-placeholder" style="font-family:var(--font-sans); font-size:13px; color:var(--smoke); text-align:center; margin-top:40px;">
         Select a conversation to start reading.
       </p>
     </div>
 
-    <div class="screenshot-note" id="screenshot-note" style="display:none;">Screenshot protection is active in this conversation — a Gold membership feature.</div>
     <div class="chat-input-row" id="chat-input-row" style="display:none;">
       <input type="text" id="chat-input" placeholder="Send a message…">
       <button type="button" class="send-btn" id="chat-send" aria-label="Send">
@@ -382,7 +388,7 @@
 <script>
 (async () => {
   if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
-  const { api, initDashboard, capitalize, initials, showToast } = window.FantasiAPI;
+  const { api, initDashboard, capitalize, initials, showToast, watermarkPhoto } = window.FantasiAPI;
 
   const me = await initDashboard();
   if (!me) return;
@@ -396,9 +402,16 @@
   const chatMessages = document.getElementById('chat-messages');
   const chatPlaceholder = document.getElementById('chat-placeholder');
   const chatInputRow = document.getElementById('chat-input-row');
-  const screenshotNote = document.getElementById('screenshot-note');
   const chatInput    = document.getElementById('chat-input');
   const moreBtn      = document.getElementById('chat-more-btn');
+  const destructPill  = document.getElementById('destruct-pill');
+  const destructLabel = document.getElementById('destruct-pill-label');
+  const destructMenu  = document.getElementById('destruct-menu');
+  const destructNote  = document.getElementById('destruct-note');
+
+  const isBlack = me.membership_tier === 'black';
+  if (isBlack) destructPill.title = 'Set messages in this conversation to disappear';
+  const DESTRUCT_LABELS = { 300: '5 minutes', 3600: '1 hour', 86400: '24 hours', 604800: '7 days' };
 
   let activePartnerId = null;
 
@@ -423,6 +436,7 @@
       avatar.style.backgroundImage = `url(${convo.partner_avatar})`;
       avatar.style.backgroundSize = 'cover';
       avatar.style.backgroundPosition = 'center';
+      watermarkPhoto(avatar);
     } else {
       avatar.textContent = initials(convo.partner_name);
     }
@@ -491,17 +505,19 @@
     chatName.textContent = knownName || '…';
     chatAvatar.textContent = '';
     chatAvatar.style.backgroundImage = knownAvatar ? `url(${knownAvatar})` : '';
-    if (!knownAvatar) chatAvatar.textContent = initials(knownName);
+    if (knownAvatar) watermarkPhoto(chatAvatar);
+    else chatAvatar.textContent = initials(knownName);
     chatTier.style.display = 'none';
+    applyDestructState(null); // reset until this conversation's real setting loads, so a stale state doesn't flash
 
     // One fetch covers everything the header needs: name/avatar (only used
     // as a fallback — arriving via ?to=<id> with nothing in the conversation
-    // list yet) plus the tier chip and screenshot-protection note.
+    // list yet) plus the tier chip.
     const { ok, data: partner } = await api.profile.get(partnerId);
     if (ok) {
       if (!knownName) {
         chatName.textContent = partner.display_name;
-        if (partner.avatar_url) chatAvatar.style.backgroundImage = `url(${partner.avatar_url})`;
+        if (partner.avatar_url) { chatAvatar.style.backgroundImage = `url(${partner.avatar_url})`; watermarkPhoto(chatAvatar); }
         else chatAvatar.textContent = initials(partner.display_name);
       }
       if (partner.membership_tier !== 'free') {
@@ -509,7 +525,6 @@
         chatTier.className = `tier-chip ${partner.membership_tier}`;
         chatTier.textContent = capitalize(partner.membership_tier);
       }
-      screenshotNote.style.display = partner.membership_tier !== 'free' ? 'block' : 'none';
     }
 
     chatPlaceholder.remove();
@@ -519,6 +534,31 @@
     if (!threadRes.ok) { showToast(threadRes.data?.error || 'Could not load messages.', 'error'); return; }
     threadRes.data.messages.forEach(m => chatMessages.appendChild(buildMessageRow(m)));
     chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    loadDestructSettings(partnerId);
+  }
+
+  // ---- disappearing messages: Black tier sets it, both sides see it ----
+  function applyDestructState(seconds) {
+    destructPill.classList.toggle('on', !!seconds);
+    destructMenu.querySelectorAll('.dropdown-item').forEach(btn => {
+      btn.classList.toggle('selected', (btn.dataset.seconds || null) === (seconds ? String(seconds) : null));
+    });
+    if (seconds) {
+      destructLabel.textContent = DESTRUCT_LABELS[seconds] || 'On';
+      destructNote.textContent = isBlack
+        ? `Messages in this conversation disappear after ${DESTRUCT_LABELS[seconds]} — for both of you.`
+        : `Messages in this conversation disappear after ${DESTRUCT_LABELS[seconds]}.`;
+      destructNote.style.display = 'block';
+    } else {
+      destructLabel.textContent = 'Self-destruct';
+      destructNote.style.display = 'none';
+    }
+  }
+
+  async function loadDestructSettings(partnerId) {
+    const { ok, data } = await api.messages.getSettings(partnerId);
+    if (ok) applyDestructState(data.disappearing_seconds);
   }
 
   async function sendMessage() {
@@ -542,7 +582,27 @@
     e.stopPropagation();
     moreMenu.classList.toggle('show');
   });
-  document.addEventListener('click', (e) => { if (!e.target.closest('.menu-wrap')) moreMenu.classList.remove('show'); });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.menu-wrap')) { moreMenu.classList.remove('show'); destructMenu.classList.remove('show'); }
+  });
+
+  destructPill.addEventListener('click', (e) => {
+    if (!activePartnerId) return;
+    if (!isBlack) { showToast('Disappearing messages are a Black membership feature.', 'info'); return; }
+    e.stopPropagation();
+    destructMenu.classList.toggle('show');
+  });
+  destructMenu.querySelectorAll('.dropdown-item').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!activePartnerId) return;
+      destructMenu.classList.remove('show');
+      const seconds = btn.dataset.seconds ? parseInt(btn.dataset.seconds, 10) : null;
+      const { ok, data } = await api.messages.setSettings(activePartnerId, seconds);
+      if (!ok) { showToast(data?.error || 'Could not update this setting.', 'error'); return; }
+      applyDestructState(data.disappearing_seconds);
+      showToast(seconds ? 'Disappearing messages enabled.' : 'Disappearing messages turned off.', 'info');
+    });
+  });
 
   document.getElementById('chat-menu-block').addEventListener('click', async () => {
     moreMenu.classList.remove('show');

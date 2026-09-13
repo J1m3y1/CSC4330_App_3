@@ -12,6 +12,15 @@ const GENERIC_TAG_GROUPS = {
   'Arrangement Style': ['Power exchange', 'Mentorship', 'Financial partnership', 'Long-term arrangement'],
   'Lifestyle': ['Travel companionship', 'Fine dining', 'Life of leisure', 'Discretion'],
   'Connection': ['Casual', 'Emotional connection', 'No strings attached'],
+  'Dynamics & Roles': [
+    'Dominant', 'Submissive', 'Switch', 'Service-oriented', 'Brat / brat tamer',
+    'Caregiver / little', 'Protocol & structure', 'Rope & bondage', 'Impact play',
+    'Sensory play', 'Roleplay', 'Exhibitionism', 'Voyeurism', 'Fetish & gear',
+  ],
+  'Connection & Consent': [
+    'Communication-first', 'Aftercare', 'Slow burn', 'Exploration partner',
+    'Switch-friendly', 'Rope connection', 'Sensual connection',
+  ],
 };
 
 const GENERIC_TAGS = Object.values(GENERIC_TAG_GROUPS).flat();

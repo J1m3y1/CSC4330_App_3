@@ -5,11 +5,14 @@ const { body, param } = require('express-validator');
 
 const { requireAuth, requireApproved, requireTier } = require('../middleware/auth');
 const { validate }                     = require('../middleware/validate');
-const { avatarUpload, photoUpload }    = require('../middleware/upload');
+const { avatarUpload, photoUpload, introVideoUpload } = require('../middleware/upload');
 const {
-  getMyProfile, updateMyProfile, uploadAvatar,
+  getMyProfile, updateMyProfile, uploadAvatar, uploadIntroVideo, deleteIntroVideo, streamIntroVideo,
   getProfile, blockUser, unblockUser, reportUser, listBlocked,
   requestPhotoAccess, listPhotoRequests, respondPhotoRequest,
+  requestProfileViewAccess, listProfileViewRequests, respondProfileViewRequest,
+  getProfileNote, saveProfileNote, deleteProfileNote,
+  getBoostStatus, activateBoost,
   createPrivacyRequest,
   getMyInterestTags, setMyInterestTags,
   listGeofences, addGeofence, deleteGeofence,
@@ -41,6 +44,7 @@ router.patch('/me', [
     .withMessage('Invalid messages permission value.'),
   body('blur_photos').optional().isBoolean(),
   body('incognito').optional().isBoolean(),
+  body('black_only_visibility').optional().isBoolean(),
   // ── Profile-setup fields ──────────────────────────────────────────────────
   body('heading').optional().trim().isLength({ max: 50 })
     .withMessage('Heading must be 50 characters or fewer.'),
@@ -58,6 +62,10 @@ router.patch('/me', [
 ], validate, updateMyProfile);
 
 router.post('/avatar', avatarUpload, uploadAvatar);
+
+// Gold/Black can upload a private introduction; only Black can stream one.
+router.post('/intro-video', requireTier('gold'), introVideoUpload, uploadIntroVideo);
+router.delete('/intro-video', requireTier('gold'), deleteIntroVideo);
 
 router.post('/privacy-requests', [
   body('type')
@@ -98,6 +106,11 @@ router.patch('/photos/:photoId/primary', [
 // interest-tag routes above.
 router.get('/blocked', listBlocked);
 
+// ── Boost (open to every tier, rationed by a 24h cooldown instead of money —
+// no payment processor exists to gate it behind) ─────────────────────────────
+router.get('/boost', getBoostStatus);
+router.post('/boost', activateBoost);
+
 // ── Photo access requests (blurred-photo mode) ────────────────────────────────
 // Also registered before /:id.
 router.get('/photo-requests', listPhotoRequests);
@@ -105,6 +118,14 @@ router.post('/photo-requests/:viewerId/respond', [
   param('viewerId').isUUID().withMessage('Invalid user ID.'),
   body('status').isIn(['approved', 'denied']).withMessage('Status must be approved or denied.'),
 ], validate, respondPhotoRequest);
+
+// ── Profile view requests (Black-only visibility escalation) ─────────────────
+// Also registered before /:id.
+router.get('/view-requests', listProfileViewRequests);
+router.post('/view-requests/:requesterId/respond', [
+  param('requesterId').isUUID().withMessage('Invalid user ID.'),
+  body('status').isIn(['approved', 'denied']).withMessage('Status must be approved or denied.'),
+], validate, respondProfileViewRequest);
 
 // ── Geofenced privacy (Black tier only) ───────────────────────────────────────
 // Registered before the /:id catch-all for the same reason as the other
@@ -119,6 +140,10 @@ router.delete('/geofences/:geofenceId', requireTier('black'), [
   param('geofenceId').isInt().withMessage('Invalid zone ID.'),
 ], validate, deleteGeofence);
 
+router.get('/:id/intro-video', requireTier('black'), [
+  param('id').isUUID().withMessage('Invalid profile ID.'),
+], validate, streamIntroVideo);
+
 // ── Other members' profiles ───────────────────────────────────────────────────
 router.get('/:id', [
   param('id').isUUID().withMessage('Invalid profile ID.'),
@@ -131,6 +156,24 @@ router.post('/:id/block', [
 router.post('/:id/photo-request', [
   param('id').isUUID().withMessage('Invalid user ID.'),
 ], validate, requestPhotoAccess);
+
+router.post('/:id/view-request', [
+  param('id').isUUID().withMessage('Invalid user ID.'),
+], validate, requestProfileViewAccess);
+
+// ── Private notes (Gold+) ─────────────────────────────────────────────────────
+// Enforced here via requireTier, not just hidden client-side — same pattern
+// as custom interest tags and forum posting.
+router.get('/:id/note', requireTier('gold'), [
+  param('id').isUUID().withMessage('Invalid user ID.'),
+], validate, getProfileNote);
+router.put('/:id/note', requireTier('gold'), [
+  param('id').isUUID().withMessage('Invalid user ID.'),
+  body('body').trim().isLength({ min: 1, max: 2000 }).withMessage('Note must be 1–2000 characters.'),
+], validate, saveProfileNote);
+router.delete('/:id/note', requireTier('gold'), [
+  param('id').isUUID().withMessage('Invalid user ID.'),
+], validate, deleteProfileNote);
 
 router.delete('/:id/block', [
   param('id').isUUID().withMessage('Invalid user ID.'),

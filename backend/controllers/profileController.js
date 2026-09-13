@@ -5,6 +5,7 @@ const fs     = require('fs');
 const { query, withTransaction } = require('../config/db');
 const { GENERIC_TAG_GROUPS, GENERIC_TAGS, INTEREST_LEVELS } = require('../config/interestTags');
 const { geocode } = require('../utils/geocode');
+const { VIDEO_UPLOAD_DIR } = require('../middleware/upload');
 
 // Same tier ranking used in middleware/auth.js, membershipController.js, and
 // chatroomsController.js — duplicated rather than imported since none of
@@ -12,11 +13,86 @@ const { geocode } = require('../utils/geocode');
 const TIER_RANK = { free: 0, silver: 1, gold: 2, black: 3 };
 const CUSTOM_TAG_MIN_TIER = 'gold';
 
+function deletePrivateVideo(storageKey) {
+  if (!storageKey) return;
+  fs.unlink(path.join(VIDEO_UPLOAD_DIR, path.basename(storageKey)), () => {});
+}
+
+// Gold and Black members may publish one short self-recorded introduction.
+// An upload alone cannot substantiate a biometric liveness claim, so the UI
+// accurately calls this a private introduction video rather than "verified".
+async function uploadIntroVideo(req, res) {
+  if (!req.file) return res.status(422).json({ error: 'Choose a video to upload.' });
+  try {
+    const existing = await query('SELECT storage_key FROM member_intro_videos WHERE user_id = $1', [req.user.id]);
+    await query(
+      `INSERT INTO member_intro_videos (user_id, storage_key, original_filename, mime_type)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id) DO UPDATE SET storage_key = EXCLUDED.storage_key,
+         original_filename = EXCLUDED.original_filename, mime_type = EXCLUDED.mime_type, updated_at = NOW()`,
+      [req.user.id, req.file.filename, req.file.originalname, req.file.mimetype]
+    );
+    if (existing.rows[0]?.storage_key) deletePrivateVideo(existing.rows[0].storage_key);
+    res.status(201).json({ has_intro_video: true, message: 'Your private introduction video is ready.' });
+  } catch (err) {
+    deletePrivateVideo(req.file.filename);
+    console.error('[uploadIntroVideo]', err.message);
+    res.status(500).json({ error: 'Could not save the video.' });
+  }
+}
+
+async function deleteIntroVideo(req, res) {
+  try {
+    const { rows } = await query('DELETE FROM member_intro_videos WHERE user_id = $1 RETURNING storage_key', [req.user.id]);
+    if (!rows.length) return res.status(404).json({ error: 'No introduction video found.' });
+    deletePrivateVideo(rows[0].storage_key);
+    res.json({ has_intro_video: false, message: 'Introduction video removed.' });
+  } catch (err) {
+    console.error('[deleteIntroVideo]', err.message);
+    res.status(500).json({ error: 'Could not remove the video.' });
+  }
+}
+
+async function streamIntroVideo(req, res) {
+  try {
+    const { rows } = await query(
+      `SELECT v.storage_key, v.mime_type FROM member_intro_videos v
+       JOIN users u ON u.id = v.user_id
+       WHERE v.user_id = $1 AND u.is_active = TRUE AND u.is_approved = TRUE
+         AND NOT EXISTS (SELECT 1 FROM blocks b
+           WHERE (b.blocker_id = $2 AND b.blocked_id = v.user_id)
+              OR (b.blocker_id = v.user_id AND b.blocked_id = $2))`,
+      [req.params.id, req.user.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Introduction video not found.' });
+    const video = rows[0];
+    const filePath = path.join(VIDEO_UPLOAD_DIR, path.basename(video.storage_key));
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Introduction video not found.' });
+    const size = fs.statSync(filePath).size;
+    const range = req.headers.range;
+    res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('Content-Type', video.mime_type);
+    if (!range) { res.setHeader('Content-Length', size); return fs.createReadStream(filePath).pipe(res); }
+    const match = /bytes=(\d*)-(\d*)/.exec(range);
+    if (!match) return res.status(416).end();
+    const start = match[1] ? parseInt(match[1], 10) : 0;
+    const end = match[2] ? Math.min(parseInt(match[2], 10), size - 1) : size - 1;
+    if (start >= size || end < start) return res.status(416).set('Content-Range', `bytes */${size}`).end();
+    res.status(206).set({ 'Content-Range': `bytes ${start}-${end}/${size}`, 'Content-Length': end - start + 1 });
+    fs.createReadStream(filePath, { start, end }).pipe(res);
+  } catch (err) {
+    console.error('[streamIntroVideo]', err.message);
+    res.status(500).json({ error: 'Could not load the video.' });
+  }
+}
+
 // ── GET /api/profile/me ───────────────────────────────────────────────────────
 async function getMyProfile(req, res) {
   try {
     const { rows } = await query(
-      `SELECT p.*, u.email, u.membership_tier
+      `SELECT p.*, u.email, u.membership_tier,
+         EXISTS(SELECT 1 FROM member_intro_videos v WHERE v.user_id = p.user_id) AS has_intro_video
        FROM profiles p
        JOIN users u ON u.id = p.user_id
        WHERE p.user_id = $1`,
@@ -36,7 +112,7 @@ async function updateMyProfile(req, res) {
     display_name, bio, location,
     interests,
     show_location, show_last_active, allow_messages_from,
-    blur_photos, incognito,
+    blur_photos, incognito, black_only_visibility,
     // Profile-setup fields (Profile/profile-setup.html)
     heading, looking_for,
     weight_label, weight_unit, weight_visible,
@@ -48,6 +124,11 @@ async function updateMyProfile(req, res) {
   // tier (e.g. after a downgrade), just never turning it on below Black.
   if (incognito === true && req.user.membership_tier !== 'black') {
     return res.status(403).json({ error: 'Incognito browsing requires a Black membership.', upgrade_required: true });
+  }
+
+  // Same rule as incognito: allow turning back OFF at any tier, never ON below Black.
+  if (black_only_visibility === true && req.user.membership_tier !== 'black') {
+    return res.status(403).json({ error: 'Black-only visibility requires a Black membership.', upgrade_required: true });
   }
 
   try {
@@ -67,6 +148,7 @@ async function updateMyProfile(req, res) {
     if (allow_messages_from !== undefined) set('allow_messages_from', allow_messages_from);
     if (blur_photos         !== undefined) set('blur_photos',         blur_photos);
     if (incognito           !== undefined) set('incognito',           incognito);
+    if (black_only_visibility !== undefined) set('black_only_visibility', black_only_visibility);
 
     // Geofenced privacy needs the viewer's own location geocoded too, so
     // whenever a member sets/changes their location text, best-effort
@@ -280,7 +362,9 @@ async function getProfile(req, res) {
          p.interests, p.looking_for, p.heading, p.is_complete,
          p.education, p.relationship_status, p.smoking,
          p.height_label, p.height_unit,
-         p.blur_photos,
+         p.blur_photos, p.black_only_visibility,
+         CASE WHEN $3 = 'black' THEN EXISTS(SELECT 1 FROM member_intro_videos v WHERE v.user_id = p.user_id) ELSE FALSE END AS has_intro_video,
+         DATE_PART('year', AGE(p.date_of_birth))::int AS age,
          -- Conditionally expose fields the member has chosen to hide
          CASE WHEN p.show_location    THEN p.location      ELSE NULL END AS location,
          CASE WHEN p.show_last_active THEN p.last_active_at ELSE NULL END AS last_active_at,
@@ -288,6 +372,8 @@ async function getProfile(req, res) {
          CASE WHEN p.weight_visible   THEN p.weight_unit    ELSE NULL END AS weight_unit,
          p.allow_messages_from,
          u.membership_tier,
+         u.created_at AS member_since,
+         EXISTS(SELECT 1 FROM profile_likes WHERE liker_id = $2 AND liked_id = p.user_id) AS liked_by_me,
          COALESCE(
            (SELECT json_agg(json_build_object('id', ph.id, 'url', ph.url) ORDER BY ph.position)
             FROM profile_photos ph WHERE ph.user_id = p.user_id),
@@ -295,18 +381,57 @@ async function getProfile(req, res) {
          ) AS photos,
          (SELECT COALESCE(json_agg(json_build_object('tag', pi.tag, 'level', pi.level)), '[]')
             FROM profile_interests pi WHERE pi.user_id = p.user_id) AS rated_interests,
-         (SELECT status FROM photo_approvals WHERE owner_id = p.user_id AND viewer_id = $2) AS my_approval_status
+         (SELECT status FROM photo_approvals WHERE owner_id = p.user_id AND viewer_id = $2) AS my_approval_status,
+         (SELECT status FROM profile_view_requests WHERE owner_id = p.user_id AND requester_id = $2) AS my_view_request_status
        FROM profiles p
        JOIN users u ON u.id = p.user_id
        WHERE p.user_id = $1
          AND u.is_active   = TRUE
-         AND u.is_approved = TRUE`,
-      [id, req.user.id]
+         AND u.is_approved = TRUE
+         -- Black-only visibility: a Free viewer 404s outright, same as a
+         -- block (own-profile lookups never hit this route). Silver/Gold
+         -- still get a row back — trimmed down below to a locked card with
+         -- a request-to-view option, unless their request was approved.
+         AND (NOT p.black_only_visibility OR $3 <> 'free')`,
+      [id, req.user.id, req.user.membership_tier]
     );
 
     if (!rows.length) return res.status(404).json({ error: 'Profile not found.' });
 
     const profile = rows[0];
+
+    // Black-only visibility: Silver/Gold see a locked card (name + avatar
+    // only) until the member approves their view-request — everything else
+    // about the profile stays withheld, stronger than blurred-photo mode's
+    // photos-only restriction, matching what Discover/Search already show.
+    const restricted = profile.black_only_visibility
+      && req.user.membership_tier !== 'black'
+      && id !== req.user.id
+      && profile.my_view_request_status !== 'approved';
+    profile.restricted = restricted;
+    profile.view_request_status = profile.black_only_visibility ? (profile.my_view_request_status || null) : null;
+    if (restricted) {
+      profile.age = null;
+      profile.bio = null;
+      profile.interests = [];
+      profile.looking_for = [];
+      profile.heading = null;
+      profile.education = null;
+      profile.relationship_status = null;
+      profile.smoking = null;
+      profile.height_label = null;
+      profile.height_unit = null;
+      profile.location = null;
+      profile.last_active_at = null;
+      profile.weight_label = null;
+      profile.weight_unit = null;
+      profile.allow_messages_from = null;
+      profile.member_since = null;
+      profile.photos = [];
+      profile.rated_interests = [];
+    }
+    delete profile.black_only_visibility;
+    delete profile.my_view_request_status;
 
     // Blurred-photo mode: withhold the real photo URLs entirely (not just a
     // CSS blur — the bytes never reach an unapproved viewer's browser) until
@@ -325,9 +450,10 @@ async function getProfile(req, res) {
 
     // Record the view (upsert — re-viewing just bumps the timestamp) so it
     // shows up in the viewed party's "Viewed me" list. Never log a self-view,
-    // and never log it at all when the viewer has incognito browsing on —
-    // simplest to just skip the write than to log-then-filter at read time.
-    if (id !== req.user.id) {
+    // never log it when the viewer has incognito browsing on, and never log
+    // a locked-card lookup that showed nothing real — the review queue for
+    // that is the view-request list, not "who viewed you".
+    if (id !== req.user.id && !restricted) {
       query(
         `INSERT INTO profile_views (viewer_id, viewed_id, viewed_at)
          SELECT $1, $2, NOW()
@@ -341,6 +467,198 @@ async function getProfile(req, res) {
   } catch (err) {
     console.error('[getProfile]', err.message);
     res.status(500).json({ error: 'Could not fetch profile.' });
+  }
+}
+
+// ── POST /api/profile/:id/view-request ────────────────────────────────────────
+// A Silver/Gold viewer asks a Black-only-visible member for access to their
+// full profile. Free-tier viewers never reach this — getProfile 404s for
+// them with no escalation path, same as before this feature existed.
+// Re-requesting after a denial resets it back to pending, same rule as
+// requestPhotoAccess.
+async function requestProfileViewAccess(req, res) {
+  const { id: ownerId } = req.params;
+  if (ownerId === req.user.id) {
+    return res.status(400).json({ error: 'You cannot request access to your own profile.' });
+  }
+  if (req.user.membership_tier === 'free') {
+    return res.status(403).json({ error: 'Upgrade to Silver or Gold to request access to a Black-only-visible profile.', upgrade_required: true });
+  }
+  try {
+    const { rows: ownerRows } = await query('SELECT black_only_visibility FROM profiles WHERE user_id = $1', [ownerId]);
+    if (!ownerRows.length) return res.status(404).json({ error: 'Profile not found.' });
+    if (!ownerRows[0].black_only_visibility) {
+      return res.status(400).json({ error: "This member's profile isn't restricted." });
+    }
+
+    await query(
+      `INSERT INTO profile_view_requests (owner_id, requester_id, status, created_at)
+       VALUES ($1, $2, 'pending', NOW())
+       ON CONFLICT (owner_id, requester_id) DO UPDATE
+         SET status = 'pending', created_at = NOW(), responded_at = NULL
+         WHERE profile_view_requests.status = 'denied'`,
+      [ownerId, req.user.id]
+    );
+    res.json({ message: 'Request sent.' });
+  } catch (err) {
+    console.error('[requestProfileViewAccess]', err.message);
+    res.status(500).json({ error: 'Could not send request.' });
+  }
+}
+
+// ── GET /api/profile/view-requests ────────────────────────────────────────────
+// Pending requests from Silver/Gold members asking to see MY full profile.
+async function listProfileViewRequests(req, res) {
+  try {
+    const { rows } = await query(
+      `SELECT pvr.requester_id, p.display_name, p.avatar_url, u.membership_tier, pvr.created_at
+       FROM profile_view_requests pvr
+       JOIN profiles p ON p.user_id = pvr.requester_id
+       JOIN users u ON u.id = pvr.requester_id
+       WHERE pvr.owner_id = $1 AND pvr.status = 'pending'
+       ORDER BY pvr.created_at ASC`,
+      [req.user.id]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('[listProfileViewRequests]', err.message);
+    res.status(500).json({ error: 'Could not fetch view requests.' });
+  }
+}
+
+// ── POST /api/profile/view-requests/:requesterId/respond ──────────────────────
+async function respondProfileViewRequest(req, res) {
+  const { requesterId } = req.params;
+  const { status } = req.body; // 'approved' | 'denied'
+  try {
+    const { rows } = await query(
+      `UPDATE profile_view_requests SET status = $1, responded_at = NOW()
+       WHERE owner_id = $2 AND requester_id = $3
+       RETURNING *`,
+      [status, req.user.id, requesterId]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Request not found.' });
+    res.json({ message: `Request ${status}.` });
+  } catch (err) {
+    console.error('[respondProfileViewRequest]', err.message);
+    res.status(500).json({ error: 'Could not update request.' });
+  }
+}
+
+// ── GET /api/profile/:id/note ─────────────────────────────────────────────────
+// Private notes (Gold+): a member's own note about another profile — never
+// visible to the subject or anyone else. Tier is enforced by requireTier on
+// the route, not just hidden client-side, same as custom interest tags and
+// forum posting.
+async function getProfileNote(req, res) {
+  const { id: subjectId } = req.params;
+  if (subjectId === req.user.id) {
+    return res.status(400).json({ error: 'You cannot note your own profile.' });
+  }
+  try {
+    const { rows } = await query(
+      'SELECT body, updated_at FROM profile_notes WHERE author_id = $1 AND subject_id = $2',
+      [req.user.id, subjectId]
+    );
+    res.json(rows[0] || { body: '', updated_at: null });
+  } catch (err) {
+    console.error('[getProfileNote]', err.message);
+    res.status(500).json({ error: 'Could not fetch note.' });
+  }
+}
+
+// ── PUT /api/profile/:id/note ─────────────────────────────────────────────────
+async function saveProfileNote(req, res) {
+  const { id: subjectId } = req.params;
+  const { body } = req.body;
+  if (subjectId === req.user.id) {
+    return res.status(400).json({ error: 'You cannot note your own profile.' });
+  }
+  try {
+    const { rows } = await query(
+      `INSERT INTO profile_notes (author_id, subject_id, body, updated_at)
+       VALUES ($1, $2, $3, NOW())
+       ON CONFLICT (author_id, subject_id) DO UPDATE SET body = $3, updated_at = NOW()
+       RETURNING body, updated_at`,
+      [req.user.id, subjectId, body]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('[saveProfileNote]', err.message);
+    res.status(500).json({ error: 'Could not save note.' });
+  }
+}
+
+// ── DELETE /api/profile/:id/note ──────────────────────────────────────────────
+async function deleteProfileNote(req, res) {
+  const { id: subjectId } = req.params;
+  try {
+    await query('DELETE FROM profile_notes WHERE author_id = $1 AND subject_id = $2', [req.user.id, subjectId]);
+    res.json({ message: 'Note deleted.' });
+  } catch (err) {
+    console.error('[deleteProfileNote]', err.message);
+    res.status(500).json({ error: 'Could not delete note.' });
+  }
+}
+
+// ── Boost: temporary top-of-Discover placement ────────────────────────────────
+// No payment processor exists to gate this behind a purchase (see project
+// memory — Stripe was built then fully removed), so it's open to every tier
+// and rationed by a cooldown instead of money.
+const BOOST_DURATION_MINUTES = 30;
+const BOOST_COOLDOWN_HOURS = 24;
+
+function boostStatusFromRow(row) {
+  const now = Date.now();
+  const boostedUntil = row.boosted_until ? new Date(row.boosted_until) : null;
+  const canBoostAt = row.last_boosted_at
+    ? new Date(new Date(row.last_boosted_at).getTime() + BOOST_COOLDOWN_HOURS * 3600 * 1000)
+    : null;
+  return {
+    boosted_until: boostedUntil && boostedUntil.getTime() > now ? boostedUntil.toISOString() : null,
+    can_boost_at: canBoostAt && canBoostAt.getTime() > now ? canBoostAt.toISOString() : null,
+  };
+}
+
+// ── GET /api/profile/boost ─────────────────────────────────────────────────────
+async function getBoostStatus(req, res) {
+  try {
+    const { rows } = await query(
+      'SELECT boosted_until, last_boosted_at FROM profiles WHERE user_id = $1',
+      [req.user.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Profile not found.' });
+    res.json(boostStatusFromRow(rows[0]));
+  } catch (err) {
+    console.error('[getBoostStatus]', err.message);
+    res.status(500).json({ error: 'Could not fetch boost status.' });
+  }
+}
+
+// ── POST /api/profile/boost ────────────────────────────────────────────────────
+async function activateBoost(req, res) {
+  try {
+    const { rows } = await query(
+      `UPDATE profiles SET boosted_until = NOW() + ($1 || ' minutes')::INTERVAL, last_boosted_at = NOW()
+       WHERE user_id = $2
+         AND (last_boosted_at IS NULL OR last_boosted_at <= NOW() - ($3 || ' hours')::INTERVAL)
+       RETURNING boosted_until, last_boosted_at`,
+      [BOOST_DURATION_MINUTES, req.user.id, BOOST_COOLDOWN_HOURS]
+    );
+    if (!rows.length) {
+      const { rows: current } = await query(
+        'SELECT boosted_until, last_boosted_at FROM profiles WHERE user_id = $1',
+        [req.user.id]
+      );
+      return res.status(429).json({
+        error: 'You can only boost once every 24 hours.',
+        ...boostStatusFromRow(current[0]),
+      });
+    }
+    res.json(boostStatusFromRow(rows[0]));
+  } catch (err) {
+    console.error('[activateBoost]', err.message);
+    res.status(500).json({ error: 'Could not activate boost.' });
   }
 }
 
@@ -587,8 +905,12 @@ async function deleteGeofence(req, res) {
 
 module.exports = {
   getMyProfile, updateMyProfile, uploadAvatar,
+  uploadIntroVideo, deleteIntroVideo, streamIntroVideo,
   getProfile, blockUser, unblockUser, reportUser, listBlocked,
   requestPhotoAccess, listPhotoRequests, respondPhotoRequest,
+  requestProfileViewAccess, listProfileViewRequests, respondProfileViewRequest,
+  getProfileNote, saveProfileNote, deleteProfileNote,
+  getBoostStatus, activateBoost,
   createPrivacyRequest,
   getMyInterestTags, setMyInterestTags,
   listGeofences, addGeofence, deleteGeofence,

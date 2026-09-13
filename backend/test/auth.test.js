@@ -15,6 +15,9 @@ const assert = require('node:assert/strict');
 
 const app = require('../server');
 const { pool } = require('../config/db');
+const { ID_UPLOAD_DIR } = require('../middleware/upload');
+const fs = require('fs');
+const path = require('path');
 
 let server;
 let baseUrl;
@@ -32,7 +35,12 @@ test.before(async () => {
 
 test.after(async () => {
   // Clean up the account this test created, regardless of pass/fail.
+  const { rows } = await pool.query(
+    `SELECT d.storage_key FROM identity_documents d JOIN users u ON u.id = d.user_id WHERE u.email = $1`,
+    [testEmail]
+  ).catch(() => ({ rows: [] }));
   await pool.query('DELETE FROM users WHERE email = $1', [testEmail]).catch(() => {});
+  await Promise.all(rows.map(({ storage_key }) => fs.promises.unlink(path.join(ID_UPLOAD_DIR, path.basename(storage_key))).catch(() => {})));
   await new Promise((resolve) => server.close(resolve));
   await pool.end();
 });
@@ -69,13 +77,15 @@ test('register -> blocked while pending -> approve -> login -> refresh -> logout
   // 1. Register
   const register = await client.fetch('/api/auth/register', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email: testEmail,
-      password: testPassword,
-      display_name: 'Smoke Test',
-      date_of_birth: '1990-01-01',
-    }),
+    body: (() => {
+      const form = new FormData();
+      form.set('email', testEmail);
+      form.set('password', testPassword);
+      form.set('display_name', 'Smoke Test');
+      form.set('date_of_birth', '1990-01-01');
+      form.set('id_document', new Blob(['test-id'], { type: 'image/jpeg' }), 'test-id.jpg');
+      return form;
+    })(),
   });
   assert.equal(register.status, 201);
   assert.equal(register.data.pending_approval, true);

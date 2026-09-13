@@ -24,6 +24,7 @@ const adminRoutes      = require('./routes/admin');
 const interestsRoutes  = require('./routes/interests');
 const phoneRoutes      = require('./routes/phone');
 const forumRoutes      = require('./routes/forum');
+const { purgeExpiredMessages } = require('./controllers/messagesController');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -161,6 +162,13 @@ if (require.main === module) {
     console.log(`[fantasi] API running on http://localhost:${PORT}`);
     console.log(`[fantasi] Environment: ${process.env.NODE_ENV}`);
   });
+
+  // Disappearing messages also get swept lazily on every conversation/thread
+  // read, but a member with a conversation open and nobody reloading it
+  // should still see messages actually vanish close to on schedule.
+  setInterval(() => {
+    purgeExpiredMessages().catch((err) => console.error('[purgeExpiredMessages]', err.message));
+  }, 60_000);
 }
 
 module.exports = app;

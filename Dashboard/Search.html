@@ -73,8 +73,6 @@
     width:220px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
     display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
   }
-  .sidebar-brand{ padding:26px 22px; border-bottom:1px solid var(--line); }
-  .sidebar-brand .signet-logo{ height:55px; width:auto; }
   .sidebar-nav{ flex:1; padding:20px 12px; display:flex; flex-direction:column; gap:2px; }
   .nav-item{
     display:flex; align-items:center; gap:12px; padding:11px 13px; border-radius:4px;
@@ -251,9 +249,6 @@
 <div class="shell">
 
   <aside class="sidebar">
-    <div class="sidebar-brand">
-      <a href="/LandingPage/Landing.html"><img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo"></a>
-    </div>
     <nav class="sidebar-nav">
       <a class="nav-item" href="/Dashboard/Discover.html">
         <svg width="15" height="15" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
@@ -330,8 +325,10 @@
     <!-- location -->
     <div class="filter-group">
       <div class="range-label" style="margin-bottom:8px;">Location</div>
-      <input type="text" id="filter-location" placeholder="City, state…"
-             style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:4px; padding:9px 12px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;">
+      <select id="filter-location"
+              style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:4px; padding:9px 12px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;">
+        <option value="">Any state</option>
+      </select>
     </div>
 
     <!-- membership tier -->
@@ -345,15 +342,49 @@
       </div>
     </div>
 
-    <!-- show members seeking (matches the Interests vocabulary) -->
+    <!-- show members seeking (matches the Interests vocabulary — populated
+         from GET /api/profile/interest-tags at load, the same source of
+         truth profile-setup.html uses, so this never drifts stale again) -->
     <div class="filter-group" data-collapsible>
       <div class="filter-group-head"><h3>Show members seeking</h3><svg class="filter-chevron" width="11" height="7" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
       <div class="filter-group-body">
-        <div class="tag-select" id="filter-interests">
+        <div class="tag-select" id="filter-interests"></div>
+      </div>
+    </div>
+
+    <!-- relationship dynamic (the looking_for vocabulary — same list
+         profile-setup.html offers when setting up a profile) -->
+    <div class="filter-group" data-collapsible>
+      <div class="filter-group-head"><h3>Relationship Dynamic</h3><svg class="filter-chevron" width="11" height="7" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+      <div class="filter-group-body">
+        <div class="tag-select" id="filter-looking-for">
           <div class="tag-select-btn" data-value="Long-term arrangement">Long-term arrangement</div>
-          <div class="tag-select-btn" data-value="Travel companionship">Travel companionship</div>
-          <div class="tag-select-btn" data-value="Mentorship">Mentorship</div>
           <div class="tag-select-btn" data-value="Casual">Casual</div>
+          <div class="tag-select-btn" data-value="Discretion">Discretion</div>
+          <div class="tag-select-btn" data-value="Fine dining">Fine dining</div>
+          <div class="tag-select-btn" data-value="Monogamous">Monogamous</div>
+          <div class="tag-select-btn" data-value="Non-monogamous">Non-monogamous</div>
+          <div class="tag-select-btn" data-value="Polyamorous">Polyamorous</div>
+          <div class="tag-select-btn" data-value="D/s dynamic">D/s dynamic</div>
+          <div class="tag-select-btn" data-value="Play partner">Play partner</div>
+          <div class="tag-select-btn" data-value="Mentor/mentee dynamic">Mentor/mentee dynamic</div>
+          <div class="tag-select-btn" data-value="No strings attached">No strings attached</div>
+          <div class="tag-select-btn" data-value="Open relationship">Open relationship</div>
+          <div class="tag-select-btn" data-value="Long-distance">Long-distance</div>
+          <div class="tag-select-btn" data-value="Travel partner">Travel partner</div>
+          <div class="tag-select-btn" data-value="Will travel">Will travel</div>
+          <div class="tag-select-btn" data-value="Passport ready">Passport ready</div>
+          <div class="tag-select-btn" data-value="Life of leisure">Life of leisure</div>
+          <div class="tag-select-btn" data-value="Emotional connection">Emotional connection</div>
+          <div class="tag-select-btn" data-value="Financial partnership">Financial partnership</div>
+          <div class="tag-select-btn" data-value="Ethical non-monogamy">Ethical non-monogamy</div>
+          <div class="tag-select-btn" data-value="Kitchen-table poly">Kitchen-table poly</div>
+          <div class="tag-select-btn" data-value="Solo poly">Solo poly</div>
+          <div class="tag-select-btn" data-value="Service dynamic">Service dynamic</div>
+          <div class="tag-select-btn" data-value="Brat / brat tamer">Brat / brat tamer</div>
+          <div class="tag-select-btn" data-value="Caregiver / little">Caregiver / little</div>
+          <div class="tag-select-btn" data-value="Protocol &amp; structure">Protocol &amp; structure</div>
+          <div class="tag-select-btn" data-value="Exploration partner">Exploration partner</div>
         </div>
       </div>
     </div>
@@ -363,6 +394,9 @@
       <div class="filter-group-head"><h3>Education</h3><svg class="filter-chevron" width="11" height="7" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
       <div class="filter-group-body">
         <div class="select-list" id="filter-education">
+          <button type="button" class="select-list-btn" data-value="High School">High School</button>
+          <button type="button" class="select-list-btn" data-value="Some College">Some College</button>
+          <button type="button" class="select-list-btn" data-value="Associate's Degree">Associate's Degree</button>
           <button type="button" class="select-list-btn" data-value="Bachelor's Degree">Bachelor's Degree</button>
           <button type="button" class="select-list-btn" data-value="Graduate Degree">Graduate Degree</button>
           <button type="button" class="select-list-btn" data-value="MD / Physician">MD / Physician</button>
@@ -377,8 +411,10 @@
       <div class="filter-group-body">
         <div class="select-list" id="filter-relationship">
           <button type="button" class="select-list-btn" data-value="Single">Single</button>
-          <button type="button" class="select-list-btn" data-value="Open">Open</button>
           <button type="button" class="select-list-btn" data-value="Divorced">Divorced</button>
+          <button type="button" class="select-list-btn" data-value="Widowed">Widowed</button>
+          <button type="button" class="select-list-btn" data-value="Open">Open</button>
+          <button type="button" class="select-list-btn" data-value="It's Complicated">It's Complicated</button>
         </div>
       </div>
     </div>
@@ -423,7 +459,7 @@
 <script>
 (async () => {
   if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
-  const { api, initDashboard, capitalize, initials, showToast } = window.FantasiAPI;
+  const { api, initDashboard, capitalize, initials, showToast, watermarkPhoto, US_STATES_CITIES } = window.FantasiAPI;
 
   const user = await initDashboard();
   if (!user) return;
@@ -458,18 +494,51 @@
     return btn ? btn.dataset.value : '';
   }
 
-  // "show members seeking" — free multi-select over the interests vocabulary
+  // "show members seeking" — free multi-select over the interests vocabulary,
+  // fetched from the same endpoint profile-setup.html uses so this list can
+  // never drift stale again the way its old hardcoded 4-tag version did.
   const interestsGroup = document.getElementById('filter-interests');
-  interestsGroup.querySelectorAll('.tag-select-btn').forEach(btn => {
-    btn.addEventListener('click', () => { btn.classList.toggle('selected'); runSearch(true); });
-  });
-  function selectedInterests() {
-    return [...interestsGroup.querySelectorAll('.selected')].map(b => b.dataset.value).join(',');
+  function wireTagSelect(groupEl) {
+    groupEl.querySelectorAll('.tag-select-btn').forEach(btn => {
+      btn.addEventListener('click', () => { btn.classList.toggle('selected'); runSearch(true); });
+    });
   }
+  function selectedTags(groupEl) {
+    return [...groupEl.querySelectorAll('.selected')].map(b => b.dataset.value).join(',');
+  }
+  function selectedInterests() { return selectedTags(interestsGroup); }
+
+  const { ok: tagsOk, data: tagsData } = await api.profile.interestTags.get();
+  if (tagsOk) {
+    Object.values(tagsData.generic_groups).flat().forEach(tag => {
+      const btn = document.createElement('div');
+      btn.className = 'tag-select-btn';
+      btn.dataset.value = tag;
+      btn.textContent = tag;
+      interestsGroup.appendChild(btn);
+    });
+  }
+  wireTagSelect(interestsGroup);
+
+  // "relationship dynamic" — free multi-select over the looking_for vocabulary
+  const lookingForGroup = document.getElementById('filter-looking-for');
+  wireTagSelect(lookingForGroup);
+  function selectedLookingFor() { return selectedTags(lookingForGroup); }
 
   const keywordEl  = document.getElementById('filter-keyword');
   const locationEl = document.getElementById('filter-location');
   const sortEl     = document.getElementById('filter-sort');
+
+  // A real state picker instead of free text — filters against whatever
+  // members actually have stored (profileController geocodes free text into
+  // "City, State, United States", so an ILIKE match against the state name
+  // still works for existing members too, not just ones set up after this).
+  Object.keys(US_STATES_CITIES).forEach(state => {
+    const opt = document.createElement('option');
+    opt.value = state;
+    opt.textContent = state;
+    locationEl.appendChild(opt);
+  });
   const grid       = document.getElementById('results-grid');
   const emptyState = document.getElementById('empty-state');
   const totalEl    = document.getElementById('results-total');
@@ -477,6 +546,12 @@
 
   let page = 1;
   let totalPages = 1;
+  let allResults = []; // mirrors what's currently loaded, handed off to ViewProfile.html for prev/next
+
+  function goToProfile(userId) {
+    sessionStorage.setItem('fantasi-browse-queue', JSON.stringify(allResults.map(m => m.user_id)));
+    window.location.href = `/Profile/ViewProfile.html?id=${userId}`;
+  }
 
   function currentFilters() {
     const f = { sort: sortEl.value, page, limit: 18 };
@@ -492,6 +567,8 @@
     if (smoking) f.smoking = smoking;
     const interests = selectedInterests();
     if (interests) f.interests = interests;
+    const lookingFor = selectedLookingFor();
+    if (lookingFor) f.looking_for = lookingFor;
     return f;
   }
 
@@ -504,7 +581,7 @@
     photo.style.cursor = 'pointer';
     photo.addEventListener('click', (e) => {
       if (e.target.closest('.card-actions-overlay')) return;
-      window.location.href = `/Profile/ViewProfile.html?id=${member.user_id}`;
+      goToProfile(member.user_id);
     });
 
     if (member.membership_tier !== 'free') {
@@ -521,12 +598,20 @@
       photo.appendChild(hiddenBadge);
     }
 
+    if (member.restricted) {
+      const lockedBadge = document.createElement('span');
+      lockedBadge.className = 'photo-hidden-badge';
+      lockedBadge.innerHTML = '<svg width="9" height="9" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1.5"/></svg> Request to view';
+      photo.appendChild(lockedBadge);
+    }
+
     const fill = document.createElement('div');
     fill.className = 'result-photo-fill';
     if (member.avatar_url) {
       fill.style.backgroundImage = `url(${member.avatar_url})`;
       fill.style.backgroundSize = 'cover';
       fill.style.backgroundPosition = 'center';
+      watermarkPhoto(fill);
     } else {
       fill.textContent = initials(member.display_name);
     }
@@ -536,9 +621,27 @@
     overlay.className = 'card-actions-overlay';
 
     const msgBtn = document.createElement('button');
-    msgBtn.type = 'button'; msgBtn.className = 'card-action-btn message-btn'; msgBtn.title = 'Message';
-    msgBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M2 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-4 3v-3H4a2 2 0 0 1-2-2V5z" stroke="currentColor" stroke-width="1.3"/></svg>';
-    msgBtn.addEventListener('click', () => { window.location.href = `/Dashboard/Messages.html?to=${member.user_id}`; });
+    if (member.restricted) {
+      msgBtn.type = 'button'; msgBtn.className = 'card-action-btn message-btn'; msgBtn.title = 'Request to view';
+      const setReqIcon = (status) => {
+        msgBtn.disabled = status === 'pending';
+        msgBtn.title = status === 'pending' ? 'Request pending' : status === 'denied' ? 'Request denied — request again' : 'Request to view';
+        msgBtn.innerHTML = status === 'pending'
+          ? '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'
+          : '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="6" y="9" width="8" height="7" rx="0.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 9V6.5a2 2 0 0 1 4 0V9" stroke="currentColor" stroke-width="1.3"/></svg>';
+      };
+      setReqIcon(member.view_request_status);
+      msgBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const { ok, data } = await api.profile.requestView(member.user_id);
+        if (ok) { setReqIcon('pending'); showToast('Request sent.', 'info'); }
+        else showToast(data?.error || 'Could not send request.', 'error');
+      });
+    } else {
+      msgBtn.type = 'button'; msgBtn.className = 'card-action-btn message-btn'; msgBtn.title = 'Message';
+      msgBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M2 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-4 3v-3H4a2 2 0 0 1-2-2V5z" stroke="currentColor" stroke-width="1.3"/></svg>';
+      msgBtn.addEventListener('click', () => { window.location.href = `/Dashboard/Messages.html?to=${member.user_id}`; });
+    }
 
     const likeBtn = document.createElement('button');
     likeBtn.type = 'button'; likeBtn.className = 'card-action-btn like-btn' + (member.liked_by_me ? ' liked' : ''); likeBtn.title = 'Like';
@@ -565,7 +668,7 @@
     const h3 = document.createElement('h3');
     h3.textContent = member.display_name;
     h3.style.cursor = 'pointer';
-    h3.addEventListener('click', () => { window.location.href = `/Profile/ViewProfile.html?id=${member.user_id}`; });
+    h3.addEventListener('click', () => goToProfile(member.user_id));
     nameRow.appendChild(h3);
     const meta = document.createElement('div');
     meta.className = 'result-meta';
@@ -577,12 +680,13 @@
   }
 
   async function runSearch(reset) {
-    if (reset) { page = 1; grid.innerHTML = ''; }
+    if (reset) { page = 1; grid.innerHTML = ''; allResults = []; }
     const { ok, data } = await api.discover.browse(currentFilters());
     if (!ok) { showToast(data?.error || 'Search failed.', 'error'); return; }
 
     totalPages = data.pagination.pages;
     totalEl.textContent = data.pagination.total;
+    allResults.push(...data.members);
     data.members.forEach(m => grid.appendChild(buildResultCard(m)));
 
     emptyState.classList.toggle('show', grid.children.length === 0);
@@ -591,7 +695,7 @@
 
   document.getElementById('view-results-btn').addEventListener('click', () => runSearch(true));
   keywordEl.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(true); });
-  locationEl.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(true); });
+  locationEl.addEventListener('change', () => runSearch(true));
   sortEl.addEventListener('change', () => runSearch(true));
   loadMore.addEventListener('click', () => { page += 1; runSearch(false); });
 

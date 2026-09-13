@@ -69,10 +69,6 @@
     width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
     display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
   }
-  .sidebar-brand{ padding:26px 24px; border-bottom:1px solid var(--line); }
-  .sidebar-brand .signet{ display:flex; align-items:center; gap:10px; }
-  .sidebar-brand .signet-logo{ height:55px; width:auto; }
-  .sidebar-brand .signet-word{ font-family:var(--font-display); font-style:italic; font-weight:300; font-size:17px; }
 
   .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; }
   .nav-item{
@@ -90,7 +86,7 @@
   }
   .nav-item.active svg{ opacity:1; }
 
-  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); }
+  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); font-family:var(--font-sans); font-size:12px; color:var(--smoke-dim); display:flex; align-items:center; gap:10px; }
   .mini-account{ display:flex; align-items:center; gap:11px; }
   .mini-avatar{
     width:36px; height:36px; border-radius:50%; flex-shrink:0;
@@ -140,7 +136,7 @@
   .avatar-camera-badge:hover{ transform:scale(1.08); background:var(--gold); color:var(--noir); }
   .profile-band-info{ position:relative; z-index:1; flex:1; min-width:200px; }
   .profile-band-name{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:5px; }
-  .profile-band-name h2{ font-size:28px; color:var(--noir); font-style:italic; }
+  .profile-band-name h2{ font-size:28px; color:var(--noir); font-style:italic; font-family:var(--font-sans); margin:0; }
   .tier-chip{
     font-family:var(--font-sans); font-size:9px; letter-spacing:0.08em; text-transform:uppercase;
     background:rgba(11,10,12,0.85); color:var(--gold-bright); padding:4px 11px; border-radius:20px;
@@ -413,11 +409,6 @@
 
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar">
-    <div class="sidebar-brand">
-      <a class="signet" href="/LandingPage/Landing.html">
-        <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
-      </a>
-    </div>
 
     <nav class="sidebar-nav">
       <!-- Only Profile is built so far — the rest are wired to nothing yet and are here
@@ -596,6 +587,14 @@
           <div class="tag-select-btn" data-value="Life of leisure">Life of leisure</div>
           <div class="tag-select-btn" data-value="Emotional connection">Emotional connection</div>
           <div class="tag-select-btn" data-value="Financial partnership">Financial partnership</div>
+          <div class="tag-select-btn" data-value="Ethical non-monogamy">Ethical non-monogamy</div>
+          <div class="tag-select-btn" data-value="Kitchen-table poly">Kitchen-table poly</div>
+          <div class="tag-select-btn" data-value="Solo poly">Solo poly</div>
+          <div class="tag-select-btn" data-value="Service dynamic">Service dynamic</div>
+          <div class="tag-select-btn" data-value="Brat / brat tamer">Brat / brat tamer</div>
+          <div class="tag-select-btn" data-value="Caregiver / little">Caregiver / little</div>
+          <div class="tag-select-btn" data-value="Protocol &amp; structure">Protocol &amp; structure</div>
+          <div class="tag-select-btn" data-value="Exploration partner">Exploration partner</div>
         </div>
         <p class="tag-limit-note" id="tag-limit-note">0 of 7 selected</p>
       </div>
@@ -738,7 +737,7 @@
 
 
       <!-- privacy & discretion -->
-      <div class="section">
+      <div class="section" id="section-privacy">
         <div class="section-head">
           <h3>Privacy &amp; Discretion</h3>
         </div>
@@ -756,6 +755,13 @@
               <p id="incognito-desc">Browse without appearing in anyone's "who viewed you" list.</p>
             </div>
             <div class="toggle" id="incognito-toggle" data-toggle="locked"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-row-text">
+              <h4>Black-only visibility</h4>
+              <p id="black-visibility-desc">Only other Black members can find or open your profile — everyone else's Discover, Search, and direct links come up empty.</p>
+            </div>
+            <div class="toggle" id="black-visibility-toggle" data-toggle="locked"></div>
           </div>
           <div class="toggle-row" style="flex-direction:column; align-items:stretch;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:20px;">
@@ -784,15 +790,8 @@
           </div>
           <div class="toggle-row">
             <div class="toggle-row-text">
-              <h4>Self-destructing messages</h4>
-              <p class="locked-note">Black tier only — upgrade to unlock this control.</p>
-            </div>
-            <div class="toggle disabled" data-toggle="locked"></div>
-          </div>
-          <div class="toggle-row">
-            <div class="toggle-row-text">
-              <h4>View video-liveness clips</h4>
-              <p class="locked-note">Black tier only — see the real, verified video behind a match's badge, not just the checkmark.</p>
+              <h4>View private video introductions</h4>
+              <p class="locked-note">Black tier only — play a member's private introduction when they choose to share one.</p>
             </div>
             <button type="button" class="btn btn-line btn-small" disabled style="opacity:0.4; cursor:not-allowed;">Locked</button>
           </div>
@@ -808,8 +807,17 @@
         <p class="empty-note" id="photo-requests-empty" style="display:none; font-family:var(--font-sans); font-size:12.5px; color:var(--smoke-dim);">No pending requests.</p>
       </div>
 
+      <!-- profile view requests — only relevant while black-only visibility is on -->
+      <div class="section" id="view-requests-section" style="display:none;">
+        <div class="section-head">
+          <h3>Profile View Requests</h3>
+        </div>
+        <div id="view-requests-list"></div>
+        <p class="empty-note" id="view-requests-empty" style="display:none; font-family:var(--font-sans); font-size:12.5px; color:var(--smoke-dim);">No pending requests.</p>
+      </div>
+
       <!-- verification -->
-      <div class="section">
+      <div class="section" id="section-verification">
         <div class="section-head">
           <h3>Verification</h3>
         </div>
@@ -824,14 +832,16 @@
               <span class="verify-status">Verified</span>
             </div>
           </div>
-          <div class="verify-card">
+          <div class="verify-card" id="intro-video-card">
             <div class="verify-icon">
               <svg width="15" height="15" viewBox="0 0 30 30" fill="none"><rect x="8" y="14" width="14" height="11" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M11.5 14v-3a3.5 3.5 0 0 1 7 0v3" stroke="currentColor" stroke-width="1"/></svg>
             </div>
             <div>
-              <h4>Video-liveness verified</h4>
-              <p>A short live video call confirms you're a real, present member. Black members can watch the clip behind your badge — see Privacy &amp; Discretion above.</p>
-              <button type="button" class="btn btn-line btn-small" disabled style="opacity:0.4; cursor:not-allowed;" title="Coming soon">Coming soon</button>
+              <h4>Private video introduction</h4>
+              <p>A short introduction you control. Gold and Black members can upload; only Black members can play it.</p>
+              <input type="file" id="intro-video-input" accept="video/mp4,video/webm,video/quicktime" hidden>
+              <button type="button" class="btn btn-line btn-small" id="intro-video-action">Upload video</button>
+              <button type="button" class="link-btn" id="intro-video-remove" style="display:none; margin-left:10px;">Remove</button>
             </div>
           </div>
         </div>
@@ -923,7 +933,7 @@
 <script>
 (async () => {
   if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
-  const { api, initDashboard, capitalize, initials, showToast } = window.FantasiAPI;
+  const { api, initDashboard, capitalize, initials, showToast, watermarkPhoto } = window.FantasiAPI;
 
   const me = await initDashboard();
   if (!me) return;
@@ -995,6 +1005,7 @@
     document.getElementById('blur-toggle').classList.toggle('on', !!profile.blur_photos);
     document.getElementById('photo-requests-section').style.display = profile.blur_photos ? 'block' : 'none';
     document.getElementById('incognito-toggle').classList.toggle('on', !!profile.incognito);
+    document.getElementById('black-visibility-toggle').classList.toggle('on', !!profile.black_only_visibility);
   }
 
   // ---- interest tags — rated (into it / curious / soft limit / hard limit),
@@ -1104,6 +1115,34 @@
   if (!ok) { showToast('Could not load your profile.', 'error'); return; }
   applyProfileData(profile);
   loadInterestTags();
+
+  // Gold and Black can manage one private intro; playback is authorized
+  // server-side for Black viewers only.
+  const introAction = document.getElementById('intro-video-action');
+  const introInput = document.getElementById('intro-video-input');
+  const introRemove = document.getElementById('intro-video-remove');
+  const canManageIntro = ['gold', 'black'].includes(me.membership_tier);
+  function renderIntroVideo(hasVideo) {
+    introRemove.style.display = canManageIntro && hasVideo ? '' : 'none';
+    if (!canManageIntro) { introAction.textContent = 'Gold membership required'; introAction.disabled = true; }
+    else if (hasVideo) introAction.textContent = 'Replace video';
+  }
+  renderIntroVideo(!!profile.has_intro_video);
+  introAction.addEventListener('click', () => { if (canManageIntro) introInput.click(); });
+  introInput.addEventListener('change', async () => {
+    const file = introInput.files[0]; introInput.value = '';
+    if (!file) return;
+    introAction.disabled = true; introAction.textContent = 'Uploading…';
+    const { ok, data } = await api.profile.introVideo.upload(file);
+    introAction.disabled = false;
+    if (!ok) { introAction.textContent = 'Upload video'; return showToast(data?.error || 'Could not upload video.', 'error'); }
+    renderIntroVideo(true); showToast('Private introduction uploaded.', 'info');
+  });
+  introRemove.addEventListener('click', async () => {
+    const { ok, data } = await api.profile.introVideo.remove();
+    if (!ok) return showToast(data?.error || 'Could not remove video.', 'error');
+    introAction.textContent = 'Upload video'; introRemove.style.display = 'none'; showToast('Introduction video removed.', 'info');
+  });
 
   // ---- avatar band click — jumps straight to the gallery's "add" slot ----
   const avatarEl = document.getElementById('profile-avatar');
@@ -1322,7 +1361,7 @@
       row.className = 'photo-request-row';
       const avatar = document.createElement('div');
       avatar.className = 'photo-request-avatar';
-      if (reqst.avatar_url) avatar.style.backgroundImage = `url(${reqst.avatar_url})`;
+      if (reqst.avatar_url) { avatar.style.backgroundImage = `url(${reqst.avatar_url})`; watermarkPhoto(avatar); }
       else avatar.textContent = initials(reqst.display_name);
       row.appendChild(avatar);
       const info = document.createElement('div');
@@ -1350,9 +1389,49 @@
   }
   if (profile.blur_photos) loadPhotoRequests();
 
-  // toggle switches — visual state only; no backend field exists for these yet
-  // (self-destructing messages, video-liveness clips — real features not
-  // built, unlike incognito/geofencing below which are Black-gated for real).
+  async function loadViewRequests() {
+    const { ok, data } = await api.profile.viewRequests();
+    const list = document.getElementById('view-requests-list');
+    list.innerHTML = '';
+    if (!ok) return;
+    document.getElementById('view-requests-empty').style.display = data.length ? 'none' : 'block';
+    data.forEach(reqst => {
+      const row = document.createElement('div');
+      row.className = 'photo-request-row';
+      const avatar = document.createElement('div');
+      avatar.className = 'photo-request-avatar';
+      if (reqst.avatar_url) { avatar.style.backgroundImage = `url(${reqst.avatar_url})`; watermarkPhoto(avatar); }
+      else avatar.textContent = initials(reqst.display_name);
+      row.appendChild(avatar);
+      const info = document.createElement('div');
+      info.className = 'photo-request-info';
+      info.innerHTML = `<div class="photo-request-name"></div><div class="photo-request-meta">${capitalize(reqst.membership_tier)} · Requested ${new Date(reqst.created_at).toLocaleDateString()}</div>`;
+      info.querySelector('.photo-request-name').textContent = reqst.display_name;
+      row.appendChild(info);
+      const actions = document.createElement('div');
+      actions.className = 'photo-request-actions';
+      const approveBtn = document.createElement('button');
+      approveBtn.type = 'button'; approveBtn.className = 'btn btn-gold btn-small'; approveBtn.textContent = 'Approve';
+      const denyBtn = document.createElement('button');
+      denyBtn.type = 'button'; denyBtn.className = 'btn btn-line btn-small'; denyBtn.textContent = 'Deny';
+      const respond = async (status) => {
+        const { ok: rok, data: rdata } = await api.profile.respondViewRequest(reqst.requester_id, status);
+        if (rok) { showToast(`Request ${status}.`, 'info'); row.remove(); if (!list.children.length) document.getElementById('view-requests-empty').style.display = 'block'; }
+        else showToast(rdata?.error || 'Could not update request.', 'error');
+      };
+      approveBtn.addEventListener('click', () => respond('approved'));
+      denyBtn.addEventListener('click', () => respond('denied'));
+      actions.append(approveBtn, denyBtn);
+      row.appendChild(actions);
+      list.appendChild(row);
+    });
+  }
+
+  // Toggle switches are visual only where a setting has no backend field.
+  // Private video introductions are implemented separately: Gold/Black upload
+  // one on this page and Black members can stream one on ViewProfile.html.
+  // Disappearing messages are also real now
+  // but set per-conversation from the chat header in Messages.html, not here.
   document.querySelectorAll('.toggle[data-toggle]').forEach(t => {
     if (t.getAttribute('data-toggle') === 'locked') return;
     t.addEventListener('click', () => t.classList.toggle('on'));
@@ -1379,6 +1458,31 @@
     incognitoToggle.classList.add('disabled');
     incognitoDesc.textContent = 'Black tier only — upgrade to unlock this control.';
     incognitoDesc.classList.add('locked-note');
+  }
+
+  // Black-only visibility — Black tier only, opt-in (defaults off since it
+  // narrows who can find you at all). Real: enforced in Discover, Search,
+  // and direct profile GETs (404, same as a block) for any non-Black viewer
+  // — see discoverController.js and profileController.js getProfile.
+  const blackVisibilityToggle = document.getElementById('black-visibility-toggle');
+  const blackVisibilityDesc   = document.getElementById('black-visibility-desc');
+  if (isBlack) {
+    blackVisibilityToggle.removeAttribute('data-toggle');
+    blackVisibilityToggle.classList.toggle('on', !!profile.black_only_visibility);
+    document.getElementById('view-requests-section').style.display = profile.black_only_visibility ? 'block' : 'none';
+    if (profile.black_only_visibility) loadViewRequests();
+    blackVisibilityToggle.addEventListener('click', async () => {
+      const next = !blackVisibilityToggle.classList.contains('on');
+      blackVisibilityToggle.classList.toggle('on', next);
+      document.getElementById('view-requests-section').style.display = next ? 'block' : 'none';
+      const { ok, data } = await api.profile.update({ black_only_visibility: next });
+      if (ok) { Object.assign(profile, data); if (next) loadViewRequests(); }
+      else { blackVisibilityToggle.classList.toggle('on', !next); showToast(data?.error || 'Could not update.', 'error'); }
+    });
+  } else {
+    blackVisibilityToggle.classList.add('disabled');
+    blackVisibilityDesc.textContent = 'Black tier only — upgrade to unlock this control.';
+    blackVisibilityDesc.classList.add('locked-note');
   }
 
   // geofenced privacy — Black tier only. Also real: each saved zone is a row

@@ -36,10 +36,55 @@ async function isBlocked(userA, userB) {
   return rows.length > 0;
 }
 
+// Black-only visibility acts like a one-directional block that either side
+// can trip: if either user has it on and the OTHER isn't Black, the pair
+// can't message each other at all — checked everywhere isBlocked already is,
+// so an old thread doesn't stay reachable after the setting is switched on.
+async function blockedByVisibility(userA, userB) {
+  const { rows } = await query(
+    `SELECT p.user_id, p.black_only_visibility, u.membership_tier
+     FROM profiles p JOIN users u ON u.id = p.user_id
+     WHERE p.user_id = $1 OR p.user_id = $2`,
+    [userA, userB]
+  );
+  const a = rows.find(r => r.user_id === userA);
+  const b = rows.find(r => r.user_id === userB);
+  if (!a || !b) return false;
+  return (a.black_only_visibility && b.membership_tier !== 'black')
+      || (b.black_only_visibility && a.membership_tier !== 'black');
+}
+
+// ── Disappearing messages ────────────────────────────────────────────────────
+// conversation_settings rows are keyed on the pair ordered smallest-UUID-first
+// so there's exactly one row per conversation no matter who reads/writes it.
+const DISAPPEARING_WINDOWS = [300, 3600, 86400, 604800]; // 5m, 1h, 24h, 7d
+
+function orderPair(a, b) {
+  return a < b ? [a, b] : [b, a];
+}
+
+async function getDisappearingSeconds(userA, userB) {
+  const [a, b] = orderPair(userA, userB);
+  const { rows } = await query(
+    'SELECT disappearing_seconds FROM conversation_settings WHERE user_a = $1 AND user_b = $2',
+    [a, b]
+  );
+  return rows[0]?.disappearing_seconds ?? null;
+}
+
+// Hard-deletes messages past their expiry — permanent, both sides, matching
+// the Safety page's claim. Called opportunistically on read (below) and on
+// a periodic sweep (see server.js) so messages disappear close to on time
+// even if nobody happens to reload the thread.
+async function purgeExpiredMessages() {
+  await query('DELETE FROM messages WHERE expires_at IS NOT NULL AND expires_at <= NOW()');
+}
+
 // ── GET /api/messages/conversations ──────────────────────────────────────────
 // Returns a list of unique conversation partners with the latest message each.
 async function getConversations(req, res) {
   try {
+    await purgeExpiredMessages();
     const { rows } = await query(
       `SELECT DISTINCT ON (partner_id)
          partner_id,
@@ -91,12 +136,14 @@ async function getThread(req, res) {
   const offset   = (pageNum - 1) * limitNum;
 
   try {
-    if (await isBlocked(req.user.id, partnerId)) {
+    if (await isBlocked(req.user.id, partnerId) || await blockedByVisibility(req.user.id, partnerId)) {
       return res.status(404).json({ error: 'Conversation not found.' });
     }
 
+    await purgeExpiredMessages();
+
     const { rows } = await query(
-      `SELECT m.id, m.sender_id, m.recipient_id, m.body, m.status, m.created_at
+      `SELECT m.id, m.sender_id, m.recipient_id, m.body, m.status, m.created_at, m.expires_at
        FROM messages m
        WHERE (
          (m.sender_id = $1 AND m.recipient_id = $2 AND m.is_deleted_by_sender    = FALSE) OR
@@ -133,7 +180,7 @@ async function sendMessage(req, res) {
 
   try {
     // Block check
-    if (await isBlocked(req.user.id, partnerId)) {
+    if (await isBlocked(req.user.id, partnerId) || await blockedByVisibility(req.user.id, partnerId)) {
       return res.status(403).json({ error: 'Cannot send message.' });
     }
 
@@ -143,11 +190,13 @@ async function sendMessage(req, res) {
     );
     if (!allowed) return res.status(403).json({ error: reason });
 
+    const disappearingSeconds = await getDisappearingSeconds(req.user.id, partnerId);
+
     const { rows } = await query(
-      `INSERT INTO messages (sender_id, recipient_id, body)
-       VALUES ($1, $2, $3)
-       RETURNING id, sender_id, recipient_id, body, status, created_at`,
-      [req.user.id, partnerId, body]
+      `INSERT INTO messages (sender_id, recipient_id, body, expires_at)
+       VALUES ($1, $2, $3, CASE WHEN $4::INTEGER IS NULL THEN NULL ELSE NOW() + ($4 || ' seconds')::INTERVAL END)
+       RETURNING id, sender_id, recipient_id, body, status, created_at, expires_at`,
+      [req.user.id, partnerId, body, disappearingSeconds]
     );
 
     res.status(201).json(rows[0]);
@@ -186,4 +235,57 @@ async function deleteMessage(req, res) {
   }
 }
 
-module.exports = { getConversations, getThread, sendMessage, deleteMessage };
+// ── GET /api/messages/:partnerId/settings ────────────────────────────────────
+// Either side of a conversation can see the active disappearing window —
+// only a Black member can change it (enforced by requireTier in the route).
+async function getConversationSettings(req, res) {
+  const { partnerId } = req.params;
+  try {
+    if (await isBlocked(req.user.id, partnerId) || await blockedByVisibility(req.user.id, partnerId)) {
+      return res.status(404).json({ error: 'Conversation not found.' });
+    }
+    const disappearing_seconds = await getDisappearingSeconds(req.user.id, partnerId);
+    res.json({ disappearing_seconds });
+  } catch (err) {
+    console.error('[getConversationSettings]', err.message);
+    res.status(500).json({ error: 'Could not fetch conversation settings.' });
+  }
+}
+
+// ── PUT /api/messages/:partnerId/settings ────────────────────────────────────
+async function setConversationSettings(req, res) {
+  const { partnerId } = req.params;
+  const { disappearing_seconds } = req.body;
+
+  if (disappearing_seconds !== null && !DISAPPEARING_WINDOWS.includes(disappearing_seconds)) {
+    return res.status(400).json({ error: 'Invalid disappearing-message window.' });
+  }
+  if (partnerId === req.user.id) {
+    return res.status(400).json({ error: 'Invalid conversation.' });
+  }
+
+  try {
+    if (await isBlocked(req.user.id, partnerId) || await blockedByVisibility(req.user.id, partnerId)) {
+      return res.status(404).json({ error: 'Conversation not found.' });
+    }
+
+    const [userA, userB] = orderPair(req.user.id, partnerId);
+    await query(
+      `INSERT INTO conversation_settings (user_a, user_b, disappearing_seconds, updated_by, updated_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       ON CONFLICT (user_a, user_b)
+       DO UPDATE SET disappearing_seconds = $3, updated_by = $4, updated_at = NOW()`,
+      [userA, userB, disappearing_seconds, req.user.id]
+    );
+
+    res.json({ disappearing_seconds });
+  } catch (err) {
+    console.error('[setConversationSettings]', err.message);
+    res.status(500).json({ error: 'Could not update conversation settings.' });
+  }
+}
+
+module.exports = {
+  getConversations, getThread, sendMessage, deleteMessage,
+  getConversationSettings, setConversationSettings, purgeExpiredMessages,
+};

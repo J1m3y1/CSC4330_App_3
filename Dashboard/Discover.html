@@ -63,9 +63,6 @@
     width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
     display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
   }
-  .sidebar-brand{ padding:26px 24px; border-bottom:1px solid var(--line); }
-  .sidebar-brand .signet{ display:flex; align-items:center; gap:10px; }
-  .sidebar-brand .signet-logo{ height:55px; width:auto; }
 
   .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; }
   .nav-item{
@@ -202,6 +199,8 @@
   .action-btn.like.liked svg path{ fill:currentColor; }
   .action-btn.pass:hover{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
   .action-btn.message:hover{ border-color:var(--gold-dim); color:var(--cream); }
+  .action-btn.request:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .action-btn.request:disabled{ opacity:0.5; cursor:not-allowed; }
 
   .load-more{ display:flex; justify-content:center; }
 
@@ -231,11 +230,6 @@
 <div class="shell">
 
   <aside class="sidebar">
-    <div class="sidebar-brand">
-      <a class="signet" href="/LandingPage/Landing.html">
-        <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
-      </a>
-    </div>
 
     <nav class="sidebar-nav">
       <a class="nav-item active" href="/Dashboard/Discover.html">
@@ -307,17 +301,29 @@
       <div class="filter-bar">
         <div class="filter-group">
           <label for="filter-location">Location</label>
-          <input type="text" id="filter-location" placeholder="City, state…">
+          <select id="filter-location"><option value="">Any state</option></select>
         </div>
         <div class="filter-group">
           <label for="filter-looking-for">Seeking</label>
           <select id="filter-looking-for">
-            <option value="">Any arrangement</option>
+            <option value="">Any dynamic</option>
             <option value="Long-term arrangement">Long-term arrangement</option>
             <option value="Casual">Casual</option>
-            <option value="Travel partner">Travel companionship</option>
+            <option value="Monogamous">Monogamous</option>
+            <option value="Non-monogamous">Non-monogamous</option>
+            <option value="Polyamorous">Polyamorous</option>
+            <option value="D/s dynamic">D/s dynamic</option>
+            <option value="Open relationship">Open relationship</option>
+            <option value="No strings attached">No strings attached</option>
+            <option value="Travel partner">Travel partner</option>
             <option value="Financial partnership">Financial partnership</option>
             <option value="Emotional connection">Emotional connection</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-interests">Interests</label>
+          <select id="filter-interests">
+            <option value="">Any interest</option>
           </select>
         </div>
         <div class="filter-group">
@@ -356,7 +362,7 @@
 <script>
 (async () => {
   if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
-  const { api, initDashboard, capitalize, initials, showToast } = window.FantasiAPI;
+  const { api, initDashboard, capitalize, initials, showToast, watermarkPhoto, US_STATES_CITIES } = window.FantasiAPI;
 
   const user = await initDashboard();
   if (!user) return;
@@ -377,18 +383,44 @@
   const grid       = document.getElementById('profile-grid');
   const emptyMsg   = document.getElementById('discover-empty');
   const loadMore   = document.getElementById('load-more-btn');
-  const locationEl = document.getElementById('filter-location');
-  const lookingEl  = document.getElementById('filter-looking-for');
-  const tierEl     = document.getElementById('filter-tier');
-  const sortEl     = document.getElementById('filter-sort');
+  const locationEl  = document.getElementById('filter-location');
+  const lookingEl   = document.getElementById('filter-looking-for');
+  const interestsEl = document.getElementById('filter-interests');
+  const tierEl      = document.getElementById('filter-tier');
+  const sortEl      = document.getElementById('filter-sort');
+
+  // A real state picker instead of free text — filters against whatever
+  // members actually have stored (profileController geocodes free text into
+  // "City, State, United States", so an ILIKE match against the state name
+  // still works for existing members too, not just ones set up after this).
+  Object.keys(US_STATES_CITIES).forEach(state => {
+    const opt = document.createElement('option');
+    opt.value = state;
+    opt.textContent = state;
+    locationEl.appendChild(opt);
+  });
+
+  // Populated from the same source of truth profile-setup.html and Search.html
+  // use, so this dropdown can't drift stale the way the old hardcoded one did.
+  const { ok: tagsOk, data: tagsData } = await api.profile.interestTags.get();
+  if (tagsOk) {
+    Object.values(tagsData.generic_groups).flat().forEach(tag => {
+      const opt = document.createElement('option');
+      opt.value = tag;
+      opt.textContent = tag;
+      interestsEl.appendChild(opt);
+    });
+  }
 
   let page = 1;
   let totalPages = 1;
+  let allMembers = []; // mirrors what's currently loaded in the grid, handed off to ViewProfile.html for prev/next
 
   function currentFilters() {
     const f = { sort: sortEl.value, page, limit: 20 };
     if (locationEl.value.trim())    f.location    = locationEl.value.trim();
     if (lookingEl.value)            f.looking_for = lookingEl.value;
+    if (interestsEl.value)          f.interests   = interestsEl.value;
     if (tierEl.value)               f.tier        = tierEl.value;
     return f;
   }
@@ -399,11 +431,14 @@
   function buildCard(member) {
     const card = document.createElement('div');
     card.className = 'profile-card';
+    card.dataset.userId = member.user_id;
+
+    const openFullProfile = () => goToProfile(member.user_id);
 
     const photo = document.createElement('div');
     photo.className = 'profile-photo';
     photo.style.cursor = 'pointer';
-    photo.addEventListener('click', () => { window.location.href = `/Profile/ViewProfile.html?id=${member.user_id}`; });
+    photo.addEventListener('click', openFullProfile);
 
     if (member.membership_tier !== 'free') {
       const badge = document.createElement('span');
@@ -425,6 +460,7 @@
       fill.style.backgroundImage = `url(${member.avatar_url})`;
       fill.style.backgroundSize = 'cover';
       fill.style.backgroundPosition = 'center';
+      watermarkPhoto(fill);
     } else {
       fill.textContent = initials(member.display_name);
     }
@@ -438,7 +474,7 @@
     const h3 = document.createElement('h3');
     h3.textContent = member.display_name;
     h3.style.cursor = 'pointer';
-    h3.addEventListener('click', () => { window.location.href = `/Profile/ViewProfile.html?id=${member.user_id}`; });
+    h3.addEventListener('click', openFullProfile);
     nameRow.appendChild(h3);
 
     const meta = document.createElement('div');
@@ -447,7 +483,9 @@
 
     const tagline = document.createElement('p');
     tagline.className = 'profile-tagline';
-    tagline.textContent = member.heading || member.bio || 'This member hasn’t written a bio yet.';
+    tagline.textContent = member.restricted
+      ? 'This member is only visible to Black members — request access to view their full profile.'
+      : (member.heading || member.bio || 'This member hasn’t written a bio yet.');
 
     const actions = document.createElement('div');
     actions.className = 'profile-actions';
@@ -476,32 +514,54 @@
       }
     });
 
-    const msgBtn = document.createElement('button');
-    msgBtn.type = 'button'; msgBtn.className = 'action-btn message'; msgBtn.title = 'Message';
-    msgBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M2 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-4 3v-3H4a2 2 0 0 1-2-2V5z" stroke="currentColor" stroke-width="1.3"/></svg>';
-    msgBtn.addEventListener('click', () => {
-      window.location.href = `/Dashboard/Messages.html?to=${member.user_id}`;
-    });
+    actions.append(passBtn, likeBtn);
 
-    actions.append(passBtn, likeBtn, msgBtn);
+    if (member.restricted) {
+      // Black-only visibility: no messaging until access is granted — a
+      // request-to-view action replaces the message button.
+      const reqBtn = document.createElement('button');
+      reqBtn.type = 'button';
+      reqBtn.className = 'action-btn request';
+      const setReqState = (status) => {
+        if (status === 'pending') { reqBtn.title = 'Request pending'; reqBtn.disabled = true; reqBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'; }
+        else { reqBtn.title = status === 'denied' ? 'Request denied — request again' : 'Request to view'; reqBtn.disabled = false; reqBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="6" y="9" width="8" height="7" rx="0.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 9V6.5a2 2 0 0 1 4 0V9" stroke="currentColor" stroke-width="1.3"/></svg>'; }
+      };
+      setReqState(member.view_request_status);
+      reqBtn.addEventListener('click', async () => {
+        const { ok, data } = await api.profile.requestView(member.user_id);
+        if (ok) { setReqState('pending'); showToast('Request sent.', 'info'); }
+        else showToast(data?.error || 'Could not send request.', 'error');
+      });
+      actions.appendChild(reqBtn);
+    } else {
+      const msgBtn = document.createElement('button');
+      msgBtn.type = 'button'; msgBtn.className = 'action-btn message'; msgBtn.title = 'Message';
+      msgBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M2 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8l-4 3v-3H4a2 2 0 0 1-2-2V5z" stroke="currentColor" stroke-width="1.3"/></svg>';
+      msgBtn.addEventListener('click', () => {
+        window.location.href = `/Dashboard/Messages.html?to=${member.user_id}`;
+      });
+      actions.appendChild(msgBtn);
+    }
+
     info.append(nameRow, meta, tagline, actions);
     card.append(photo, info);
     return card;
   }
 
   async function loadPage(reset) {
-    if (reset) { page = 1; grid.innerHTML = ''; }
+    if (reset) { page = 1; grid.innerHTML = ''; allMembers = []; }
     const { ok, data } = await api.discover.browse(currentFilters());
     if (!ok) { showToast(data?.error || 'Could not load members.', 'error'); return; }
 
     totalPages = data.pagination.pages;
+    allMembers.push(...data.members);
     data.members.forEach(m => grid.appendChild(buildCard(m)));
 
     emptyMsg.style.display = grid.children.length ? 'none' : 'block';
     loadMore.hidden = page >= totalPages;
   }
 
-  [locationEl, lookingEl, tierEl, sortEl].forEach(el => {
+  [locationEl, lookingEl, interestsEl, tierEl, sortEl].forEach(el => {
     const evt = el.tagName === 'SELECT' ? 'change' : 'input';
     let debounce;
     el.addEventListener(evt, () => {
@@ -511,6 +571,16 @@
   });
 
   loadMore.addEventListener('click', () => { page += 1; loadPage(false); });
+
+  // Opening a profile is a real page navigation, not a popup — but the
+  // browse order still gets handed off via sessionStorage so ViewProfile.html
+  // can offer real prev/next (its own page navigations, own history entries)
+  // through whatever's currently loaded here, without Discover needing to
+  // know anything about how that page renders it.
+  function goToProfile(userId) {
+    sessionStorage.setItem('fantasi-browse-queue', JSON.stringify(allMembers.map(m => m.user_id)));
+    window.location.href = `/Profile/ViewProfile.html?id=${userId}`;
+  }
 
   loadPage(true);
 })();
