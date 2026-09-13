@@ -49,6 +49,7 @@ dependencies:
 
   # Password hashing for stored credentials.
   crypto: ^3.0.6
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:

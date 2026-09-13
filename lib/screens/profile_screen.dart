@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/app_user.dart';
 import '../theme/app_colors.dart';
@@ -10,6 +11,10 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key, required this.user});
 
   final AppUser user;
+
+  // TODO: back with real counts once My Concerts persistence exists.
+  static const _concertsAttended = 0;
+  static const _artistsSeen = 0;
 
   String _formatDate(DateTime date) {
     const months = [
@@ -23,6 +28,20 @@ class ProfileScreen extends StatelessWidget {
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const AuthScreen()),
       (route) => false,
+    );
+  }
+
+  Future<void> _shareStats(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
+    await SharePlus.instance.share(
+      ShareParams(
+        text: "${user.name}'s concert stats on One Button 🎤\n"
+            '🎫 $_concertsAttended concerts attended\n'
+            '🎸 $_artistsSeen artists seen',
+        subject: 'My concert stats',
+        sharePositionOrigin:
+            box != null ? box.localToGlobal(Offset.zero) & box.size : null,
+      ),
     );
   }
 
@@ -74,13 +93,34 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Row(
-              children: const [
-                Expanded(child: _StatCard(label: 'Concerts Attended', value: '0')),
-                SizedBox(width: 12),
-                Expanded(child: _StatCard(label: 'Artists Seen', value: '0')),
+              children: [
+                Expanded(
+                  child: _StatCard(
+                    label: 'Concerts Attended',
+                    value: '$_concertsAttended',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _StatCard(label: 'Artists Seen', value: '$_artistsSeen'),
+                ),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => _shareStats(context),
+              icon: const Icon(Icons.ios_share, color: AppColors.darkBrown),
+              label: const Text(
+                'Share Stats',
+                style: TextStyle(color: AppColors.darkBrown),
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                side: const BorderSide(color: AppColors.darkBrown),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+            ),
+            const SizedBox(height: 20),
             OutlinedButton.icon(
               onPressed: () => _logOut(context),
               icon: const Icon(Icons.logout, color: AppColors.darkBrown),
