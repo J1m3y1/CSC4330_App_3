@@ -207,6 +207,7 @@
   }
   .tag-select{ display:flex; flex-wrap:wrap; gap:8px; }
   .tag-select-btn{
+    max-width:100%; min-width:0; white-space:normal; overflow-wrap:anywhere; line-height:1.35;
     padding:9px 15px; border:1px solid var(--line-strong); border-radius:20px;
     font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); cursor:pointer;
     transition:border-color .3s ease, color .3s ease, background .3s ease;
@@ -218,8 +219,8 @@
   /* interest tags — rated (level select shows once a tag is selected) + custom */
   .interests-hint{ font-family:var(--font-sans); font-size:12px; color:var(--smoke-dim); margin-bottom:16px; max-width:60ch; }
   .tag-cat{ margin-bottom:20px; }
-  .tag-select-btn.rated{ display:inline-flex; align-items:center; gap:8px; padding-right:8px; }
-  .tag-select-btn.rated .tag-label{ cursor:pointer; }
+  .tag-select-btn.rated{ display:inline-flex; align-items:center; flex-wrap:wrap; gap:8px; padding-right:8px; }
+  .tag-select-btn.rated .tag-label{ cursor:pointer; min-width:0; overflow-wrap:anywhere; }
   .tag-level-select{
     display:none; background:none; border:1px solid var(--gold-dim); border-radius:12px;
     color:var(--gold-bright); font-family:var(--font-sans); font-size:10.5px; padding:3px 6px; outline:none; cursor:pointer;

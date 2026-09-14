@@ -32,6 +32,11 @@ const registerRules = [
   body('phone')
     .optional().trim()
     .matches(/^\+?[1-9]\d{7,14}$/).withMessage('Enter a valid phone number.'),
+  body('location')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 100 }).withMessage('Location must be 100 characters or fewer.')
+    .matches(/^[^,]+, [^,]+, United States$/).withMessage('Choose a US city and state from the location menu.'),
   body('phone_verification_token')
     .if(body('phone').exists({ checkFalsy: true }))
     .notEmpty().withMessage('Phone verification is required — please verify your number again.'),

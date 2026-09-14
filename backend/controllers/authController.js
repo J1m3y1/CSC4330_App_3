@@ -66,7 +66,7 @@ function cleanupUploadedId(req) {
 
 // ── POST /api/auth/register ───────────────────────────────────────────────────
 async function register(req, res) {
-  const { email, password, display_name, full_name, date_of_birth, phone, phone_verification_token } = req.body;
+  const { email, password, display_name, full_name, date_of_birth, phone, phone_verification_token, location } = req.body;
 
   try {
     // 1. A government ID is required — no exceptions. This is what actually
@@ -121,9 +121,9 @@ async function register(req, res) {
       const userId = userRes.rows[0].id;
 
       await client.query(
-        `INSERT INTO profiles (user_id, display_name, full_name, date_of_birth, phone, phone_verified)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [userId, display_name, full_name || null, date_of_birth, phone || null, phoneVerified]
+        `INSERT INTO profiles (user_id, display_name, full_name, date_of_birth, phone, phone_verified, location)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [userId, display_name, full_name || null, date_of_birth, phone || null, phoneVerified, location || null]
       );
 
       await client.query(

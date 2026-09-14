@@ -196,6 +196,9 @@
   }
   .next-row:last-child{ border-bottom:none; }
   .next-row:hover{ opacity:0.75; }
+  .next-row.disabled{ cursor:default; opacity:0.45; }
+  .next-row.disabled:hover{ opacity:0.45; }
+  .next-row.disabled .next-row-icon{ color:var(--smoke-dim); }
   .next-row-left{ display:flex; align-items:center; gap:16px; }
   .next-row-icon{
     width:36px; height:36px; border-radius:50%; border:1px solid var(--line-strong);
@@ -329,7 +332,7 @@
         </div>
       </div>
 
-      <a class="next-row" href="/Profile/profile-setup.html">
+      <div class="next-row disabled">
         <div class="next-row-left">
           <div class="next-row-icon">
             <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
@@ -339,15 +342,10 @@
           </div>
           <div class="next-row-text">
             <div class="next-row-title">Complete your profile</div>
-            <div class="next-row-sub">Add details so you're ready to go the moment you're approved.</div>
+            <div class="next-row-sub">Unlocks once your application is approved.</div>
           </div>
         </div>
-        <div class="next-row-arrow">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </a>
+      </div>
 
       <a class="next-row" href="/LandingPage/Safety.html">
         <div class="next-row-left">

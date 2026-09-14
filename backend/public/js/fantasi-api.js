@@ -733,7 +733,7 @@ function showFieldError(inputEl, message) {
   inputEl.style.borderColor = 'var(--bordeaux-bright, #711A2E)';
   const err = document.createElement('span');
   err.className = 'api-field-error';
-  err.style.cssText = 'display:block;font-size:11px;color:#c0415a;margin-top:4px;';
+  err.style.cssText = 'display:block;font-family:sans-serif;font-size:11px;color:#c0415a;margin-top:4px;';
   err.textContent = message;
   inputEl.parentNode.appendChild(err);
 }
