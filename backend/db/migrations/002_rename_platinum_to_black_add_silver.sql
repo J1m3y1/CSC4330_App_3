@@ -7,6 +7,20 @@
 ALTER TYPE membership_tier ADD VALUE IF NOT EXISTS 'silver';
 ALTER TYPE membership_tier ADD VALUE IF NOT EXISTS 'black';
 
+-- migrate.js sends this whole file as one multi-statement string via a
+-- single pool.query() call. With no BEGIN before the two ALTER TYPE
+-- statements above, Postgres opens an implicit transaction for them that
+-- stays open across the rest of this string — so the explicit BEGIN below
+-- was a no-op (Postgres just warns "there is already a transaction in
+-- progress" and keeps using the same one), and PART 2 ran in that SAME
+-- transaction as the ADD VALUE calls, which Postgres refuses ("unsafe use
+-- of new value ... of enum type") since a new enum value isn't safe to use
+-- until the transaction that added it has actually committed. This explicit
+-- COMMIT closes that implicit transaction for real, so the BEGIN below
+-- starts a genuinely fresh one. Verified against a scratch enum type: fails
+-- with the exact same error without this line, succeeds with it.
+COMMIT;
+
 -- ── PART 2: Migrate data + swap to clean enum type ───────────────────────────
 
 BEGIN;
