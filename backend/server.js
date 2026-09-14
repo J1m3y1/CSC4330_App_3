@@ -30,6 +30,10 @@ const app  = express();
 const PORT = process.env.PORT || 5000;
 const FRONTEND_ROOT = path.join(__dirname, '..');
 
+// Azure App Service terminates requests behind its reverse proxy. Trust its
+// first forwarded hop so req.ip and express-rate-limit see the client IP.
+app.set('trust proxy', 1);
+
 // ── Security headers (Helmet) ────────────────────────────────────────────────
 // scriptSrc/styleSrc allow 'unsafe-inline': every page here is static HTML
 // with inline <script>/<style> blocks (no build step, no per-request
