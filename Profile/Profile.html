@@ -240,7 +240,7 @@
     padding:9px 15px; color:var(--cream); font-family:var(--font-sans); font-size:12.5px; outline:none;
   }
   .custom-tag-add input:focus{ border-color:var(--gold); }
-  .custom-tag-upsell{ font-family:var(--font-serif); font-size:11.5px; color:var(--smoke-dim); font-style:italic; margin-top:10px; }
+  .custom-tag-upsell{ font-family:var(--font-serif); font-size:14px; color:var(--smoke-dim); font-style:italic; margin-top:10px; }
 
   .lifestyle-select{ width:100%; padding:10px; background:var(--noir); color:var(--ivory, #eee8dc); border:1px solid var(--line-strong); border-radius:4px; font:inherit; }
   .lifestyle-language-options{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; font-family:var(--font-sans); font-size:13px; }
@@ -536,7 +536,25 @@
       <!-- about -->
       <div class="section">
         <div class="section-head">
-          <h3>About</h3>
+          <h3>What is your wildest fantasi?</h3>
+          <button type="button" class="link-btn edit-toggle" data-target="about-edit">Edit</button>
+        </div>
+        <div class="field-display" id="about-display">
+          <p class="field-display-value" id="about-value"></p>
+        </div>
+        <div class="field-editor" id="about-edit">
+          <textarea class="editor-textarea" id="about-input" rows="5" maxlength="4000"></textarea>
+          <div class="char-count"><strong id="about-count">0</strong>/4000 characters</div>
+          <div class="editor-actions">
+            <button type="button" class="btn btn-gold btn-small save-edit" data-target="about-edit">Save</button>
+            <button type="button" class="btn btn-line btn-small cancel-edit" data-target="about-edit">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h3>What are your greatest desires?</h3>
           <button type="button" class="link-btn edit-toggle" data-target="about-edit">Edit</button>
         </div>
         <div class="field-display" id="about-display">
