@@ -2573,6 +2573,36 @@
       .hero h1 {
         font-size: clamp(40px, 11vw, 56px);
       }
+
+      /* The logo was fixed at 75px tall on every screen size — fine on
+         desktop, but on a phone it made the header far taller than the
+         sign-in/CTA controls next to it, so the row read as lopsided rather
+         than a uniform bar. Scale it down and tighten the header padding to
+         match, same treatment on the scrolled (shrunk) state. */
+      header {
+        padding: 14px 0;
+      }
+
+      .signet-logo {
+        height: 40px;
+      }
+
+      header.scrolled .signet-logo {
+        height: 38px;
+      }
+
+      .nav-cta {
+        gap: 12px;
+      }
+
+      .nav-cta .sign-in {
+        display: none;
+      }
+
+      .nav-cta .btn-gold {
+        padding: 10px 18px !important;
+        font-size: 11px;
+      }
     }
 
     @media (prefers-reduced-motion:reduce) {
@@ -2612,10 +2642,9 @@
 
   <header id="site-header">
     <div class="container">
-      <span class="signet">
+      <a class="signet" href="/LandingPage/Landing.html">
         <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi" class="signet-logo">
-            <a class="signet" href="/LandingPage/Landing.html"></a>
-      </span>
+      </a>
       <nav class="nav-links">
         <a href="#about" data-cursor="View">About Us</a>
         <a href="#discretion" data-cursor="View">Discretion</a>
