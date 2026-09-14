@@ -52,7 +52,7 @@
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 20px;
     font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
-    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+    border:1px solid var(--gold); border-radius:999px; transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
   }
   .btn:hover{ transform:translateY(-1px); }
   .btn-gold{ background:var(--gold); color:var(--noir); }
@@ -241,6 +241,34 @@
     .results{ padding:28px 22px 50px; }
   }
   @media (max-width:560px){ .results-grid{ grid-template-columns:1fr; } }
+
+  /* Detailed search: readable controls and a mobile filter drawer. */
+  .filters{width:320px;padding:28px 22px 40px;font-family:sans-serif;scrollbar-width:thin;scrollbar-color:var(--gold-dim) var(--noir);}
+  .filters h1{font-size:30px}.filters .eyebrow{font-family:sans-serif;font-size:10px}
+  .filter-help,.filter-status{font:12px/1.6 sans-serif;color:#b5ad9f;margin:10px 0}
+  .filter-status.error{color:#ef91a3}.filter-status:empty{display:none}
+  .filter-section{border-bottom:1px solid var(--line);padding:16px 0}
+  .filter-section summary{font:13px/1.5 sans-serif;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .filter-section summary::after{content:'+';color:var(--gold);font-size:18px}.filter-section[open] summary::after{content:'-'}
+  .filter-section .section-body{padding-top:16px}.filter-section fieldset{padding:0;border:0;margin:0;min-width:0}
+  .filters label{font:12px/1.5 sans-serif;color:var(--cream)}
+  .filter-field{display:block;margin-bottom:12px}.filter-field>span{display:block;margin-bottom:6px}
+  .filters input:not([type=checkbox]),.filters select{display:block;width:100%;min-width:0;min-height:40px;border:1px solid var(--line-strong);border-radius:3px;padding:9px 10px;background:var(--noir-soft);color:var(--cream);font:12px sans-serif}
+  .filters input::placeholder{color:#a2998b}.filters select[multiple]{min-height:115px}
+  .filter-range,.filter-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .filter-options label{display:flex;gap:7px;align-items:flex-start}.filters input[type=checkbox]{accent-color:var(--gold);margin-top:3px}
+  .tier-label{font:9px sans-serif;letter-spacing:.07em;color:var(--gold-bright);border:1px solid var(--line-strong);padding:3px 5px;margin-left:auto;text-transform:uppercase}
+  .filters fieldset:disabled{opacity:.45}.filters .locked-note{font:12px/1.6 sans-serif;color:#b5ad9f;display:block;margin-top:12px}
+  .filters .btn{font-family:sans-serif;font-size:10px;min-height:42px}.filters .filter-actions{margin:18px 0 0;display:grid;grid-template-columns:1fr 1fr}.filters .filter-actions .btn:first-child{grid-column:1/-1}
+  .tag-select-btn{font-family:sans-serif;font-size:11px;color:#c6beaf;border-radius:999px;padding:7px 9px}.tag-select-btn:disabled{cursor:not-allowed}
+  .active-filters{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 20px;font:11px/1.5 sans-serif;color:#c6beaf}.active-chip{padding:5px 9px;border:1px solid var(--line-strong);border-radius:999px;overflow-wrap:anywhere}
+  .filter-toggle,.filter-close{display:none}.saved-actions{display:flex;gap:8px;margin:10px 0}.saved-actions .btn{flex:1;padding:9px}
+  button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--gold-bright);outline-offset:3px}
+  .filters [hidden],.load-more [hidden]{display:none!important}.results-status{font:13px/1.6 sans-serif;color:#c6beaf;margin-bottom:16px}.results-status.error{color:#ef91a3}.results-status:empty{display:none}
+  .sort-select{font-family:sans-serif}.sort-select option{background:var(--noir-soft)}
+  @media(max-width:980px){.filters{display:none}.filters.mobile-open{display:block;position:fixed;inset:0 auto 0 0;width:min(100%,380px);height:100dvh;max-height:100dvh;z-index:10010;background:var(--noir);box-shadow:0 0 0 100vmax #000b}.filter-toggle,.filter-close{display:inline-flex}.filters-head{display:flex;justify-content:space-between;align-items:start}.filter-close{font:24px sans-serif;padding:4px 8px}}
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -305,145 +333,39 @@
   </aside>
 
   <!-- ============ FILTERS SIDEBAR ============ -->
-  <aside class="filters">
-    <div class="filters-head">
-      <span class="eyebrow">Search</span>
-      <h1>Search Filters</h1>
-    </div>
-
-    <div class="filter-actions">
-      <button type="button" class="btn btn-gold" id="view-results-btn">Search</button>
-      <button type="button" class="btn btn-line" id="reset-filters-btn">Reset</button>
-    </div>
-
-    <!-- keyword -->
-    <div class="filter-group">
-      <div class="range-label" style="margin-bottom:8px;">Name or interest</div>
-      <input type="text" id="filter-keyword" placeholder="e.g. Charlotte, travel…"
-             style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:4px; padding:9px 12px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;">
-    </div>
-
-    <!-- location -->
-    <div class="filter-group">
-      <div class="range-label" style="margin-bottom:8px;">Location</div>
-      <select id="filter-location"
-              style="width:100%; background:none; border:1px solid var(--line-strong); border-radius:4px; padding:9px 12px; color:var(--cream); font-family:var(--font-sans); font-size:13px; outline:none;">
-        <option value="">Any state</option>
-      </select>
-    </div>
-
-    <!-- membership tier -->
-    <div class="filter-group">
-      <div class="range-label" style="margin-bottom:8px;">Membership</div>
-      <div class="select-list" id="filter-tier" data-value="">
-        <button type="button" class="select-list-btn selected" data-value="">Any tier</button>
-        <button type="button" class="select-list-btn" data-value="silver">Silver</button>
-        <button type="button" class="select-list-btn" data-value="gold">Gold</button>
-        <button type="button" class="select-list-btn" data-value="black">Black</button>
-      </div>
-    </div>
-
-    <!-- show members seeking (matches the Interests vocabulary — populated
-         from GET /api/profile/interest-tags at load, the same source of
-         truth profile-setup.html uses, so this never drifts stale again) -->
-    <div class="filter-group" data-collapsible>
-      <div class="filter-group-head"><h3>Show members seeking</h3><svg class="filter-chevron" width="11" height="7" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-      <div class="filter-group-body">
-        <div class="tag-select" id="filter-interests"></div>
-      </div>
-    </div>
-
-    <!-- relationship dynamic (the looking_for vocabulary — same list
-         profile-setup.html offers when setting up a profile) -->
-    <div class="filter-group" data-collapsible>
-      <div class="filter-group-head"><h3>Relationship Dynamic</h3><svg class="filter-chevron" width="11" height="7" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-      <div class="filter-group-body">
-        <div class="tag-select" id="filter-looking-for">
-          <div class="tag-select-btn" data-value="Long-term arrangement">Long-term arrangement</div>
-          <div class="tag-select-btn" data-value="Casual">Casual</div>
-          <div class="tag-select-btn" data-value="Discretion">Discretion</div>
-          <div class="tag-select-btn" data-value="Fine dining">Fine dining</div>
-          <div class="tag-select-btn" data-value="Monogamous">Monogamous</div>
-          <div class="tag-select-btn" data-value="Non-monogamous">Non-monogamous</div>
-          <div class="tag-select-btn" data-value="Polyamorous">Polyamorous</div>
-          <div class="tag-select-btn" data-value="D/s dynamic">D/s dynamic</div>
-          <div class="tag-select-btn" data-value="Play partner">Play partner</div>
-          <div class="tag-select-btn" data-value="Mentor/mentee dynamic">Mentor/mentee dynamic</div>
-          <div class="tag-select-btn" data-value="No strings attached">No strings attached</div>
-          <div class="tag-select-btn" data-value="Open relationship">Open relationship</div>
-          <div class="tag-select-btn" data-value="Long-distance">Long-distance</div>
-          <div class="tag-select-btn" data-value="Travel partner">Travel partner</div>
-          <div class="tag-select-btn" data-value="Will travel">Will travel</div>
-          <div class="tag-select-btn" data-value="Passport ready">Passport ready</div>
-          <div class="tag-select-btn" data-value="Life of leisure">Life of leisure</div>
-          <div class="tag-select-btn" data-value="Emotional connection">Emotional connection</div>
-          <div class="tag-select-btn" data-value="Financial partnership">Financial partnership</div>
-          <div class="tag-select-btn" data-value="Ethical non-monogamy">Ethical non-monogamy</div>
-          <div class="tag-select-btn" data-value="Kitchen-table poly">Kitchen-table poly</div>
-          <div class="tag-select-btn" data-value="Solo poly">Solo poly</div>
-          <div class="tag-select-btn" data-value="Service dynamic">Service dynamic</div>
-          <div class="tag-select-btn" data-value="Brat / brat tamer">Brat / brat tamer</div>
-          <div class="tag-select-btn" data-value="Caregiver / little">Caregiver / little</div>
-          <div class="tag-select-btn" data-value="Protocol &amp; structure">Protocol &amp; structure</div>
-          <div class="tag-select-btn" data-value="Exploration partner">Exploration partner</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- education -->
-    <div class="filter-group" data-collapsible>
-      <div class="filter-group-head"><h3>Education</h3><svg class="filter-chevron" width="11" height="7" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-      <div class="filter-group-body">
-        <div class="select-list" id="filter-education">
-          <button type="button" class="select-list-btn" data-value="High School">High School</button>
-          <button type="button" class="select-list-btn" data-value="Some College">Some College</button>
-          <button type="button" class="select-list-btn" data-value="Associate's Degree">Associate's Degree</button>
-          <button type="button" class="select-list-btn" data-value="Bachelor's Degree">Bachelor's Degree</button>
-          <button type="button" class="select-list-btn" data-value="Graduate Degree">Graduate Degree</button>
-          <button type="button" class="select-list-btn" data-value="MD / Physician">MD / Physician</button>
-          <button type="button" class="select-list-btn" data-value="JD / Attorney">JD / Attorney</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- relationship status -->
-    <div class="filter-group" data-collapsible>
-      <div class="filter-group-head"><h3>Relationship Status</h3><svg class="filter-chevron" width="11" height="7" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-      <div class="filter-group-body">
-        <div class="select-list" id="filter-relationship">
-          <button type="button" class="select-list-btn" data-value="Single">Single</button>
-          <button type="button" class="select-list-btn" data-value="Divorced">Divorced</button>
-          <button type="button" class="select-list-btn" data-value="Widowed">Widowed</button>
-          <button type="button" class="select-list-btn" data-value="Open">Open</button>
-          <button type="button" class="select-list-btn" data-value="It's Complicated">It's Complicated</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- smoking -->
-    <div class="filter-group" data-collapsible>
-      <div class="filter-group-head"><h3>Smoking</h3><svg class="filter-chevron" width="11" height="7" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-      <div class="filter-group-body">
-        <div class="select-list" id="filter-smoking">
-          <button type="button" class="select-list-btn" data-value="Non-smoker">Non-smoker</button>
-          <button type="button" class="select-list-btn" data-value="Light smoker">Light smoker</button>
-          <button type="button" class="select-list-btn" data-value="Heavy smoker">Heavy smoker</button>
-        </div>
-      </div>
-    </div>
-
+  <aside class="filters" id="search-filters" aria-label="Search filters">
+    <div class="filters-head"><div><span class="eyebrow">Discover your connection</span><h1>Search filters</h1></div><button class="filter-close" type="button" aria-label="Close filters">&times;</button></div>
+    <p class="filter-help" id="filter-access">Loading your filter access...</p>
+    <form id="filter-form">
+      <label class="filter-field"><span>Name</span><input name="q" maxlength="100" placeholder="Search a member's name"></label>
+      <label class="filter-field"><span>Location</span><select name="location"><option value="">Any state</option></select></label>
+      <div class="filter-range"><label class="filter-field"><span>Minimum age</span><input type="number" name="age_min" min="18" max="100" placeholder="18"></label><label class="filter-field"><span>Maximum age</span><input type="number" name="age_max" min="18" max="100" placeholder="100"></label></div>
+      <label><input type="checkbox" name="photos"> With photos</label>
+      <div id="advanced-filters"></div>
+      <div class="filter-actions"><button class="btn btn-gold" type="submit">View results</button><button class="btn btn-line" type="button" id="reset-filters-btn">Reset filters</button><button class="btn btn-line" type="button" id="saved-jump">Saved searches</button></div>
+      <p class="filter-status error" id="filter-error" role="alert"></p>
+      <p class="filter-status error" id="catalog-error" role="alert"></p>
+    </form>
+    <details class="filter-section" id="saved-section"><summary>Make your own filters <span class="tier-label">Black</span></summary><div class="section-body">
+      <p class="filter-help">Save a named combination to return to whenever you search.</p>
+      <div id="saved-controls" hidden><label class="filter-field"><span>Saved searches</span><select id="saved-search"><option value="">Choose a saved search</option></select></label><div class="saved-actions"><button class="btn btn-line" id="apply-saved" type="button">Apply</button><button class="btn btn-line" id="delete-saved" type="button">Delete</button></div><label class="filter-field"><span>New filter name</span><input id="saved-name" maxlength="60" placeholder="e.g. My weekend connections"></label><button class="btn btn-gold" id="save-search" type="button">Save these filters</button></div>
+      <p class="locked-note" id="save-locked">Black members can create custom filters. <a href="/Dashboard/Membership.html">Explore Black</a></p><p class="filter-status" id="saved-status" role="status" aria-live="polite"></p>
+    </div></details>
   </aside>
 
   <!-- ============ RESULTS ============ -->
   <main class="results">
     <div class="results-head">
+      <button class="btn btn-line filter-toggle" type="button" aria-controls="search-filters" aria-expanded="false">Filters</button>
       <div class="results-count"><strong id="results-total">0</strong> members match your search</div>
-      <select class="sort-select" id="filter-sort">
+      <select class="sort-select" id="filter-sort" aria-label="Sort members">
         <option value="active">Recently active</option>
         <option value="newest">Newest members</option>
       </select>
     </div>
 
+    <div class="active-filters" id="active-filters" aria-label="Applied filters"></div>
+    <p id="results-status" class="results-status" role="status" aria-live="polite"></p>
     <div class="results-grid" id="results-grid"></div>
 
     <div class="empty-state" id="empty-state">
@@ -465,114 +387,371 @@
   const user = await initDashboard();
   if (!user) return;
 
-  // collapsible filter groups
-  document.querySelectorAll('.filter-group[data-collapsible]').forEach(group => {
-    group.querySelector('.filter-group-head').addEventListener('click', () => {
-      group.classList.toggle('open');
-    });
-  });
 
-  // single-select lists (tier / education / relationship / smoking) — click
-  // the already-selected option again to clear it back to "any"
-  function wireSingleSelect(listEl) {
-    listEl.querySelectorAll('.select-list-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const alreadySelected = btn.classList.contains('selected');
-        listEl.querySelectorAll('.select-list-btn').forEach(b => b.classList.remove('selected'));
-        if (!alreadySelected) btn.classList.add('selected');
-        else listEl.querySelector('[data-value=""]')?.classList.add('selected');
-        runSearch(true);
+  const catalogDefaults = {
+    "tier": [
+      "silver",
+      "gold",
+      "black"
+    ],
+    "education": [
+      "High School",
+      "Some College",
+      "Associate's Degree",
+      "Bachelor's Degree",
+      "Graduate Degree",
+      "MD / Physician",
+      "JD / Attorney"
+    ],
+    "relationship_status": [
+      "Single",
+      "Divorced",
+      "Widowed",
+      "Open",
+      "It's Complicated"
+    ],
+    "smoking": [
+      "Non-smoker",
+      "Light smoker",
+      "Heavy smoker"
+    ],
+    "looking_for": [
+      "Long-term arrangement",
+      "Casual",
+      "Discretion",
+      "Fine dining",
+      "Monogamous",
+      "Non-monogamous",
+      "Polyamorous",
+      "D/s dynamic",
+      "Play partner",
+      "Mentor/mentee dynamic",
+      "No strings attached",
+      "Open relationship",
+      "Long-distance",
+      "Travel partner",
+      "Will travel",
+      "Passport ready",
+      "Life of leisure",
+      "Emotional connection",
+      "Financial partnership",
+      "Ethical non-monogamy",
+      "Kitchen-table poly",
+      "Solo poly",
+      "Service dynamic",
+      "Brat / brat tamer",
+      "Caregiver / little",
+      "Protocol & structure",
+      "Exploration partner"
+    ]
+  };
+  const form = document.getElementById('filter-form');
+  form.addEventListener('invalid',event=> {
+    const section=event.target.closest('details');
+    if(section)section.open=true;
+  },true);
+  const advanced = ['gold','black'].includes(user.membership_tier);
+  const black = user.membership_tier === 'black';
+  const panel = document.getElementById('search-filters');
+  const toggle = document.querySelector('.filter-toggle');
+  const backgroundElements = [...document.querySelectorAll('.sidebar, .results, .fantasi-topbar')];
+  const previousInert = new Map();
+  const mobileQuery = window.matchMedia('(max-width: 980px)');
+  let previousOverflow = '';
+  function closeFilters(restoreFocus = true) {
+    if (!panel.classList.contains('mobile-open')) return;
+    panel.classList.remove('mobile-open');
+    panel.removeAttribute('role');
+    panel.removeAttribute('aria-modal');
+    toggle.setAttribute('aria-expanded', 'false');
+    backgroundElements.forEach(el => {
+      el.inert = previousInert.get(el) || false;
+    });
+    document.body.style.overflow = previousOverflow;
+    if (restoreFocus && mobileQuery.matches) toggle.focus();
+  }
+  mobileQuery.addEventListener('change', event => {
+    if (!event.matches) closeFilters(false);
+  });
+  toggle.addEventListener('click', () => {
+    previousOverflow = document.body.style.overflow;
+    backgroundElements.forEach(el => {
+      previousInert.set(el, el.inert);
+      el.inert = true;
+    });
+    document.body.style.overflow = 'hidden';
+    panel.classList.add('mobile-open');
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    toggle.setAttribute('aria-expanded', 'true');
+    panel.querySelector('.filter-close').focus();
+  });
+  panel.querySelector('.filter-close').addEventListener('click',closeFilters);
+  document.addEventListener('keydown',e=> {
+    if(!panel.classList.contains('mobile-open'))return;
+    if(e.key==='Escape')closeFilters();
+    if(e.key==='Tab') {
+      const stops=[...panel.querySelectorAll('button,a,input,select,summary')].filter(el=>!el.matches(':disabled')&&el.getClientRects().length);
+      const first=stops[0],last=stops[stops.length-1];
+      if(e.shiftKey&&document.activeElement===first) {
+        e.preventDefault();
+        last.focus();
+      }
+      else if(!e.shiftKey&&document.activeElement===last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  });
+  document.getElementById('filter-access').textContent = black ? 'Black. All filters, custom kinks and saved searches.' : advanced ? 'Gold. Choose from all detailed filters.' : 'Silver. Name, location, age and photos. Unlock detailed filters with Gold.';
+  const field = name => form.elements.namedItem(name);
+  Object.keys(US_STATES_CITIES).forEach(state=>field('location').add(new Option(state,state)));
+  const advancedEl = document.getElementById('advanced-filters');
+  function section(title) {
+    const details=document.createElement('details');
+    details.className='filter-section';
+    const summary=document.createElement('summary');
+    summary.textContent=title;
+    const badge=document.createElement('span');
+    badge.className='tier-label';
+    badge.textContent='Gold';
+    summary.append(badge);
+    const body=document.createElement('div');
+    body.className='section-body';
+    const set=document.createElement('fieldset');
+    set.disabled=!advanced;
+    body.append(set);
+    if(!advanced) {
+      const note=document.createElement('p');
+      note.className='locked-note';
+      note.innerHTML='Available with Gold. <a href="/Dashboard/Membership.html">Explore Gold</a>';
+      body.append(note);
+    }
+    details.append(summary,body);
+    advancedEl.append(details);
+    return set;
+  }
+  function input(parent,name,title,attrs = {}) {
+    const label=document.createElement('label');
+    label.className='filter-field';
+    const span=document.createElement('span');
+    span.textContent=title;
+    const el=document.createElement('input');
+    el.name=name;
+    Object.assign(el,attrs);
+    label.append(span,el);
+    parent.append(label);
+    return el;
+  }
+  function select(parent,name,title,values,multiple=false) {
+    const label=document.createElement('label');
+    label.className='filter-field';
+    const span=document.createElement('span');
+    span.textContent=title;
+    const el=document.createElement('select');
+    el.name=name;
+    el.multiple=multiple;
+    if(!multiple)el.add(new Option('Any',''));
+    values.forEach(v=>el.add(new Option(v,v)));
+    label.append(span,el);
+    parent.append(label);
+    return el;
+  }
+  function tags(parent,name,values) {
+    const group=document.createElement('div');
+    group.className='tag-select';
+    group.dataset.tags=name;
+    [...new Set(values)].forEach(value=> {
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='tag-select-btn';
+      b.dataset.value=value;
+      b.textContent=value;
+      b.setAttribute('aria-pressed','false');
+      b.addEventListener('click',()=> {
+        b.classList.toggle('selected');
+        b.setAttribute('aria-pressed',String(b.classList.contains('selected')));
       });
+      group.append(b);
     });
+    parent.append(group);
   }
-  ['filter-tier', 'filter-education', 'filter-relationship', 'filter-smoking'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) wireSingleSelect(el);
+  function range(title,prefix,min,max,unit) {
+    const set=section(title);
+    const row=document.createElement('div');
+    row.className='filter-range';
+    input(row,prefix+'_min','Minimum ('+unit+')', {
+      type:'number',min,max
+    });
+    input(row,prefix+'_max','Maximum ('+unit+')', {
+      type:'number',min,max
+    });
+    set.append(row);
+  }
+  const distance=section('Distance');
+  input(distance,'distance_miles','Within (miles)', {
+    type:'number',min:1,max:500,placeholder:'Any distance'
   });
-
-  function selectedValue(listId) {
-    const btn = document.querySelector(`#${listId} .select-list-btn.selected`);
-    return btn ? btn.dataset.value : '';
-  }
-
-  // "show members seeking" — free multi-select over the interests vocabulary,
-  // fetched from the same endpoint profile-setup.html uses so this list can
-  // never drift stale again the way its old hardcoded 4-tag version did.
-  const interestsGroup = document.getElementById('filter-interests');
-  function wireTagSelect(groupEl) {
-    groupEl.querySelectorAll('.tag-select-btn').forEach(btn => {
-      btn.addEventListener('click', () => { btn.classList.toggle('selected'); runSearch(true); });
+  const distanceNote=document.createElement('p');
+  distanceNote.className='filter-help';
+  distanceNote.textContent='Measured from your saved profile location. Add a location to your profile to use distance.';
+  distance.append(distanceNote);
+  const options=section('Member options');
+  options.classList.add('filter-options');
+  const flags= {
+    online:'Online now',id_verified:'ID verified',viewed:'Viewed',unviewed:'Unviewed',viewed_me:'Viewed me',liked:'Liked',liked_me:'Liked me'
+  };
+  Object.entries(flags).forEach(([name,title])=> {
+    const label=document.createElement('label');
+    const checkbox=document.createElement('input');
+    checkbox.type='checkbox';
+    checkbox.name=name;
+    checkbox.addEventListener('change',()=> {
+      if(checkbox.checked&&name==='viewed')field('unviewed').checked=false;
+      if(checkbox.checked&&name==='unviewed')field('viewed').checked=false;
     });
-  }
-  function selectedTags(groupEl) {
-    return [...groupEl.querySelectorAll('.selected')].map(b => b.dataset.value).join(',');
-  }
-  function selectedInterests() { return selectedTags(interestsGroup); }
-
-  const { ok: tagsOk, data: tagsData } = await api.profile.interestTags.get();
-  if (tagsOk) {
-    Object.values(tagsData.generic_groups).flat().forEach(tag => {
-      const btn = document.createElement('div');
-      btn.className = 'tag-select-btn';
-      btn.dataset.value = tag;
-      btn.textContent = tag;
-      interestsGroup.appendChild(btn);
-    });
-  }
-  wireTagSelect(interestsGroup);
-
-  // "relationship dynamic" — free multi-select over the looking_for vocabulary
-  const lookingForGroup = document.getElementById('filter-looking-for');
-  wireTagSelect(lookingForGroup);
-  function selectedLookingFor() { return selectedTags(lookingForGroup); }
-
-  const keywordEl  = document.getElementById('filter-keyword');
-  const locationEl = document.getElementById('filter-location');
-  const sortEl     = document.getElementById('filter-sort');
-
-  // A real state picker instead of free text — filters against whatever
-  // members actually have stored (profileController geocodes free text into
-  // "City, State, United States", so an ILIKE match against the state name
-  // still works for existing members too, not just ones set up after this).
-  Object.keys(US_STATES_CITIES).forEach(state => {
-    const opt = document.createElement('option');
-    opt.value = state;
-    opt.textContent = state;
-    locationEl.appendChild(opt);
+    label.append(checkbox,document.createTextNode(title));
+    options.append(label);
   });
-  const grid       = document.getElementById('results-grid');
-  const emptyState = document.getElementById('empty-state');
-  const totalEl    = document.getElementById('results-total');
-  const loadMore   = document.getElementById('load-more-btn');
-
-  let page = 1;
-  let totalPages = 1;
-  let allResults = []; // mirrors what's currently loaded, handed off to ViewProfile.html for prev/next
-
+  select(section('Membership'),'tier','Member tier',catalogDefaults.tier);
+  tags(section('Show members seeking'),'looking_for',catalogDefaults.looking_for);
+  range('Height','height',100,250,'cm');
+  range('Weight','weight',50,700,'lb');
+  select(section('Education'),'education','Education',catalogDefaults.education);
+  select(section('Relationship status'),'relationship_status','Relationship status',catalogDefaults.relationship_status);
+  select(section('Smoking'),'smoking','Smoking',catalogDefaults.smoking);
+  tags(section("Don't show members seeking"),'exclude_looking_for',catalogDefaults.looking_for);
+  input(section('Profile text'),'profile_text','Words in their profile', {
+    maxLength:100,placeholder:'e.g. hiking, travel'
+  });
+  let catalogKinks=[];
+  let catalogLoaded = false;
+  try {
+    const response=await api.discover.filterOptions();
+    if(!response.ok)throw new Error(response.data?.error||'Could not load filter choices.');
+    const data=response.data;
+    [['ethnicity','Ethnicity','ethnicities'],['drinking','Drinking','drinking'],['children','Children','children'],['languages','Languages','languages']].forEach(([name,title,key])=> {
+      const set=section(title);
+      select(set,name,title,data[key]||[],name==='languages');
+      if(name==='languages') {
+        const note=document.createElement('p');
+        note.className='filter-help';
+        note.textContent='Use Ctrl / Command to choose multiple languages.';
+        set.append(note);
+      }
+    });
+    catalogKinks=data.generic_groups?.['Dynamics & Roles']||[];
+    tags(section('Interests'),'interests',Object.values(data.generic_groups|| {
+    }).flat());
+    const kinks=section('Kinks & dynamics');
+    const note=document.createElement('p');
+    note.className='filter-help';
+    note.textContent="Match only interests members say they are into. A member's limits are never matches.";
+    kinks.append(note);
+    tags(kinks,'kinks',catalogKinks);
+    const match=select(kinks,'kink_match','Match selected kinks',[]);
+    match.innerHTML='';
+    match.add(new Option('Any selected kink','any'));
+    match.add(new Option('All selected kinks','all'));
+    const custom=input(kinks,'custom_kinks','Custom kink terms (Black)', {
+      maxLength:1019,placeholder:'Separate exact terms with commas'
+    });
+    custom.disabled=!black;
+    const help=document.createElement('p');
+    help.className='filter-help';
+    help.textContent=black?'Up to 20 terms, 50 characters each. Matches exact profile tags.':'Black members can create custom kink filters.';
+    kinks.append(help);
+    catalogLoaded = true;
+  }
+  catch(error) {
+    document.getElementById('catalog-error').textContent=error.message+' Reload to retry. Basic search is still available.';
+  }
+  const sortEl=document.getElementById('filter-sort');
+  const grid=document.getElementById('results-grid'),emptyState=document.getElementById('empty-state'),totalEl=document.getElementById('results-total'),loadMore=document.getElementById('load-more-btn');
+  let page=0,totalPages=1,allResults=[],requestVersion=0,appliedFilters= {
+    sort:'active'
+  },savedSearches=[];
   function goToProfile(userId) {
-    sessionStorage.setItem('fantasi-browse-queue', JSON.stringify(allResults.map(m => m.user_id)));
-    window.location.href = `/Profile/ViewProfile.html?id=${userId}`;
+    sessionStorage.setItem('fantasi-browse-queue',JSON.stringify(allResults.map(m=>m.user_id)));
+    window.location.href=`/Profile/ViewProfile.html?id=${userId}`;
   }
-
   function currentFilters() {
-    const f = { sort: sortEl.value, page, limit: 18 };
-    if (keywordEl.value.trim().length >= 2) f.q = keywordEl.value.trim();
-    if (locationEl.value.trim())            f.location = locationEl.value.trim();
-    const tier = selectedValue('filter-tier');
-    if (tier) f.tier = tier;
-    const education = selectedValue('filter-education');
-    if (education) f.education = education;
-    const relationship = selectedValue('filter-relationship');
-    if (relationship) f.relationship_status = relationship;
-    const smoking = selectedValue('filter-smoking');
-    if (smoking) f.smoking = smoking;
-    const interests = selectedInterests();
-    if (interests) f.interests = interests;
-    const lookingFor = selectedLookingFor();
-    if (lookingFor) f.looking_for = lookingFor;
+    if(!form.reportValidity())throw new Error('Please check the highlighted filter.');
+    const f= {
+      sort:sortEl.value
+    };
+    for(const [name,value] of new FormData(form)) {
+      const v=String(value).trim();
+      if(!v||name==='custom_kinks'||name==='kink_match')continue;
+      if(name==='languages')f[name]=[f[name],v].filter(Boolean).join(',');
+      else f[name]=field(name).type==='checkbox'?'true':v;
+    }
+    for(const prefix of ['age','height','weight']) {
+      const min=f[prefix+'_min'],max=f[prefix+'_max'];
+      if(min&&max&&Number(min)>Number(max))throw new Error(prefix.charAt(0).toUpperCase()+prefix.slice(1)+' minimum must not exceed maximum.');
+    }
+    if(f.q&&f.q.length<2)throw new Error('Enter at least two characters for a name search.');
+    if(advanced)form.querySelectorAll('[data-tags]').forEach(group=> {
+      const values=[...group.querySelectorAll('.selected')].map(b=>b.dataset.value);
+      if(values.length)f[group.dataset.tags]=values.join(',');
+    });
+    const custom=black&&field('custom_kinks')?field('custom_kinks').value.split(',').map(s=>s.trim()).filter(Boolean):[];
+    if(custom.some(s=>s.length>50))throw new Error('Each custom kink term must be 50 characters or fewer.');
+    const kinks=[...new Set([...(f.kinks?f.kinks.split(','):[]),...custom])];
+    if(kinks.length>20)throw new Error('Choose at most 20 kink terms.');
+    if(kinks.length) {
+      f.kinks=kinks.join(',');
+      f.kink_match=field('kink_match').value;
+    }
     return f;
   }
-
+  function renderSummary() {
+    const summary=document.getElementById('active-filters');
+    summary.replaceChildren();
+    Object.entries(appliedFilters).filter(([key])=>key!=='sort').forEach(([key,value])=> {
+      const chip=document.createElement('span');
+      chip.className='active-chip';
+      chip.textContent=key.replaceAll('_',' ')+': '+(value==='true'?'yes':value);
+      summary.append(chip);
+    });
+    if(!summary.children.length)summary.textContent='All members. Refine your search with filters.';
+  }
+  function resetControls() {
+    form.reset();
+    form.querySelectorAll('.tag-select-btn').forEach(b=> {
+      b.classList.remove('selected');
+      b.setAttribute('aria-pressed','false');
+    });
+    sortEl.value='active';
+    document.getElementById('saved-search').value='';
+    document.getElementById('saved-name').value='';
+    document.getElementById('filter-error').textContent='';
+  }
+  function restoreFilters(filters) {
+    resetControls();
+    Object.entries(filters).forEach(([name,value])=> {
+      if(name==='sort') {
+        sortEl.value=value;
+        return;
+      }
+      const el=field(name);
+      if(el) {
+        if(el.type==='checkbox')el.checked=value===true||value==='true';
+        else if(el.multiple)[...el.options].forEach(o=>o.selected=String(value).split(',').includes(o.value));
+        else el.value=value;
+      }
+      const group=form.querySelector('[data-tags="'+name.replace(/[^a-z_]/g,'')+'"]');
+      if(group) {
+        const vals=String(value).split(',');
+        group.querySelectorAll('button').forEach(b=> {
+          const on=vals.includes(b.dataset.value);
+          b.classList.toggle('selected',on);
+          b.setAttribute('aria-pressed',String(on));
+        });
+      }
+    });
+    if(black&&filters.kinks&&field('custom_kinks'))field('custom_kinks').value=String(filters.kinks).split(',').filter(v=>!catalogKinks.includes(v)).join(', ');
+  }
   function buildResultCard(member) {
     const card = document.createElement('div');
     card.className = 'result-card';
@@ -680,38 +859,164 @@
     return card;
   }
 
+
   async function runSearch(reset) {
-    if (reset) { page = 1; grid.innerHTML = ''; allResults = []; }
-    const { ok, data } = await api.discover.browse(currentFilters());
-    if (!ok) { showToast(data?.error || 'Search failed.', 'error'); return; }
-
-    totalPages = data.pagination.pages;
-    totalEl.textContent = data.pagination.total;
-    allResults.push(...data.members);
-    data.members.forEach(m => grid.appendChild(buildResultCard(m)));
-
-    emptyState.classList.toggle('show', grid.children.length === 0);
-    loadMore.hidden = page >= totalPages;
+    const errors=document.getElementById('filter-error');
+    let candidateFilters=appliedFilters;
+    if(reset) {
+      try {
+        candidateFilters=currentFilters();
+        errors.textContent='';
+      }
+      catch(error) {
+        errors.textContent=error.message;
+        return;
+      }
+    }
+    const version=++requestVersion,targetPage=reset?1:page+1;
+    const status=document.getElementById('results-status');
+    status.classList.remove('error');
+    status.textContent='Finding your connections...';
+    grid.setAttribute('aria-busy','true');
+    loadMore.disabled=true;
+    try {
+      const {
+        ok,data
+      }
+      =await api.discover.browse( {
+        ...candidateFilters,page:targetPage,limit:18
+      });
+      if(version!==requestVersion)return;
+      if(!ok)throw new Error(data?.error||'Search failed. Please try again.');
+      if(reset) {
+        grid.replaceChildren();
+        allResults=[];
+        appliedFilters=candidateFilters;
+      }
+      page=targetPage;
+      totalPages=data.pagination.pages;
+      totalEl.textContent=data.pagination.total;
+      allResults.push(...data.members);
+      data.members.forEach(m=>grid.appendChild(buildResultCard(m)));
+      emptyState.classList.toggle('show',grid.children.length===0);
+      loadMore.hidden=page>=totalPages;
+      renderSummary();
+      status.textContent='';
+      if(reset&&panel.classList.contains('mobile-open'))closeFilters();
+    }
+    catch(error) {
+      if(version===requestVersion) {
+        status.classList.add('error');
+        status.textContent=error.message;
+      }
+    }
+    finally {
+      if(version===requestVersion) {
+        loadMore.disabled=false;
+        grid.setAttribute('aria-busy','false');
+      }
+    }
   }
-
-  document.getElementById('view-results-btn').addEventListener('click', () => runSearch(true));
-  keywordEl.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(true); });
-  locationEl.addEventListener('change', () => runSearch(true));
-  sortEl.addEventListener('change', () => runSearch(true));
-  loadMore.addEventListener('click', () => { page += 1; runSearch(false); });
-
-  document.getElementById('reset-filters-btn').addEventListener('click', () => {
-    keywordEl.value = '';
-    locationEl.value = '';
-    document.querySelectorAll('.select-list-btn').forEach(b => b.classList.remove('selected'));
-    document.querySelectorAll('#filter-tier .select-list-btn[data-value=""]').forEach(b => b.classList.add('selected'));
-    document.querySelectorAll('.tag-select-btn.selected').forEach(b => b.classList.remove('selected'));
-    document.querySelectorAll('.filter-group.open').forEach(g => g.classList.remove('open'));
-    sortEl.value = 'active';
+  form.addEventListener('submit',e=> {
+    e.preventDefault();
     runSearch(true);
   });
-
+  sortEl.addEventListener('change',()=> {
+    document.getElementById('filter-error').textContent='Select View results to apply your changes.';
+  });
+  loadMore.addEventListener('click',()=>runSearch(false));
+  document.getElementById('reset-filters-btn').addEventListener('click',()=> {
+    resetControls();
+    runSearch(true);
+  });
+  document.getElementById('saved-jump').addEventListener('click',()=> {
+    const section=document.getElementById('saved-section');
+    section.open=true;
+    section.scrollIntoView( {
+      block:'nearest'
+    });
+  });
+  const savedSelect=document.getElementById('saved-search'),savedStatus=document.getElementById('saved-status');
+  function savedMessage(message,error=false) {
+    savedStatus.textContent=message;
+    savedStatus.classList.toggle('error',error);
+  }
+  function renderSaved(selected='') {
+    savedSelect.replaceChildren(new Option('Choose a saved search',''));
+    savedSearches.forEach(s=>savedSelect.add(new Option(s.name,s.id)));
+    savedSelect.value=selected;
+  }
+  async function savedAction(button,action) {
+    button.disabled=true;
+    try {
+      await action();
+    }
+    catch(error) {
+      savedMessage(error.message||'Could not update saved searches.',true);
+    }
+    finally {
+      button.disabled=false;
+    }
+  }
+  if(black) {
+    document.getElementById('saved-controls').hidden=false;
+    document.getElementById('save-locked').hidden=true;
+    try {
+      const {
+        ok,data
+      }
+      =await api.discover.saved.list();
+      if(!ok)throw new Error(data?.error||'Could not load saved searches. Reload to retry.');
+      savedSearches=data.searches;
+      renderSaved();
+    }
+    catch(error) {
+      savedMessage(error.message,true);
+    }
+    document.getElementById('save-search').addEventListener('click',e=>savedAction(e.currentTarget,async()=> {
+      const name=document.getElementById('saved-name').value.trim();
+      if(!name)throw new Error('Give your custom filter a name.');
+      const filters=currentFilters();
+      const {
+        ok,data
+      }
+      =await api.discover.saved.create(name,filters);
+      if(!ok)throw new Error(data?.error||'Could not save this search.');
+      savedSearches.push(data.search);
+      renderSaved(data.search.id);
+      document.getElementById('saved-name').value='';
+      savedMessage('Custom filter saved.');
+    }));
+    document.getElementById('apply-saved').addEventListener('click',()=> {
+      if(!catalogLoaded) {
+        savedMessage('Filter choices could not load. Reload before applying a saved search.',true);
+        return;
+      }
+      const saved=savedSearches.find(s=>String(s.id)===savedSelect.value);
+      if(!saved) {
+        savedMessage('Choose a saved search first.',true);
+        return;
+      }
+      restoreFilters(saved.filters);
+      savedSelect.value=saved.id;
+      savedMessage('');
+      runSearch(true);
+    });
+    document.getElementById('delete-saved').addEventListener('click',e=>savedAction(e.currentTarget,async()=> {
+      const id=savedSelect.value;
+      if(!id)throw new Error('Choose a saved search first.');
+      const {
+        ok,data
+      }
+      =await api.discover.saved.remove(id);
+      if(!ok)throw new Error(data?.error||'Could not delete this search.');
+      savedSearches=savedSearches.filter(s=>String(s.id)!==id);
+      renderSaved();
+      savedMessage('Saved filter deleted.');
+    }));
+  }
   runSearch(true);
+
 })();
 </script>
 

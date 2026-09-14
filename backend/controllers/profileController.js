@@ -117,7 +117,7 @@ async function updateMyProfile(req, res) {
     heading, looking_for,
     weight_label, weight_unit, weight_visible,
     height_label, height_unit,
-    education, relationship_status, smoking,
+    education, relationship_status, smoking, ethnicity, drinking, children, languages,
   } = req.body;
 
   // Incognito browsing is Black tier only — allow turning it back OFF at any
@@ -173,6 +173,10 @@ async function updateMyProfile(req, res) {
     if (education           !== undefined) set('education',           education);
     if (relationship_status !== undefined) set('relationship_status', relationship_status);
     if (smoking             !== undefined) set('smoking',             smoking);
+    if (ethnicity           !== undefined) set('ethnicity',           ethnicity);
+    if (drinking            !== undefined) set('drinking',            drinking);
+    if (children            !== undefined) set('children',            children);
+    if (languages           !== undefined) set('languages',           [...new Set(languages)]);
 
     if (!updates.length) {
       return res.status(400).json({ error: 'No fields to update.' });
@@ -361,6 +365,7 @@ async function getProfile(req, res) {
          p.id, p.user_id, p.display_name, p.bio, p.avatar_url,
          p.interests, p.looking_for, p.heading, p.is_complete,
          p.education, p.relationship_status, p.smoking,
+         p.ethnicity, p.drinking, p.children, p.languages,
          p.height_label, p.height_unit,
          p.blur_photos, p.black_only_visibility,
          CASE WHEN $3 = 'black' THEN EXISTS(SELECT 1 FROM member_intro_videos v WHERE v.user_id = p.user_id) ELSE FALSE END AS has_intro_video,
@@ -419,6 +424,10 @@ async function getProfile(req, res) {
       profile.education = null;
       profile.relationship_status = null;
       profile.smoking = null;
+      profile.ethnicity = null;
+      profile.drinking = null;
+      profile.children = null;
+      profile.languages = [];
       profile.height_label = null;
       profile.height_unit = null;
       profile.location = null;

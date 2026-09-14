@@ -18,6 +18,7 @@ const {
   listGeofences, addGeofence, deleteGeofence,
 } = require('../controllers/profileController');
 const { INTEREST_LEVELS } = require('../config/interestTags');
+const { ETHNICITIES, DRINKING, CHILDREN, LANGUAGES } = require('../config/profileOptions');
 const {
   listMyPhotos, addPhoto, deletePhoto, setPrimaryPhoto, reorderPhotos,
 } = require('../controllers/photosController');
@@ -27,6 +28,7 @@ router.use(requireAuth, requireApproved);
 
 // ── Own profile ───────────────────────────────────────────────────────────────
 router.get('/me', getMyProfile);
+router.get('/options', (req, res) => res.json({ ETHNICITIES, DRINKING, CHILDREN, LANGUAGES }));
 
 router.patch('/me', [
   body('display_name').optional().trim().isLength({ min: 2, max: 40 })
@@ -59,6 +61,11 @@ router.patch('/me', [
   body('education').optional().trim().isLength({ max: 60 }),
   body('relationship_status').optional().trim().isLength({ max: 60 }),
   body('smoking').optional().trim().isLength({ max: 30 }),
+  body('ethnicity').optional({ nullable: true }).isIn(ETHNICITIES),
+  body('drinking').optional({ nullable: true }).isIn(DRINKING),
+  body('children').optional({ nullable: true }).isIn(CHILDREN),
+  body('languages').optional().isArray({ max: LANGUAGES.length }),
+  body('languages.*').isIn(LANGUAGES),
 ], validate, updateMyProfile);
 
 router.post('/avatar', avatarUpload, uploadAvatar);

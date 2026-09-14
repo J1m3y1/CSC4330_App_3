@@ -42,7 +42,7 @@
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px;
     font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
-    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+    border:1px solid var(--gold); border-radius:999px; transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
   }
   .btn:hover{ transform:translateY(-1px); }
   .btn-gold{ background:var(--gold); color:var(--noir); }
@@ -388,6 +388,17 @@
   const interestsEl = document.getElementById('filter-interests');
   const tierEl      = document.getElementById('filter-tier');
   const sortEl      = document.getElementById('filter-sort');
+  const canUseDetailedFilters = ['gold', 'black'].includes(user.membership_tier);
+  if (!canUseDetailedFilters) {
+    [lookingEl, interestsEl, tierEl].forEach(select => {
+      select.disabled = true;
+      select.title = 'Detailed filters require Gold or Black membership';
+      const note = document.createElement('span');
+      note.textContent = 'Gold membership';
+      note.style.cssText = 'display:block;font:11px sans-serif;color:var(--gold);margin-top:6px';
+      select.parentNode.appendChild(note);
+    });
+  }
 
   // A real state picker instead of free text — filters against whatever
   // members actually have stored (profileController geocodes free text into
@@ -419,9 +430,9 @@
   function currentFilters() {
     const f = { sort: sortEl.value, page, limit: 20 };
     if (locationEl.value.trim())    f.location    = locationEl.value.trim();
-    if (lookingEl.value)            f.looking_for = lookingEl.value;
-    if (interestsEl.value)          f.interests   = interestsEl.value;
-    if (tierEl.value)               f.tier        = tierEl.value;
+    if (canUseDetailedFilters && lookingEl.value)   f.looking_for = lookingEl.value;
+    if (canUseDetailedFilters && interestsEl.value) f.interests   = interestsEl.value;
+    if (canUseDetailedFilters && tierEl.value)      f.tier        = tierEl.value;
     return f;
   }
 

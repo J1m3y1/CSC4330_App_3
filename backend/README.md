@@ -16,6 +16,36 @@ The frontend (`LandingPage/`, `Dashboard/`, `SignInProcess/`, `SignUpProcess/`,
 so the frontend and API must stay same-origin (or share a registrable domain
 in production); see `ALLOWED_ORIGINS`/`APP_URL` in `.env.example`.
 
+## Detailed member search
+
+Apply migrations `022_saved_searches.sql` and `023_profile_lifestyle.sql` with
+`npm run migrate` before deploying the expanded Search page and API together.
+No new environment variables are required.
+
+- Silver (and free preview): name, location, age, photos, and sorting.
+- Gold: catalog filters for lifestyle, measurements, interests, kinks, activity,
+  verification, and distance from the member's saved location.
+- Black: all selections plus custom kink terms and up to 20 named saved filter
+  combinations. Saved searches are private to their owner.
+
+`GET /api/discover` and `/api/discover/search` share validation and tier checks.
+`GET /api/discover/filter-options` supplies the catalog. Black-only
+`GET/POST /api/discover/saved` and `DELETE /api/discover/saved/:id` manage presets.
+Kink searches match only structured interest entries rated `into`; unknown
+profile details and limits are never inferred as positive kink matches.
+Height filters use centimeters; weight filters use pounds and overlap the
+stored weight range. Hidden weight, location, activity, and restricted profile
+attributes cannot be used to infer private details through matching results.
+Online means activity within the last five minutes. ID verification uses actual
+approved ID records; selfie and background-check filters are not offered because
+those verification statuses are not recorded.
+
+Run the isolated filter and route checks (no external database required):
+
+```bash
+node --test test/searchFilters.test.js test/discoverRoutes.test.js
+```
+
 ## Required environment variables
 
 See `.env.example` for the full list. `DB_*`, `JWT_SECRET`, and

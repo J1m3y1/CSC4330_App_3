@@ -182,6 +182,12 @@ const api = {
 
   // ── Discover ──────────────────────────────────────────────────────────────
   discover: {
+    filterOptions: () => api.get('/discover/filter-options'),
+    saved: {
+      list: () => api.get('/discover/saved'),
+      create: (name, filters) => api.post('/discover/saved', { name, filters }),
+      remove: (id) => api.delete(`/discover/saved/${encodeURIComponent(id)}`),
+    },
     browse: (params = {}) => {
       const qs = new URLSearchParams(params).toString();
       return api.get(`/discover${qs ? '?' + qs : ''}`);
@@ -366,6 +372,29 @@ function populateSidebarAccount(user) {
 
   injectAccountMenu(user);
   injectTopbar(user);
+  injectAdminNavItem(user);
+}
+
+// Admin Panel link in the sidebar — shown only when the server-confirmed
+// `user.role` (from requireAuth's DB lookup in middleware/auth.js, never
+// trusted from the client) is 'admin'. This is a pure UI convenience: every
+// /api/admin/* route is independently gated by requireAdmin server-side
+// (routes/admin.js), and Admin.html itself re-checks role and shows a
+// "denied" screen if it doesn't match — so hiding/showing this link can
+// never be the only thing standing between a non-admin and admin data.
+function injectAdminNavItem(user) {
+  if (user.role !== 'admin') return;
+  const nav = document.querySelector('.sidebar-nav');
+  if (!nav || nav.querySelector('.nav-item[href="/AdminPage/Admin.html"]')) return;
+
+  const link = document.createElement('a');
+  link.className = 'nav-item';
+  link.href = '/AdminPage/Admin.html';
+  link.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/><path d="M11 15l3 3 6-6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Admin Panel
+  `;
+  nav.appendChild(link);
 }
 
 // ── Account dropdown (self-contained, like watermarkPhoto above) ──────────────

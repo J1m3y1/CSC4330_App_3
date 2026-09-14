@@ -45,7 +45,7 @@
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px;
     font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
-    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+    border:1px solid var(--gold); border-radius:999px; transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
   }
   .btn:hover{ transform:translateY(-1px); }
   .btn-gold{ background:var(--gold); color:var(--noir); }
@@ -242,6 +242,10 @@
   .custom-tag-add input:focus{ border-color:var(--gold); }
   .custom-tag-upsell{ font-family:var(--font-serif); font-size:11.5px; color:var(--smoke-dim); font-style:italic; margin-top:10px; }
 
+  .lifestyle-select{ width:100%; padding:10px; background:var(--noir); color:var(--ivory, #eee8dc); border:1px solid var(--line-strong); border-radius:4px; font:inherit; }
+  .lifestyle-language-options{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; font-family:var(--font-sans); font-size:13px; }
+  .lifestyle-language-options label{ display:flex; gap:8px; align-items:center; }
+  .lifestyle-language-options input{ accent-color:var(--gold); }
   /* details list — weight/height/education/relationship/smoking */
   .detail-list{ border-top:1px solid var(--line); }
   .detail-row{ padding:18px 0; border-bottom:1px solid var(--line); }
@@ -999,6 +1003,14 @@
 
     document.getElementById('smoking-value').textContent = profile.smoking || 'Not set';
     selectOption('smoking-options', profile.smoking);
+    for (const field of ['ethnicity', 'drinking', 'children', 'languages']) {
+      const display = document.getElementById(field + '-value');
+      if (!display) continue;
+      display.textContent = field === 'languages' ? (profile.languages || []).join(', ') || 'Not specified' : profile[field] || 'Not specified';
+      if (field === 'languages') {
+        document.querySelectorAll('#languages-options input').forEach(input => { input.checked = (profile.languages || []).includes(input.value); });
+      } else document.getElementById(field + '-input').value = profile[field] || '';
+    }
 
     document.getElementById('account-fullname').textContent = profile.full_name || '—';
     document.getElementById('account-email').textContent = profile.email;
@@ -1114,6 +1126,31 @@
 
   const { ok, data: profile } = await api.profile.me();
   if (!ok) { showToast('Could not load your profile.', 'error'); return; }
+  try {
+    const catalog = await api.get('/profile/options');
+    if (!catalog.ok) throw new Error('Could not load optional detail editors. Reload to try again.');
+    for (const [field, title, key] of [['ethnicity', 'Ethnicity', 'ETHNICITIES'], ['drinking', 'Drinking', 'DRINKING'], ['children', 'Children', 'CHILDREN'], ['languages', 'Languages', 'LANGUAGES']]) {
+      const row = document.createElement('div');
+      row.className = 'detail-row';
+      row.innerHTML = `<div class="detail-row-top"><div class="detail-row-label">${title}</div><div class="detail-row-display" id="${field}-display"><span id="${field}-value">Not specified</span><button type="button" class="link-btn edit-toggle" data-target="${field}-edit">Edit</button></div></div><div class="field-editor" id="${field}-edit"><p>Optional. Choose only what you want shown on your profile.</p><div class="lifestyle-controls"></div><div class="editor-actions"><button type="button" class="btn btn-gold btn-small save-edit" data-target="${field}-edit" data-save="${field}">Save</button><button type="button" class="btn btn-line btn-small cancel-edit" data-target="${field}-edit">Cancel</button></div></div>`;
+      const controls = row.querySelector('.lifestyle-controls');
+      if (field === 'languages') {
+        controls.id = 'languages-options';
+        controls.classList.add('lifestyle-language-options');
+        for (const value of catalog.data[key]) {
+          const label = document.createElement('label');
+          const input = document.createElement('input'); input.type = 'checkbox'; input.value = value;
+          label.append(input, document.createTextNode(value)); controls.append(label);
+        }
+      } else {
+        const select = document.createElement('select'); select.id = field + '-input'; select.className = 'lifestyle-select'; select.setAttribute('aria-label', title);
+        select.add(new Option('Not specified', ''));
+        for (const value of catalog.data[key]) select.add(new Option(value, value));
+        controls.append(select);
+      }
+      document.querySelector('.detail-list').append(row);
+    }
+  } catch (error) { showToast(error.message || 'Could not load optional detail editors.', 'error'); }
   applyProfileData(profile);
   loadInterestTags();
 
@@ -1275,6 +1312,10 @@
         };
       } else if (saveKey === 'height') {
         payload = { height_label: document.querySelector('#height-options .selected')?.dataset.value || null };
+      } else if (saveKey === 'languages') {
+        payload = { languages: [...document.querySelectorAll('#languages-options input:checked')].map(input => input.value) };
+      } else if (['ethnicity', 'drinking', 'children'].includes(saveKey)) {
+        payload = { [saveKey]: document.getElementById(saveKey + '-input').value || null };
       } else if (saveKey) {
         const optionsId = target.replace('-edit', '-options');
         payload = { [saveKey]: document.querySelector(`#${optionsId} .selected`)?.dataset.value || null };

@@ -45,7 +45,7 @@
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:15px 32px;
     font-family:var(--font-sans); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; font-weight:500;
-    border:1px solid var(--gold); transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease;
+    border:1px solid var(--gold); border-radius:999px; transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease;
   }
   .btn:hover{ transform:translateY(-1px); }
   .btn:active{ transform:scale(0.97); }
@@ -106,6 +106,14 @@
   .setup-sub{ font-family:var(--font-sans); font-size:13.5px; color:var(--smoke); line-height:1.7; margin-bottom:26px; }
 
   .setup-body{ flex:1; min-height:0; overflow-y:auto; }
+  .lifestyle-fields{ display:grid; gap:16px; margin-top:24px; font-family:var(--font-sans); font-size:13px; }
+  .lifestyle-fields label{ display:grid; gap:7px; color:var(--smoke); }
+  .lifestyle-fields select{ width:100%; min-width:0; padding:10px; border:1px solid var(--line-strong); border-radius:4px; background:var(--noir); color:var(--ivory, #eee8dc); font:inherit; }
+  .lifestyle-fields fieldset{ min-width:0; border:1px solid var(--line-strong); padding:12px; }
+  .lifestyle-fields legend{ padding:0 5px; }
+  .lifestyle-language-list{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .lifestyle-language-list label{ display:flex; align-items:center; gap:8px; }
+  .lifestyle-language-list input{ accent-color:var(--gold); flex-shrink:0; }
 
   /* toggle pairs (visible/hidden, lbs/kg, ft-in/cm) */
   .toggle-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:14px; flex-wrap:wrap; }
@@ -386,6 +394,13 @@
           <button type="button" class="select-list-btn">Non-smoker</button>
           <button type="button" class="select-list-btn">Light smoker</button>
           <button type="button" class="select-list-btn">Heavy smoker</button>
+        </div>
+        <div class="lifestyle-fields" id="lifestyle-fields">
+          <p>Optional details help members find compatible connections. Only share what you want shown on your profile.</p>
+          <label>Ethnicity<select id="setup-ethnicity" disabled><option value="">Not specified</option></select></label>
+          <label>Drinking<select id="setup-drinking" disabled><option value="">Not specified</option></select></label>
+          <label>Children<select id="setup-children" disabled><option value="">Not specified</option></select></label>
+          <fieldset><legend>Languages (optional)</legend><div id="setup-languages" class="lifestyle-language-list"></div></fieldset>
         </div>
       </div>
     </div>
@@ -689,7 +704,35 @@
     if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
     await requireSession();
     loadInterestTags();
+    loadLifestyleOptions();
   })();
+
+  let lifestyleReady = false;
+  async function loadLifestyleOptions() {
+    try {
+      const [catalog, profile] = await Promise.all([api.get('/profile/options'), api.get('/profile/me')]);
+      if (!catalog.ok || !profile.ok) throw new Error('Could not load optional profile details. Reload to try again.');
+      for (const [field, key] of [['ethnicity', 'ETHNICITIES'], ['drinking', 'DRINKING'], ['children', 'CHILDREN']]) {
+        const select = document.getElementById('setup-' + field);
+        for (const value of catalog.data[key]) select.add(new Option(value, value));
+        select.value = profile.data[field] || '';
+        select.disabled = false;
+      }
+      const container = document.getElementById('setup-languages');
+      for (const language of catalog.data.LANGUAGES) {
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = language;
+        checkbox.checked = (profile.data.languages || []).includes(language);
+        label.append(checkbox, document.createTextNode(language));
+        container.append(label);
+      }
+      lifestyleReady = true;
+    } catch (error) {
+      showToast(error.message || 'Could not load optional profile details.', 'error');
+    }
+  }
 
   // Gathers every step's current on-screen state into one PATCH payload.
   // Weight/height are stored as the picked label text plus the unit toggle —
@@ -708,6 +751,12 @@
       education: selectedText('[data-select="education"] .select-list-btn.selected'),
       relationship_status: selectedText('[data-select="relationship"] .select-list-btn.selected'),
       smoking: selectedText('[data-select="smoking"] .select-list-btn.selected'),
+      ...(lifestyleReady ? {
+        ethnicity: document.getElementById('setup-ethnicity').value || null,
+        drinking: document.getElementById('setup-drinking').value || null,
+        children: document.getElementById('setup-children').value || null,
+        languages: [...document.querySelectorAll('#setup-languages input:checked')].map(input => input.value),
+      } : {}),
       looking_for: selectedList('#looking-for-tags .tag-select-btn.selected'),
       heading: headingInput.value.trim() || undefined,
       bio: aboutInput.value.trim() || undefined,
