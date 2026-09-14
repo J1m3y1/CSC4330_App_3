@@ -1,11 +1,11 @@
 {
-    "name": "_csc4330_app3",
-    "short_name": "_csc4330_app3",
+    "name": "Encore",
+    "short_name": "Encore",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Encore - track the concerts you've been to.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
