@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Azure App Service deployment entry point for Fantasi",
   "scripts": {
-    "start": "node backend/server.js",
+    "start": "node server.js",
     "postinstall": "npm --prefix backend ci --omit=dev"
   },
   "engines": {

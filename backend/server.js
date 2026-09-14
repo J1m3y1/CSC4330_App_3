@@ -157,7 +157,7 @@ app.use((err, _req, res, _next) => {
 // Guarded so `require('./server')` (the test suite does this) gets the app
 // without also binding PORT — the test starts its own listener on an
 // ephemeral port instead.
-if (require.main === module) {
+function start() {
   app.listen(PORT, () => {
     console.log(`[fantasi] API running on http://localhost:${PORT}`);
     console.log(`[fantasi] Environment: ${process.env.NODE_ENV}`);
@@ -171,4 +171,7 @@ if (require.main === module) {
   }, 60_000);
 }
 
+if (require.main === module) start();
+
 module.exports = app;
+module.exports.start = start;
