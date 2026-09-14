@@ -69,7 +69,7 @@ const allowedOrigins = [
   process.env.APP_URL,
   ...(process.env.ALLOWED_ORIGINS || '').split(','),
 ]
-  .map(o => o.trim())
+  .map(o => (o || '').trim())
   .filter(Boolean);
 
 app.use(cors({
