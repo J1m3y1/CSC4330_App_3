@@ -156,7 +156,7 @@
   .row .field{ flex:1; }
 
   .check-row{ display:flex; align-items:flex-start; gap:10px; margin-bottom:24px; }
-  .check-row input[type="checkbox"]{ width:18px; height:18px; margin-top:2px; accent-color:var(--gold); flex-shrink:0; }
+  .check-row input[type="checkbox"]{ margin-top:3px; accent-color:var(--gold); flex-shrink:0; }
   .check-row label{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); line-height:1.6; }
   .check-row label a{ color:var(--gold); text-decoration:underline; }
   .check-row label a:hover{ color:var(--gold-bright); }
@@ -240,18 +240,10 @@
   .resend-link a{ color:var(--gold); text-decoration:underline; }
 
   .upload{
-    /* A label is inline by default. Keeping this as a block-level flex container
-       prevents its dashed border from being fragmented around the inner blocks. */
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    width:100%; min-height:168px;
-    border:1px dashed var(--line-strong); border-radius:2px; padding:30px 20px; text-align:center;
-    margin-bottom:24px; transition:border-color .3s ease, background .3s ease, box-shadow .3s ease; cursor:pointer;
+    border:1px dashed var(--line-strong); border-radius:2px; padding:36px 20px; text-align:center;
+    margin-bottom:24px; transition:border-color .3s ease, background .3s ease; cursor:pointer;
   }
   .upload:hover{ border-color:var(--gold); background:rgba(199,166,92,0.04); }
-  .upload:focus-within{
-    border-color:var(--gold-bright); background:rgba(199,166,92,0.06);
-    box-shadow:0 0 0 3px rgba(228,198,135,0.18);
-  }
   .upload .mark{
     width:32px; height:32px; border:1px solid var(--line-strong); border-radius:50%;
     display:flex; align-items:center; justify-content:center; margin:0 auto 14px; color:var(--gold-dim); font-size:16px;
@@ -580,7 +572,7 @@
         <textarea id="p-drawn" rows="2" placeholder="A few words"></textarea>
       </div>
       <div class="field">
-        <label for="p-discretion">Discretion matters to me because...</label>
+        <label for="p-discretion">I want to enter the world of fantasi because...</label>
         <textarea id="p-discretion" rows="2" placeholder="A few words"></textarea>
       </div>
 
