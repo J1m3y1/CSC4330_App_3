@@ -2,6 +2,17 @@
 
 const { Pool } = require('pg');
 
+// Whether this connection needs TLS at all. Deciding this from NODE_ENV
+// alone is fragile — a host that fails to set NODE_ENV=production (as
+// happened on first Azure deploy: server.js logged "Environment: undefined")
+// silently falls through to ssl:false, and a managed Postgres that requires
+// TLS then just hangs until connectionTimeoutMillis, which looks exactly
+// like "can't connect to the DB" with no hint that SSL was the reason.
+// Inferring from the host is more robust: nothing that isn't literally
+// local ever plausibly wants an unencrypted DB connection.
+const isLocalDb = ['localhost', '127.0.0.1'].includes(process.env.DB_HOST);
+const needsSsl = process.env.NODE_ENV === 'production' || !isLocalDb;
+
 const pool = new Pool({
   host:     process.env.DB_HOST,
   port:     parseInt(process.env.DB_PORT, 10),
@@ -12,17 +23,13 @@ const pool = new Pool({
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
-  // Enforce SSL in production. Managed Postgres (Azure Database for
-  // PostgreSQL, RDS, etc.) terminates TLS with a CA that isn't in Node's
-  // default trust store unless you bundle it yourself — rejectUnauthorized:
-  // true with no `ca` set fails the handshake outright (a very common cause
-  // of "can't connect to the DB" right after deploying to a managed host).
-  // Still encrypts the connection either way; this just skips strict chain
-  // validation unless DB_SSL_REJECT_UNAUTHORIZED=true is explicitly set once
-  // the provider's CA cert is actually configured.
-  ssl: process.env.NODE_ENV === 'production'
-    ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true' }
-    : false,
+  // Managed Postgres (Azure Database for PostgreSQL, RDS, etc.) terminates
+  // TLS with a CA that isn't in Node's default trust store unless you bundle
+  // it yourself — rejectUnauthorized: true with no `ca` set fails the
+  // handshake outright. Still encrypts the connection either way; this just
+  // skips strict chain validation unless DB_SSL_REJECT_UNAUTHORIZED=true is
+  // explicitly set once the provider's CA cert is actually configured.
+  ssl: needsSsl ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true' } : false,
 });
 
 pool.on('error', (err) => {

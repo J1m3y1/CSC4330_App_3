@@ -19,13 +19,19 @@ async function main() {
     process.exit(1);
   }
 
+  // Same reasoning as config/db.js: infer TLS need from the host, not just
+  // NODE_ENV, so a missing NODE_ENV on a managed host doesn't silently run
+  // this without SSL and hang against a provider that requires it.
+  const isLocalDb = ['localhost', '127.0.0.1'].includes(process.env.DB_HOST);
+  const needsSsl = process.env.NODE_ENV === 'production' || !isLocalDb;
+
   const pool = new Pool({
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT, 10),
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: true } : false,
+    ssl: needsSsl ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true' } : false,
   });
 
   try {
