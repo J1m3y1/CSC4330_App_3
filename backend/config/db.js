@@ -12,8 +12,17 @@ const pool = new Pool({
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
-  // Enforce SSL in production
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: true } : false,
+  // Enforce SSL in production. Managed Postgres (Azure Database for
+  // PostgreSQL, RDS, etc.) terminates TLS with a CA that isn't in Node's
+  // default trust store unless you bundle it yourself — rejectUnauthorized:
+  // true with no `ca` set fails the handshake outright (a very common cause
+  // of "can't connect to the DB" right after deploying to a managed host).
+  // Still encrypts the connection either way; this just skips strict chain
+  // validation unless DB_SSL_REJECT_UNAUTHORIZED=true is explicitly set once
+  // the provider's CA cert is actually configured.
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true' }
+    : false,
 });
 
 pool.on('error', (err) => {
