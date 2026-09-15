@@ -298,10 +298,10 @@
         top: 0;
         left: 0;
         pointer-events: none;
-        /* Must stay above every overlay on the page (checkout modal, mobile
-           nav, etc. — see .checkout-overlay and .scroll-progress) or it gets
-           covered whenever one opens, and since `cursor:none` above also
-           hides the real OS pointer, the cursor visually disappears. */
+        /* Must stay above every overlay on the page (mobile nav, etc. — see
+           .scroll-progress) or it gets covered whenever one opens, and since
+           `cursor:none` above also hides the real OS pointer, the cursor
+           visually disappears. */
         z-index: 10050;
         transform: translate(-50%, -50%);
         border-radius: 50%;
@@ -2168,71 +2168,10 @@
   .card-tagline{ font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--smoke-dim); }
   .tier-panel[data-tier="black"] .card-tagline{ color:rgba(228,198,135,0.55); }
  
-  /* ---------------- checkout overlay (UI MOCKUP ONLY — no data is transmitted or stored) ---------------- */
-  .checkout-overlay{
-    position:fixed; inset:0; z-index:9999;
-    background:rgba(11,10,12,0.92); backdrop-filter:blur(10px);
-    display:flex; align-items:center; justify-content:center; padding:24px;
-    opacity:0; pointer-events:none; transition:opacity .4s ease;
-  }
-  .checkout-overlay.open{ opacity:1; pointer-events:auto; }
-  .checkout-modal{
-    position:relative; width:min(480px, 100%); max-height:88vh; overflow-y:auto;
-    background:var(--noir-soft); border:1px solid var(--line-strong); border-radius:4px;
-    padding:48px 42px; box-shadow:0 50px 110px rgba(0,0,0,0.6);
-    transform:translateY(24px) scale(0.98); transition:transform .5s cubic-bezier(.2,.6,.2,1);
-  }
-  .checkout-overlay.open .checkout-modal{ transform:translateY(0) scale(1); }
-  .checkout-close{
-    position:absolute; top:20px; right:20px; width:32px; height:32px; border-radius:50%;
-    border:1px solid var(--line-strong); background:none; display:flex; align-items:center; justify-content:center;
-    color:var(--smoke); transition:border-color .3s ease, color .3s ease;
-  }
-  .checkout-close:hover{ border-color:var(--gold); color:var(--gold-bright); }
- 
-  .checkout-eyebrow{ display:block; margin-bottom:6px; }
-  .checkout-title{ font-size:26px; margin-bottom:6px; }
-  .checkout-tier-name{ color:var(--gold-bright); font-style:italic; }
-  .checkout-sub{ font-size:12px; color:var(--smoke); margin-bottom:32px; display:block; }
- 
-  .checkout-step{ display:none; }
-  .checkout-step.active{ display:block; opacity:1; }
-  .checkout-step{ opacity:0; transition:opacity .35s ease; }
- 
-  .checkout-field{ margin-bottom:20px; }
-  .checkout-field label{
-    display:block; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--smoke-dim); margin-bottom:7px;
-  }
-  .checkout-field input{
-    width:100%; background:none; border:none; border-bottom:1px solid var(--line-strong);
-    padding:8px 0; color:var(--cream); font-family:var(--font-garamond); font-size:15px;
-    outline:none; transition:border-color .3s ease;
-  }
-  .checkout-field input:focus{ border-color:var(--gold); }
-  .checkout-field input::placeholder{ color:var(--smoke-dim); }
-  .checkout-row{ display:flex; gap:16px; }
-  .checkout-row .checkout-field{ flex:1; }
-  .checkout-divider{ height:1px; background:var(--line); margin:28px 0 24px; }
-  .checkout-submit{ width:100%; justify-content:center; margin-top:8px; }
-  .checkout-legal{ font-size:10px; color:var(--smoke-dim); text-align:center; margin-top:18px; line-height:1.6; }
- 
-  .checkout-processing{ text-align:center; padding:50px 0; }
-  .processing-spinner{
-    width:42px; height:42px; border-radius:50%; margin:0 auto 24px;
-    border:2px solid var(--line-strong); border-top-color:var(--gold);
-    animation:checkoutSpin 0.9s linear infinite;
-  }
-  @keyframes checkoutSpin{ to{ transform:rotate(360deg); } }
-  .checkout-processing p{ color:var(--smoke); font-size:13px; }
- 
-  .checkout-confirm{ text-align:center; padding:20px 0; }
-  .checkout-confirm-mark{
-    width:56px; height:56px; border-radius:50%; border:1px solid var(--line-strong);
-    display:flex; align-items:center; justify-content:center; margin:0 auto 26px;
-  }
-  .checkout-confirm h2{ font-size:30px; margin-bottom:14px; }
-  .checkout-confirm p{ color:var(--smoke); font-size:14px; line-height:1.8; max-width:340px; margin:0 auto 30px; }
-  .checkout-confirm .btn{ width:100%; justify-content:center; }
+  /* ---------------- tier panel reference pricing ---------------- */
+  .panel-price{ position:relative; z-index:1; margin-top:18px; font-family:var(--font-sans); }
+  .panel-price .amount{ font-size:28px; color:var(--cream); }
+  .panel-price .period{ font-size:11px; color:var(--smoke-dim); margin-left:4px; }
 
     /* ---------------- safety (compact teaser, links out to a dedicated page) ---------------- */
     .safety {
@@ -3258,7 +3197,8 @@
               </div>
             </div>
             <p>Full access, at your own pace.</p>
-            <a class="btn btn-line checkout-trigger" href="#" data-cursor="Join" data-tier="Silver">Join as Silver</a>
+            <div class="panel-price"><span class="amount">$49</span><span class="period">/mo</span></div>
+            <a class="btn btn-line tier-join-trigger" href="/SignUpProcess/SignUp.html" data-cursor="Join" data-tier="silver">Join as Silver</a>
           </div>
         </div>
       </div>
@@ -3297,7 +3237,8 @@
               </div>
             </div>
             <p>The membership most members choose.</p>
-            <a class="btn btn-gold checkout-trigger" href="#" data-cursor="Join" data-tier="Gold">Join as Gold</a>
+            <div class="panel-price"><span class="amount">$99</span><span class="period">/mo</span></div>
+            <a class="btn btn-gold tier-join-trigger" href="/SignUpProcess/SignUp.html" data-cursor="Join" data-tier="gold">Join as Gold</a>
           </div>
         </div>
       </div>
@@ -3336,7 +3277,7 @@
               </div>
             </div>
             <p>Not purchased. Considered.</p>
-            <a class="btn btn-line checkout-trigger" href="#" data-cursor="Begin" data-tier="Black" style="border-color:var(--gold);">Apply for consideration</a>
+            <a class="btn btn-line tier-join-trigger" href="/SignUpProcess/SignUp.html" data-cursor="Begin" data-tier="black" style="border-color:var(--gold);">Apply for consideration</a>
           </div>
         </div>
       </div>
@@ -3393,91 +3334,7 @@
     </div>
   </footer>
 </section>
- 
-<!-- CHECKOUT OVERLAY — UI mockup only. No data is transmitted, submitted, or stored anywhere.
-     A real payment flow requires a proper backend and a PCI-compliant processor (e.g. Stripe) before
-     this should ever touch a real card number. -->
-<div class="checkout-overlay" id="checkout-overlay">
-  <div class="checkout-modal">
-    <button class="checkout-close" id="checkout-close" aria-label="Close" data-cursor="Close">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-    </button>
- 
-    <!-- STEP 1 — billing details -->
-    <div class="checkout-step active" id="checkout-step-form">
-      <span class="checkout-eyebrow eyebrow">Fantasi membership</span>
-      <h2 class="checkout-title">Join as <span class="checkout-tier-name" id="checkout-tier-label">Gold</span></h2>
-      <span class="checkout-sub">Your details are kept private, always.</span>
- 
-      <div class="checkout-field">
-        <label for="ck-name">Full name</label>
-        <input type="text" id="ck-name" placeholder="As it appears on your card" autocomplete="off">
-      </div>
-      <div class="checkout-field">
-        <label for="ck-email">Email</label>
-        <input type="email" id="ck-email" placeholder="you@example.com" autocomplete="off">
-      </div>
- 
-      <div class="checkout-divider"></div>
- 
-      <div class="checkout-field">
-        <label for="ck-card">Card number</label>
-        <input type="text" id="ck-card" placeholder="•••• •••• •••• ••••" autocomplete="off" inputmode="numeric">
-      </div>
-      <div class="checkout-row">
-        <div class="checkout-field">
-          <label for="ck-expiry">Expiry</label>
-          <input type="text" id="ck-expiry" placeholder="MM / YY" autocomplete="off">
-        </div>
-        <div class="checkout-field">
-          <label for="ck-cvc">CVC</label>
-          <input type="text" id="ck-cvc" placeholder="•••" autocomplete="off" inputmode="numeric">
-        </div>
-      </div>
- 
-      <div class="checkout-divider"></div>
- 
-      <div class="checkout-field">
-        <label for="ck-address">Billing address</label>
-        <input type="text" id="ck-address" placeholder="Street address" autocomplete="off">
-      </div>
-      <div class="checkout-row">
-        <div class="checkout-field">
-          <label for="ck-city">City</label>
-          <input type="text" id="ck-city" placeholder="City" autocomplete="off">
-        </div>
-        <div class="checkout-field">
-          <label for="ck-zip">ZIP / Postal</label>
-          <input type="text" id="ck-zip" placeholder="00000" autocomplete="off">
-        </div>
-      </div>
- 
-      <button class="btn btn-gold checkout-submit" id="checkout-submit" data-cursor="Confirm">Continue to Registration</button>
-      <div class="checkout-legal">You'll complete payment after creating your account.<br>For consenting adults 18 and older only.</div>
-    </div>
- 
-    <!-- STEP 2 — processing -->
-    <div class="checkout-step" id="checkout-step-processing">
-      <div class="checkout-processing">
-        <div class="processing-spinner"></div>
-        <p>Processing your request…</p>
-      </div>
-    </div>
- 
-    <!-- STEP 3 — confirmation -->
-    <div class="checkout-step" id="checkout-step-confirm">
-      <div class="checkout-confirm">
-        <div class="checkout-confirm-mark">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4L16 6" stroke="#E4C687" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <h2>Welcome to Fantasi.</h2>
-        <p>Your membership is confirmed. A verification link has been sent to your email — complete that step to unlock your first introductions.</p>
-        <button class="btn btn-line" id="checkout-done" data-cursor="Close">Continue</button>
-      </div>
-    </div>
-  </div>
-</div>
- 
+
 <script>
   // custom cursor
   const dot = document.getElementById('cursor-dot');
@@ -3672,68 +3529,25 @@
     envelopeObserver.observe(membershipSection);
   })();
  
-  // checkout overlay — UI MOCKUP ONLY. No data is read, submitted, or transmitted anywhere.
-  // "Confirm Purchase" simply advances the visual step; there is no network request here.
+  // Carries the visitor's tier interest from this marketing page into the
+  // real application flow (SignUp.html) — Membership.html picks the same key
+  // back up after signup+approval to pre-open a real upgrade request, so the
+  // click means something end to end instead of the fake card-collection
+  // modal that used to sit here and never actually charged or confirmed
+  // anything (no payment processor exists — upgrades are admin-reviewed).
   (function(){
-    const overlay = document.getElementById('checkout-overlay');
-    const tierLabel = document.getElementById('checkout-tier-label');
-    const stepForm = document.getElementById('checkout-step-form');
-    const stepProcessing = document.getElementById('checkout-step-processing');
-    const stepConfirm = document.getElementById('checkout-step-confirm');
-    if(!overlay) return;
- 
-    function showStep(step){
-      [stepForm, stepProcessing, stepConfirm].forEach(s=>{
-        s.classList.remove('active');
-        s.style.display = 'none';
-      });
-      step.style.display = 'block';
-      requestAnimationFrame(()=> step.classList.add('active'));
+    function rememberTier(tier){
+      try { sessionStorage.setItem('fantasi_chosen_tier', (tier || 'gold').toLowerCase()); } catch(err) {}
     }
- 
-    function openCheckout(tierName){
-      tierLabel.textContent = tierName;
-      showStep(stepForm);
-      overlay.classList.add('open');
-    }
-    function closeCheckout(){
-      overlay.classList.remove('open');
-    }
- 
-    // trigger from each tier's CTA button
-    document.querySelectorAll('.checkout-trigger').forEach(btn=>{
-      btn.addEventListener('click', (e)=>{
-        e.preventDefault();
-        openCheckout(btn.getAttribute('data-tier'));
-      });
+    document.querySelectorAll('.tier-join-trigger').forEach(btn=>{
+      btn.addEventListener('click', () => rememberTier(btn.getAttribute('data-tier')));
     });
- 
-    // trigger from clicking the revealed membership card itself
     document.querySelectorAll('.membership-card').forEach(card=>{
       card.addEventListener('click', ()=>{
-        const panel = card.closest('.tier-panel');
-        const tier = panel ? panel.getAttribute('data-tier') : 'gold';
-        openCheckout(tier.charAt(0).toUpperCase() + tier.slice(1));
-      });
-    });
- 
-    // close via the X button, or clicking the dark backdrop outside the modal
-    document.getElementById('checkout-close').addEventListener('click', closeCheckout);
-    overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeCheckout(); });
-    document.getElementById('checkout-done').addEventListener('click', closeCheckout);
- 
-    // step 1 -> step 2 -> step 3
-    // Landing page visitors aren't logged in yet — guide them to sign up first,
-    // then they can upgrade membership from the dashboard.
-    document.getElementById('checkout-submit').addEventListener('click', (e)=>{
-      e.preventDefault();
-      const tier = (tierLabel.textContent || 'gold').toLowerCase();
-      // Store chosen tier so signup page can pre-select it
-      try { sessionStorage.setItem('fantasi_chosen_tier', tier); } catch(err) {}
-      showStep(stepProcessing);
-      setTimeout(()=>{
+        const tier = card.closest('.tier-panel')?.getAttribute('data-tier') || 'gold';
+        rememberTier(tier);
         window.location.href = '/SignUpProcess/SignUp.html';
-      }, 1800);
+      });
     });
   })();
  

@@ -422,12 +422,20 @@
 
   const TIER_ORDER = ['free', 'silver', 'gold', 'black'];
   const TIER_TAGS  = { free: 'Get started', silver: 'Begin your search', gold: 'Most requested', black: 'By invitation' };
+  // Reference pricing only — Fantasi takes no payment itself, so this isn't
+  // tied to a checkout; tiers above Free are still granted by invitation
+  // after a request is reviewed. Black stays priceless on purpose to keep
+  // its by-invitation framing.
+  const TIER_PRICES = { silver: { amount: '$49', period: '/mo' }, gold: { amount: '$99', period: '/mo' } };
 
   document.getElementById('billing-email').textContent = me.email;
+
+  let lastMembershipData = null;
 
   async function loadMembership() {
     const { ok, data } = await api.membership.get();
     if (!ok) { showToast(data?.error || 'Could not load membership.', 'error'); return; }
+    lastMembershipData = data;
     render(data);
   }
 
@@ -459,10 +467,14 @@
       const band = document.createElement('div');
       band.className = 'tier-card-band';
       band.innerHTML = `<span class="band-tag">${TIER_TAGS[t]}</span><h4>${capitalize(t)}</h4>`;
-
-      // No pricing shown — Fantasi takes no payment itself; tiers above Free
-      // are granted by invitation after a request is reviewed.
       card.append(band);
+
+      if (TIER_PRICES[t]) {
+        const price = document.createElement('div');
+        price.className = 'tier-price';
+        price.innerHTML = `<span class="amount">${TIER_PRICES[t].amount}</span><span class="period">${TIER_PRICES[t].period}</span>`;
+        card.appendChild(price);
+      }
 
       if (t === tier) {
         const badge = document.createElement('span');
@@ -565,6 +577,19 @@
   });
 
   await loadMembership();
+
+  // Picks up the tier a visitor clicked "Join as ___" for on the public
+  // Landing page (see Landing.html's rememberTier()) and turns it into a
+  // real request here, so that click means something end to end instead of
+  // silently getting dropped once they land inside the app.
+  try {
+    const chosenTier = sessionStorage.getItem('fantasi_chosen_tier');
+    sessionStorage.removeItem('fantasi_chosen_tier');
+    if (chosenTier && TIER_ORDER.includes(chosenTier) && lastMembershipData && !lastMembershipData.pending_request) {
+      const currentRank = TIER_ORDER.indexOf(lastMembershipData.current_tier);
+      if (TIER_ORDER.indexOf(chosenTier) > currentRank) openUpgradeNoteModal(chosenTier);
+    }
+  } catch (err) {}
 })();
 </script>
 
