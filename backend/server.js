@@ -52,7 +52,13 @@ app.use(helmet({
       fontSrc:     ["'self'", 'https://use.typekit.net', 'https://p.typekit.net'],
       imgSrc:      ["'self'", 'data:'],
       mediaSrc:    ["'self'"],
-      connectSrc:  ["'self'"],
+      // https://nominatim.openstreetmap.org: SignUp.html's "Use my location"
+      // reverse-geocodes the browser's coordinates against Nominatim's free
+      // API directly from the client — without this, every attempt asks for
+      // location permission, succeeds, then silently fails the geocode
+      // fetch with a CSP violation, landing on "We could not match your
+      // location" no matter what coordinates come back.
+      connectSrc:  ["'self'", 'https://nominatim.openstreetmap.org'],
       frameSrc:    ["'none'"],
       objectSrc:   ["'none'"],
       upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
