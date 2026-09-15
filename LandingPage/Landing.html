@@ -461,6 +461,87 @@
       pointer-events: auto;
     }
 
+    /* ---------------- mobile nav (hamburger + slide-in drawer) ---------------- */
+    .mobile-nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 5px;
+      width: 30px;
+      height: 26px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .6s ease;
+      position: relative;
+      z-index: 9997;
+    }
+    .mobile-nav-toggle span {
+      display: block;
+      width: 100%;
+      height: 1.5px;
+      background: var(--cream);
+      transition: transform .3s ease, opacity .3s ease;
+    }
+    .mobile-nav-toggle.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .mobile-nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .mobile-nav-toggle.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    header.scrolled .mobile-nav-toggle { opacity: 1; pointer-events: auto; }
+
+    .mobile-nav-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 9995;
+      background: rgba(11, 10, 12, 0.72);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    .mobile-nav-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .mobile-nav-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9996;
+      width: min(320px, 82vw);
+      background: var(--noir-soft);
+      border-left: 1px solid var(--line-strong);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 90px 30px 40px;
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform .45s cubic-bezier(.2, .6, .2, 1);
+      box-shadow: -30px 0 60px rgba(0, 0, 0, 0.4);
+    }
+    .mobile-nav-drawer.open { transform: translateX(0); }
+    .mobile-nav-drawer a {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      color: var(--cream);
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      letter-spacing: 0.01em;
+    }
+    .mobile-nav-drawer a:hover { color: var(--gold-bright); }
+    .mobile-nav-drawer-divider { height: 10px; }
+    .mobile-nav-drawer .mobile-nav-drawer-cta {
+      margin-top: 16px;
+      width: 100%;
+      justify-content: center;
+      border-bottom: none;
+      padding: 14px;
+    }
+    body.mobile-nav-open { overflow: hidden; }
+
     /* ---------------- hero ---------------- */
     .hero {
       position: relative;
@@ -2168,10 +2249,6 @@
   .card-tagline{ font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--smoke-dim); }
   .tier-panel[data-tier="black"] .card-tagline{ color:rgba(228,198,135,0.55); }
  
-  /* ---------------- tier panel reference pricing ---------------- */
-  .panel-price{ position:relative; z-index:1; margin-top:18px; font-family:var(--font-sans); }
-  .panel-price .amount{ font-size:28px; color:var(--cream); }
-  .panel-price .period{ font-size:11px; color:var(--smoke-dim); margin-left:4px; }
 
     /* ---------------- safety (compact teaser, links out to a dedicated page) ---------------- */
     .safety {
@@ -2376,6 +2453,10 @@
 
     @media (max-width:900px) {
 
+      .mobile-nav-toggle {
+        display: flex;
+      }
+
       .pillars-grid,
       .how-head,
       .tier-grid,
@@ -2536,12 +2617,14 @@
       }
 
       .nav-cta .sign-in {
-        display: none;
+        font-size: 11px;
+        white-space: nowrap;
       }
 
       .nav-cta .btn-gold {
-        padding: 10px 18px !important;
-        font-size: 11px;
+        padding: 10px 16px !important;
+        font-size: 10.5px;
+        white-space: nowrap;
       }
     }
 
@@ -2596,8 +2679,23 @@
         <a class="sign-in" href="/SignInProcess/SignIn.html" data-cursor="Enter">Sign in</a>
         <a class="btn btn-gold" href="/SignUpProcess/SignUp.html" data-cursor="Begin" style="padding:12px 26px;">Request invitation</a>
       </div>
+      <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav-drawer">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
+
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+  <nav class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile">
+    <a href="#about" data-cursor="View">About Us</a>
+    <a href="#discretion" data-cursor="View">Discretion</a>
+    <a href="#how" data-cursor="View">How it works</a>
+    <a href="#membership" data-cursor="View">Membership</a>
+    <a href="/LandingPage/Safety.html" data-cursor="View">Safety</a>
+    <div class="mobile-nav-drawer-divider"></div>
+    <a href="/SignInProcess/SignIn.html" data-cursor="Enter">Sign in</a>
+    <a class="btn btn-gold mobile-nav-drawer-cta" href="/SignUpProcess/SignUp.html" data-cursor="Begin">Request invitation</a>
+  </nav>
 
   <section class="hero">
     <div class="hero-media">
@@ -3197,7 +3295,6 @@
               </div>
             </div>
             <p>Full access, at your own pace.</p>
-            <div class="panel-price"><span class="amount">$49</span><span class="period">/mo</span></div>
             <a class="btn btn-line tier-join-trigger" href="/SignUpProcess/SignUp.html" data-cursor="Join" data-tier="silver">Join as Silver</a>
           </div>
         </div>
@@ -3237,7 +3334,6 @@
               </div>
             </div>
             <p>The membership most members choose.</p>
-            <div class="panel-price"><span class="amount">$99</span><span class="period">/mo</span></div>
             <a class="btn btn-gold tier-join-trigger" href="/SignUpProcess/SignUp.html" data-cursor="Join" data-tier="gold">Join as Gold</a>
           </div>
         </div>
@@ -3336,6 +3432,41 @@
 </section>
 
 <script>
+  // mobile nav drawer — the header's nav links + sign in are display:none
+  // below 900px with nothing else to reach them, so this hamburger + slide-in
+  // panel is the only way a phone/tablet visitor can get to About/Discretion/
+  // How it works/Membership/Safety or sign in without scrolling to a section
+  // that happens to link there.
+  (function(){
+    const toggle   = document.getElementById('mobile-nav-toggle');
+    const drawer   = document.getElementById('mobile-nav-drawer');
+    const backdrop = document.getElementById('mobile-nav-backdrop');
+    if (!toggle || !drawer || !backdrop) return;
+
+    function openDrawer(){
+      drawer.classList.add('open');
+      backdrop.classList.add('open');
+      toggle.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('mobile-nav-open');
+    }
+    function closeDrawer(){
+      drawer.classList.remove('open');
+      backdrop.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('mobile-nav-open');
+    }
+
+    toggle.addEventListener('click', () => {
+      drawer.classList.contains('open') ? closeDrawer() : openDrawer();
+    });
+    backdrop.addEventListener('click', closeDrawer);
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeDrawer));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+    window.addEventListener('resize', () => { if (window.innerWidth > 900) closeDrawer(); });
+  })();
+
   // custom cursor
   const dot = document.getElementById('cursor-dot');
   const ring = document.getElementById('cursor-ring');

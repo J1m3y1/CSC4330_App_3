@@ -511,6 +511,41 @@ function injectAdminNavItem(user) {
       .fantasi-topbar-account-name{ display:none; }
       .fantasi-topbar-upgrade{ display:none; }
     }
+
+    /* ---- mobile nav drawer (stands in for the sidebar below 980px, where
+       every page hides it) — replaces the topbar's own Search/Interests/
+       Messages links on mobile since the drawer now covers all ten sidebar
+       destinations instead of just three. ---- */
+    .fantasi-mnav-toggle{
+      display:none; flex-direction:column; justify-content:center; align-items:center; gap:5px;
+      width:30px; height:26px; background:none; border:none; padding:0; cursor:pointer; flex-shrink:0;
+    }
+    .fantasi-mnav-toggle span{
+      display:block; width:100%; height:1.5px; background:var(--cream, #F2ECDF);
+      transition:transform .3s ease, opacity .3s ease;
+    }
+    .fantasi-mnav-toggle.open span:nth-child(1){ transform:translateY(6.5px) rotate(45deg); }
+    .fantasi-mnav-toggle.open span:nth-child(2){ opacity:0; }
+    .fantasi-mnav-toggle.open span:nth-child(3){ transform:translateY(-6.5px) rotate(-45deg); }
+    .fantasi-mnav-backdrop{
+      position:fixed; inset:0; z-index:295; background:rgba(11,10,12,0.72); backdrop-filter:blur(4px);
+      opacity:0; pointer-events:none; transition:opacity .35s ease;
+    }
+    .fantasi-mnav-backdrop.open{ opacity:1; pointer-events:auto; }
+    .fantasi-mnav-drawer{
+      position:fixed; top:0; left:0; bottom:0; z-index:296; width:min(280px, 82vw);
+      background:var(--noir-soft, #100E11); border-right:1px solid var(--line-strong, rgba(199,166,92,0.30));
+      overflow-y:auto; padding:24px 0;
+      transform:translateX(-100%); transition:transform .4s cubic-bezier(.2,.6,.2,1);
+      box-shadow:30px 0 60px rgba(0,0,0,0.4);
+    }
+    .fantasi-mnav-drawer.open{ transform:translateX(0); }
+    .fantasi-mnav-drawer .sidebar-nav{ padding:0 14px; }
+    body.fantasi-mnav-open{ overflow:hidden; }
+    @media (max-width:980px){
+      .fantasi-mnav-toggle{ display:flex; }
+      .fantasi-topbar-nav{ display:none; }
+    }
   `;
   document.head.appendChild(style);
 })();
@@ -740,6 +775,62 @@ function injectTopbar(user) {
     sidebar.style.top = `${barHeight}px`;
     sidebar.style.height = `calc(100vh - ${barHeight}px)`;
   }
+
+  injectMobileNavDrawer(bar);
+}
+
+// Every dashboard page hides `.sidebar` below ~900-980px with nothing put in
+// its place — on a phone that meant Chatrooms, Forum, Safety, and (for
+// non-upgradeable Black members) Membership were completely unreachable,
+// reduced to whatever three links the topbar happened to keep. This clones
+// the page's own `.sidebar-nav` into a slide-in drawer instead of hardcoding
+// a second copy of the link list, so it can never drift out of sync with
+// whatever the sidebar actually has (including the admin link
+// injectAdminNavItem appends — the clone happens at open time, not here, so
+// it always reflects the current DOM regardless of call order).
+function injectMobileNavDrawer(topbar) {
+  const sidebarNav = document.querySelector('.sidebar-nav');
+  if (!sidebarNav || document.getElementById('fantasi-mnav-toggle')) return;
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.id = 'fantasi-mnav-toggle';
+  toggle.className = 'fantasi-mnav-toggle';
+  toggle.setAttribute('aria-label', 'Open menu');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.innerHTML = '<span></span><span></span><span></span>';
+  const logo = topbar.querySelector('.fantasi-topbar-logo');
+  logo.after(toggle);
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'fantasi-mnav-backdrop';
+  const drawer = document.createElement('nav');
+  drawer.className = 'fantasi-mnav-drawer';
+  drawer.setAttribute('aria-label', 'Navigation');
+  document.body.append(backdrop, drawer);
+
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    backdrop.classList.remove('open');
+    toggle.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('fantasi-mnav-open');
+  }
+  function openDrawer() {
+    drawer.innerHTML = '';
+    drawer.appendChild(sidebarNav.cloneNode(true));
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeDrawer));
+    drawer.classList.add('open');
+    backdrop.classList.add('open');
+    toggle.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('fantasi-mnav-open');
+  }
+
+  toggle.addEventListener('click', () => { drawer.classList.contains('open') ? closeDrawer() : openDrawer(); });
+  backdrop.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+  window.addEventListener('resize', () => { if (window.innerWidth > 980) closeDrawer(); });
 }
 
 /**

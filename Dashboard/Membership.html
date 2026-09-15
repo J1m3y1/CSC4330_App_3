@@ -424,9 +424,9 @@
   const TIER_TAGS  = { free: 'Get started', silver: 'Begin your search', gold: 'Most requested', black: 'By invitation' };
   // Reference pricing only — Fantasi takes no payment itself, so this isn't
   // tied to a checkout; tiers above Free are still granted by invitation
-  // after a request is reviewed. Black stays priceless on purpose to keep
-  // its by-invitation framing.
-  const TIER_PRICES = { silver: { amount: '$49', period: '/mo' }, gold: { amount: '$99', period: '/mo' } };
+  // after a request is reviewed. Shown here (behind login, via initDashboard())
+  // and nowhere on the public Landing page.
+  const TIER_PRICES = { silver: { amount: '$49', period: '/mo' }, gold: { amount: '$99', period: '/mo' }, black: { amount: '$149', period: '/mo' } };
 
   document.getElementById('billing-email').textContent = me.email;
 
