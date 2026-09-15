@@ -421,7 +421,10 @@ function injectAdminNavItem(user) {
     }
     .fantasi-am-panel.show{ display:block; }
     .fantasi-am-panel-up{ left:0; right:0; bottom:100%; margin-bottom:10px; }
-    .fantasi-am-panel-down{ right:0; top:100%; margin-top:10px; width:280px; }
+    .fantasi-am-panel-down{ right:0; top:100%; margin-top:10px; width:360px; max-width:calc(100vw - 32px); max-height:calc(100dvh - 110px); overflow-y:auto; }
+    .fantasi-am-panel-down .fantasi-am-card{ padding:24px; }
+    .fantasi-am-panel-down .fantasi-am-actions{ padding:16px 24px; }
+    .fantasi-am-panel-down .fantasi-am-item{ padding:12px 14px; }
     .fantasi-am-card{ padding:18px 18px 16px; border-bottom:1px solid var(--line, rgba(199,166,92,0.14)); }
     .fantasi-am-card-top{ display:flex; align-items:center; gap:12px; }
     .fantasi-am-avatar{
