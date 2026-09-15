@@ -126,4 +126,35 @@ class DatabaseHelper {
 
     return user;
   }
+
+  /// Updates a user's name and email. Throws [AuthException] if the new
+  /// email is already taken by a different account.
+  Future<Map<String, Object?>> updateProfile({
+    required int id,
+    required String name,
+    required String email,
+  }) async {
+    final db = await database;
+    final normalizedEmail = email.trim().toLowerCase();
+
+    final existing = await db.query(
+      tableUsers,
+      where: 'email = ? AND id != ?',
+      whereArgs: [normalizedEmail, id],
+      limit: 1,
+    );
+    if (existing.isNotEmpty) {
+      throw AuthException('An account with that email already exists.');
+    }
+
+    await db.update(
+      tableUsers,
+      {'name': name.trim(), 'email': normalizedEmail},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    final updated = await db.query(tableUsers, where: 'id = ?', whereArgs: [id], limit: 1);
+    return updated.first;
+  }
 }
