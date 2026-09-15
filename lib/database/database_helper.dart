@@ -4,9 +4,11 @@ import 'dart:io' show Platform;
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart' show databaseFactorySqflitePlugin;
+import 'package:sqflite/sqflite.dart' show ConflictAlgorithm, databaseFactorySqflitePlugin;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+
+import '../models/concert.dart';
 
 /// Thrown when a signup or login request cannot be fulfilled.
 class AuthException implements Exception {
@@ -24,8 +26,9 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
 
   static const _dbName = 'app_users.db';
-  static const _dbVersion = 1;
+  static const _dbVersion = 2;
   static const tableUsers = 'users';
+  static const tableSavedConcerts = 'saved_concerts';
 
   Database? _database;
 
@@ -62,10 +65,31 @@ class DatabaseHelper {
               createdAt TEXT NOT NULL
             )
           ''');
+          await db.execute(_createSavedConcertsTableSql);
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < 2) {
+            await db.execute(_createSavedConcertsTableSql);
+          }
         },
       ),
     );
   }
+
+  static const _createSavedConcertsTableSql = '''
+    CREATE TABLE $tableSavedConcerts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId INTEGER NOT NULL,
+      concertId TEXT NOT NULL,
+      name TEXT NOT NULL,
+      date TEXT,
+      venueName TEXT NOT NULL,
+      city TEXT NOT NULL,
+      imageUrl TEXT,
+      ticketUrl TEXT NOT NULL,
+      UNIQUE(userId, concertId)
+    )
+  ''';
 
   String _hashPassword(String password) {
     return sha256.convert(utf8.encode(password)).toString();
@@ -156,5 +180,59 @@ class DatabaseHelper {
 
     final updated = await db.query(tableUsers, where: 'id = ?', whereArgs: [id], limit: 1);
     return updated.first;
+  }
+
+  /// Adds a concert to the user's "going to" list. Silently does nothing
+  /// if it's already saved.
+  Future<void> saveConcert({required int userId, required Concert concert}) async {
+    final db = await database;
+    await db.insert(
+      tableSavedConcerts,
+      {
+        'userId': userId,
+        'concertId': concert.id,
+        'name': concert.name,
+        'date': concert.date?.toIso8601String(),
+        'venueName': concert.venueName,
+        'city': concert.city,
+        'imageUrl': concert.imageUrl,
+        'ticketUrl': concert.ticketUrl,
+      },
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+  }
+
+  /// Removes a concert from the user's "going to" list.
+  Future<void> removeConcert({required int userId, required String concertId}) async {
+    final db = await database;
+    await db.delete(
+      tableSavedConcerts,
+      where: 'userId = ? AND concertId = ?',
+      whereArgs: [userId, concertId],
+    );
+  }
+
+  /// The Ticketmaster event ids the user has already saved.
+  Future<Set<String>> getSavedConcertIds({required int userId}) async {
+    final db = await database;
+    final rows = await db.query(
+      tableSavedConcerts,
+      columns: ['concertId'],
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+    return rows.map((row) => row['concertId'] as String).toSet();
+  }
+
+  /// All concerts the user has saved, soonest first.
+  Future<List<Concert>> getSavedConcerts({required int userId}) async {
+    final db = await database;
+    final rows = await db.query(
+      tableSavedConcerts,
+      where: 'userId = ?',
+      whereArgs: [userId],
+      orderBy: 'date ASC',
+    );
+    return rows.map(Concert.fromSavedRow).toList(growable: false);
   }
 }

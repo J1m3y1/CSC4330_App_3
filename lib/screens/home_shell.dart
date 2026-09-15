@@ -23,8 +23,8 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      const ConcertsScreen(),
-      const MyConcertsScreen(),
+      ConcertsScreen(user: widget.user),
+      MyConcertsScreen(user: widget.user),
       ProfileScreen(user: widget.user),
     ];
 

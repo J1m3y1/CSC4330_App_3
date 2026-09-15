@@ -44,4 +44,18 @@ class Concert {
       ticketUrl: json['url'] as String? ?? '',
     );
   }
+
+  /// Rebuilds a [Concert] from a `saved_concerts` table row.
+  factory Concert.fromSavedRow(Map<String, Object?> row) {
+    final date = row['date'] as String?;
+    return Concert(
+      id: row['concertId'] as String,
+      name: row['name'] as String,
+      date: date != null ? DateTime.tryParse(date) : null,
+      venueName: row['venueName'] as String,
+      city: row['city'] as String,
+      imageUrl: row['imageUrl'] as String?,
+      ticketUrl: row['ticketUrl'] as String,
+    );
+  }
 }
