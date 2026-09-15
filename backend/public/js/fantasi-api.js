@@ -467,55 +467,46 @@ function injectAdminNavItem(user) {
 
     /* ---- top header bar (sits above the sidebar, not instead of it) ---- */
     .fantasi-topbar{
-      position:sticky; top:0; z-index:150; height:84px; display:flex; align-items:center; gap:26px;
+      position:sticky; top:0; z-index:150; height:96px; display:flex; align-items:center; gap:26px;
       padding:0 28px; background:var(--noir-soft, #100E11); border-bottom:1px solid var(--line, rgba(199,166,92,0.14));
     }
     .fantasi-topbar-logo{ display:flex; align-items:center; flex-shrink:0; }
     .fantasi-topbar-logo img{ height:65px; width:auto; }
-    .fantasi-topbar-nav{ display:flex; align-items:center; gap:4px; flex:1; }
-    .fantasi-topbar-link{
-      display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:20px;
-      font-family:var(--font-sans, sans-serif); font-size:13.5px; color:var(--smoke, #8D8579);
-      transition:background .2s ease, color .2s ease;
-    }
-    .fantasi-topbar-link:hover{ background:rgba(199,166,92,0.06); color:var(--cream, #F2ECDF); }
-    .fantasi-topbar-link svg{ flex-shrink:0; width:20px; height:20px; }
-    .fantasi-topbar-actions{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .fantasi-topbar-actions{ display:flex; align-items:center; gap:16px; flex-shrink:0; margin-left:auto; }
     .fantasi-topbar-upgrade{
-      padding:8px 16px; border-radius:20px; background:var(--gold, #C7A65C); color:var(--noir, #0B0A0C);
-      font-family:var(--font-sans, sans-serif); font-size:11px; letter-spacing:0.04em; text-transform:uppercase; font-weight:500;
+      padding:14px 28px; border-radius:24px; background:var(--gold, #C7A65C); color:var(--noir, #0B0A0C);
+      font-family:var(--font-sans, sans-serif); font-size:13px; letter-spacing:0.04em; text-transform:uppercase; font-weight:500;
       transition:background .25s ease; white-space:nowrap;
     }
     .fantasi-topbar-upgrade:hover{ background:var(--gold-bright, #E4C687); }
     .fantasi-topbar-boost{
-      padding:8px 16px; border-radius:20px; border:1px solid var(--line-strong, rgba(199,166,92,0.30));
-      font-family:var(--font-sans, sans-serif); font-size:11px; letter-spacing:0.04em; text-transform:uppercase;
+      padding:14px 28px; border-radius:24px; border:1px solid var(--line-strong, rgba(199,166,92,0.30));
+      font-family:var(--font-sans, sans-serif); font-size:13px; letter-spacing:0.04em; text-transform:uppercase;
       color:var(--cream, #F2ECDF); transition:border-color .25s ease, color .25s ease, background .25s ease;
       white-space:nowrap;
     }
     .fantasi-topbar-boost:hover:not(:disabled){ border-color:var(--gold, #C7A65C); color:var(--gold-bright, #E4C687); }
     .fantasi-topbar-boost.active{ border-color:var(--gold, #C7A65C); color:var(--gold-bright, #E4C687); background:rgba(199,166,92,0.08); }
     .fantasi-topbar-boost:disabled{ opacity:0.5; cursor:not-allowed; }
-    .fantasi-topbar-account{ position:relative; display:flex; align-items:center; gap:9px; cursor:pointer; padding:6px 8px; border-radius:20px; }
+    .fantasi-topbar-account{ position:relative; display:flex; align-items:center; gap:12px; cursor:pointer; padding:8px 12px; border-radius:26px; }
     .fantasi-topbar-account:hover{ background:rgba(199,166,92,0.06); }
     .fantasi-topbar-avatar{
-      width:36px; height:36px; border-radius:50%; flex-shrink:0; background-size:cover; background-position:center;
+      width:52px; height:52px; border-radius:50%; flex-shrink:0; background-size:cover; background-position:center;
       background:linear-gradient(135deg, var(--gold-bright, #E4C687), var(--gold-dim, #7C6636));
       display:flex; align-items:center; justify-content:center;
-      font-family:var(--font-display, serif); font-style:italic; font-size:15px; color:var(--noir, #0B0A0C);
+      font-family:var(--font-display, serif); font-style:italic; font-size:20px; color:var(--noir, #0B0A0C);
     }
-    .fantasi-topbar-account-name{ font-family:var(--font-sans, sans-serif); font-size:13px; color:var(--cream, #F2ECDF); }
+    .fantasi-topbar-account-name{ font-family:var(--font-sans, sans-serif); font-size:16px; color:var(--cream, #F2ECDF); }
     @media (max-width:760px){
       .fantasi-topbar{ gap:10px; padding:0 14px; }
-      .fantasi-topbar-link span{ display:none; }
       .fantasi-topbar-account-name{ display:none; }
       .fantasi-topbar-upgrade{ display:none; }
     }
 
     /* ---- mobile nav drawer (stands in for the sidebar below 980px, where
-       every page hides it) — replaces the topbar's own Search/Interests/
-       Messages links on mobile since the drawer now covers all ten sidebar
-       destinations instead of just three. ---- */
+       every page hides it) — the only way to reach Discover/Search/Interests/
+       Messages/Chatrooms/Forum/Profile/Privacy/Membership/Safety on mobile,
+       now that the topbar itself carries no nav links of its own. ---- */
     .fantasi-mnav-toggle{
       display:none; flex-direction:column; justify-content:center; align-items:center; gap:5px;
       width:30px; height:26px; background:none; border:none; padding:0; cursor:pointer; flex-shrink:0;
@@ -544,7 +535,6 @@ function injectAdminNavItem(user) {
     body.fantasi-mnav-open{ overflow:hidden; }
     @media (max-width:980px){
       .fantasi-mnav-toggle{ display:flex; }
-      .fantasi-topbar-nav{ display:none; }
     }
   `;
   document.head.appendChild(style);
@@ -665,11 +655,14 @@ function injectAccountMenu(user) {
 }
 
 // ── Top header bar ──────────────────────────────────────────────────────────────
-// Sits above the sidebar (not instead of it) on every logged-in page — quick
-// links, an Upgrade CTA, real Boost (temporary top-of-Discover placement,
-// see profileController.js — no payment processor exists to gate it behind,
-// so it's open to every tier and rationed by a 24h cooldown instead), and a
+// Sits above the sidebar (not instead of it) on every logged-in page — an
+// Upgrade CTA, real Boost (temporary top-of-Discover placement, see
+// profileController.js — no payment processor exists to gate it behind, so
+// it's open to every tier and rationed by a 24h cooldown instead), and a
 // second account trigger sharing buildAccountPanel with the sidebar's.
+// Carries no nav links of its own (that used to duplicate three of the
+// sidebar's ten items) — full navigation lives in the sidebar on desktop and
+// in injectMobileNavDrawer()'s clone of it on mobile.
 function injectTopbar(user) {
   if (document.getElementById('fantasi-topbar')) return;
 
@@ -680,20 +673,6 @@ function injectTopbar(user) {
     <a class="fantasi-topbar-logo" href="/Dashboard/Discover.html">
       <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi">
     </a>
-    <nav class="fantasi-topbar-nav">
-      <a class="fantasi-topbar-link" href="/Dashboard/Search.html">
-        <svg width="15" height="15" viewBox="0 0 30 30" fill="none"><circle cx="13" cy="13" r="8" stroke="currentColor" stroke-width="1.3"/><path d="M19 19l6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        <span>Search</span>
-      </a>
-      <a class="fantasi-topbar-link" href="/Dashboard/Interests.html">
-        <svg width="15" height="15" viewBox="0 0 20 18" fill="none"><path d="M10 17s-6.5-4.2-8.4-8.7C.4 5.6 2.2 2 5.4 2c1.8 0 3.3 1 4.2 2.4C10.4 3 11.9 2 13.7 2c3.2 0 5 3.6 3.8 6.3C15.5 12.8 10 17 10 17z" stroke="currentColor" stroke-width="1.3"/></svg>
-        <span>Interests</span>
-      </a>
-      <a class="fantasi-topbar-link" href="/Dashboard/Messages.html">
-        <svg width="15" height="15" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1.3"/></svg>
-        <span>Messages</span>
-      </a>
-    </nav>
     <div class="fantasi-topbar-actions"></div>
   `;
   document.body.insertBefore(bar, document.body.firstChild);
