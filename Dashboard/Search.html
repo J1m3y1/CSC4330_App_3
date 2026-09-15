@@ -258,7 +258,7 @@
   .filter-range,.filter-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .filter-options label{display:flex;gap:7px;align-items:flex-start}.filters input[type=checkbox]{accent-color:var(--gold);margin-top:3px}
   .tier-label{font:9px sans-serif;letter-spacing:.07em;color:var(--gold-bright);border:1px solid var(--line-strong);padding:3px 5px;margin-left:auto;text-transform:uppercase}
-  .filters fieldset:disabled{opacity:.45}.filters .locked-note{font:12px/1.6 sans-serif;color:#b5ad9f;display:block;margin-top:12px}
+  .filters fieldset:disabled{opacity:.45}
   .filters .btn{font-family:sans-serif;font-size:10px;min-height:42px}.filters .filter-actions{margin:18px 0 0;display:grid;grid-template-columns:1fr 1fr}.filters .filter-actions .btn:first-child{grid-column:1/-1}
   .tag-select-btn{font-family:sans-serif;font-size:11px;color:#c6beaf;border-radius:999px;padding:7px 9px}.tag-select-btn:disabled{cursor:not-allowed}
   .active-filters{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 20px;font:11px/1.5 sans-serif;color:#c6beaf}.active-chip{padding:5px 9px;border:1px solid var(--line-strong);border-radius:999px;overflow-wrap:anywhere}
@@ -269,6 +269,39 @@
   @media(max-width:980px){.filters{display:none}.filters.mobile-open{display:block;position:fixed;inset:0 auto 0 0;width:min(100%,380px);height:100dvh;max-height:100dvh;z-index:10010;background:var(--noir);box-shadow:0 0 0 100vmax #000b}.filter-toggle,.filter-close{display:inline-flex}.filters-head{display:flex;justify-content:space-between;align-items:start}.filter-close{font:24px sans-serif;padding:4px 8px}}
   @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
+  /* ---- exclusive tier lock (Gold + Black gated filter sections) — a
+     frosted vault card with a lock-and-key mark, replacing the old plain
+     "Available with Gold" caption text. ---- */
+  .filter-section .section-body{ position:relative; }
+  .tier-lock-card{
+    position:relative; overflow:hidden; border-radius:8px; padding:24px 20px;
+    display:flex; flex-direction:column; align-items:center; gap:9px; text-align:center;
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    border:1px solid rgba(199,166,92,0.35);
+    transition:border-color .35s ease, background .35s ease;
+  }
+  .tier-lock-card.tier-gold{
+    background:linear-gradient(150deg, rgba(199,166,92,0.22), rgba(199,166,92,0.06) 55%, rgba(199,166,92,0.22));
+  }
+  .tier-lock-card.tier-black{
+    background:linear-gradient(150deg, rgba(10,10,10,0.85), rgba(30,26,18,0.6) 55%, rgba(10,10,10,0.85));
+    border-color:rgba(228,198,135,0.4);
+  }
+  .tier-lock-card:hover{ border-color:rgba(228,198,135,0.65); }
+  .tier-lock-card::before{
+    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    background:linear-gradient(100deg, transparent 25%, rgba(255,255,255,0.14) 50%, transparent 75%);
+    background-size:250% 100%; background-position:250% 0; transition:background-position .7s ease;
+  }
+  .tier-lock-card:hover::before{ background-position:-30% 0; }
+  .tier-lock-card .lock-key-icon{ color:var(--gold-bright); flex-shrink:0; }
+  .tier-lock-card .tier-lock-tag{
+    font-family:sans-serif; font-size:9.5px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--gold-bright); font-weight:600;
+  }
+  .tier-lock-card .tier-lock-copy{ font:12px/1.6 sans-serif; color:#d8cdb8; max-width:230px; }
+  .tier-lock-card a{ color:var(--gold-bright); font-size:12px; text-decoration:underline; }
+  .tier-lock-overlay{ position:absolute; inset:0; z-index:2; border-radius:6px; justify-content:center; }
 </style>
 </head>
 <body>
@@ -349,7 +382,7 @@
     <details class="filter-section" id="saved-section"><summary>Make your own filters <span class="tier-label">Black</span></summary><div class="section-body">
       <p class="filter-help">Save a named combination to return to whenever you search.</p>
       <div id="saved-controls" hidden><label class="filter-field"><span>Saved searches</span><select id="saved-search"><option value="">Choose a saved search</option></select></label><div class="saved-actions"><button class="btn btn-line" id="apply-saved" type="button">Apply</button><button class="btn btn-line" id="delete-saved" type="button">Delete</button></div><label class="filter-field"><span>New filter name</span><input id="saved-name" maxlength="60" placeholder="e.g. My weekend connections"></label><button class="btn btn-gold" id="save-search" type="button">Save these filters</button></div>
-      <p class="locked-note" id="save-locked">Black members can create custom filters. <a href="/Dashboard/Membership.html">Explore Black</a></p><p class="filter-status" id="saved-status" role="status" aria-live="polite"></p>
+      <div class="tier-lock-card tier-black" id="save-locked"><span class="lock-key-icon"><svg width="32" height="32" viewBox="0 0 44 44" fill="none"><g stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="30" cy="12" r="4.5"/><path d="M33 15l7 7M37 19l2.5 2.5M40 22l2 2"/></g><rect x="9" y="20" width="18" height="14" rx="1.5" fill="#0B0A0C" stroke="currentColor" stroke-width="1.6"/><path d="M13 20v-5a5 5 0 0 1 10 0v5" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="18" cy="26" r="1.8" fill="currentColor"/><path d="M18 27.5v2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="tier-lock-tag">Black</span><p class="tier-lock-copy">Save named filter combinations and return to them anytime.</p><a href="/Dashboard/Membership.html">Explore Black</a></div><p class="filter-status" id="saved-status" role="status" aria-live="polite"></p>
     </div></details>
   </aside>
 
@@ -507,6 +540,20 @@
   const field = name => form.elements.namedItem(name);
   Object.keys(US_STATES_CITIES).forEach(state=>field('location').add(new Option(state,state)));
   const advancedEl = document.getElementById('advanced-filters');
+  // Shared lock-and-key mark for every gated section below — a key beside
+  // a padlock, evoking a vault rather than a plain "disabled" state.
+  function lockKeyIconSvg(size) {
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 44 44" fill="none">'
+      + '<g stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">'
+      + '<circle cx="30" cy="12" r="4.5"/>'
+      + '<path d="M33 15l7 7M37 19l2.5 2.5M40 22l2 2"/>'
+      + '</g>'
+      + '<rect x="9" y="20" width="18" height="14" rx="1.5" fill="#0B0A0C" stroke="currentColor" stroke-width="1.6"/>'
+      + '<path d="M13 20v-5a5 5 0 0 1 10 0v5" stroke="currentColor" stroke-width="1.6" fill="none"/>'
+      + '<circle cx="18" cy="26" r="1.8" fill="currentColor"/>'
+      + '<path d="M18 27.5v2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'
+      + '</svg>';
+  }
   function section(title) {
     const details=document.createElement('details');
     details.className='filter-section';
@@ -522,10 +569,13 @@
     set.disabled=!advanced;
     body.append(set);
     if(!advanced) {
-      const note=document.createElement('p');
-      note.className='locked-note';
-      note.innerHTML='Available with Gold. <a href="/Dashboard/Membership.html">Explore Gold</a>';
-      body.append(note);
+      const lock=document.createElement('div');
+      lock.className='tier-lock-card tier-gold tier-lock-overlay';
+      lock.innerHTML='<span class="lock-key-icon">'+lockKeyIconSvg(30)+'</span>'
+        + '<span class="tier-lock-tag">Gold</span>'
+        + '<p class="tier-lock-copy">Unlock '+title.toLowerCase()+' and every other detailed filter.</p>'
+        + '<a href="/Dashboard/Membership.html">Explore Gold</a>';
+      body.append(lock);
     }
     details.append(summary,body);
     advancedEl.append(details);
