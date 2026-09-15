@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../database/database_helper.dart';
+import '../models/app_user.dart';
 import '../models/concert.dart';
 import '../services/ticketmaster_service.dart';
 import '../theme/app_colors.dart';
 
 class ConcertsScreen extends StatefulWidget {
-  const ConcertsScreen({super.key});
+  const ConcertsScreen({super.key, required this.user});
+
+  final AppUser user;
 
   @override
   State<ConcertsScreen> createState() => _ConcertsScreenState();
@@ -18,8 +22,30 @@ class _ConcertsScreenState extends State<ConcertsScreen> {
   final _cityController = TextEditingController();
 
   List<Concert> _concerts = [];
+  Set<String> _savedConcertIds = {};
   bool _isLoading = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedIds();
+  }
+
+  Future<void> _loadSavedIds() async {
+    final ids = await DatabaseHelper.instance.getSavedConcertIds(userId: widget.user.id);
+    if (!mounted) return;
+    setState(() => _savedConcertIds = ids);
+  }
+
+  Future<void> _addToMyConcerts(Concert concert) async {
+    await DatabaseHelper.instance.saveConcert(userId: widget.user.id, concert: concert);
+    if (!mounted) return;
+    setState(() => _savedConcertIds = {..._savedConcertIds, concert.id});
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Added "${concert.name}" to My Concerts.')),
+    );
+  }
 
   @override
   void dispose() {
@@ -140,9 +166,12 @@ class _ConcertsScreenState extends State<ConcertsScreen> {
                       itemCount: _concerts.length,
                       itemBuilder: (context, index) {
                         final concert = _concerts[index];
+                        final isSaved = _savedConcertIds.contains(concert.id);
                         return _ConcertCard(
                           concert: concert,
+                          isSaved: isSaved,
                           onTap: () => _openTickets(concert.ticketUrl),
+                          onAdd: isSaved ? null : () => _addToMyConcerts(concert),
                         );
                       },
                     ),
@@ -155,10 +184,17 @@ class _ConcertsScreenState extends State<ConcertsScreen> {
 }
 
 class _ConcertCard extends StatelessWidget {
-  const _ConcertCard({required this.concert, required this.onTap});
+  const _ConcertCard({
+    required this.concert,
+    required this.onTap,
+    required this.isSaved,
+    required this.onAdd,
+  });
 
   final Concert concert;
   final VoidCallback onTap;
+  final bool isSaved;
+  final VoidCallback? onAdd;
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Date TBA';
@@ -224,7 +260,14 @@ class _ConcertCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: AppColors.darkBrown),
+              IconButton(
+                tooltip: isSaved ? 'Already in My Concerts' : 'Add to My Concerts',
+                icon: Icon(
+                  isSaved ? Icons.check_circle : Icons.add_circle_outline,
+                  color: AppColors.darkBrown,
+                ),
+                onPressed: onAdd,
+              ),
             ],
           ),
         ),

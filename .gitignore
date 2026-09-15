@@ -47,6 +47,6 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 
-# Local API keys - copy lib/config/api_keys.example.dart to api_keys.dart
-# and fill in your own key. Never commit the real file.
-lib/config/api_keys.dart
+# Local API keys - create env.json with your own values and pass
+# --dart-define-from-file=env.json when running/testing. Never commit this file.
+env.json

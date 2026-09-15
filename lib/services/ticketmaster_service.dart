@@ -26,9 +26,9 @@ class TicketmasterService {
   /// venue name; [city] narrows results to a location. At least one of the
   /// two should be provided by the caller for a meaningful result set.
   Future<List<Concert>> searchConcerts({String? keyword, String? city}) async {
-    if (ticketmasterApiKey.isEmpty || ticketmasterApiKey == 'YOUR_TICKETMASTER_API_KEY') {
+    if (ticketmasterApiKey.isEmpty) {
       throw TicketmasterException(
-        'Missing Ticketmaster API key. Add yours to lib/config/api_keys.dart.',
+        'Missing Ticketmaster API key. See lib/config/api_keys.dart for setup.',
       );
     }
 
