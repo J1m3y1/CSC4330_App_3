@@ -594,15 +594,6 @@
     const set=document.createElement('fieldset');
     set.disabled=!advanced;
     body.append(set);
-    if(!advanced) {
-      const lock=document.createElement('div');
-      lock.className='tier-lock-card tier-gold tier-lock-overlay';
-      lock.innerHTML='<span class="lock-key-icon">'+lockKeyIconSvg(30)+'</span>'
-        + '<span class="tier-lock-tag">Gold</span>'
-        + '<p class="tier-lock-copy">Unlock '+title.toLowerCase()+' and every other detailed filter.</p>'
-        + '<a href="/Dashboard/Membership.html">Explore Gold</a>';
-      body.append(lock);
-    }
     details.append(summary,body);
     advancedEl.append(details);
     return set;
@@ -741,6 +732,21 @@
   }
   catch(error) {
     document.getElementById('catalog-error').textContent=error.message+' Reload to retry. Basic search is still available.';
+  }
+  // One overlay over the whole locked group instead of a separate card per
+  // section — ~20 gated sections each carrying their own "Unlock with Gold"
+  // card was repetitive. This sits on top of every section's summary row
+  // and dimmed fieldset at once (advancedEl needs position:relative for the
+  // inset:0 below to size against it, not the page).
+  if(!advanced) {
+    advancedEl.style.position='relative';
+    const lock=document.createElement('div');
+    lock.className='tier-lock-card tier-gold tier-lock-overlay';
+    lock.innerHTML='<span class="lock-key-icon">'+lockKeyIconSvg(30)+'</span>'
+      + '<span class="tier-lock-tag">Gold</span>'
+      + '<p class="tier-lock-copy">Unlock every detailed filter — distance, education, kinks &amp; dynamics, and more.</p>'
+      + '<a href="/Dashboard/Membership.html">Explore Gold</a>';
+    advancedEl.append(lock);
   }
   const sortEl=document.getElementById('filter-sort');
   const grid=document.getElementById('results-grid'),emptyState=document.getElementById('empty-state'),totalEl=document.getElementById('results-total'),loadMore=document.getElementById('load-more-btn');
