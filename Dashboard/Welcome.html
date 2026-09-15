@@ -26,6 +26,7 @@
     margin:0; background:var(--noir); color:var(--cream);
     font-family:var(--font-serif); font-size:15px; line-height:1.6;
     -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column;
   }
   h1,h2{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
   p{ margin:0; }
@@ -57,8 +58,8 @@
   }
 
   .welcome-wrap{
-    position:relative; z-index:2; height:100%; display:flex; flex-direction:column; align-items:center;
-    justify-content:center; padding:32px 24px; max-width:560px; margin:0 auto; text-align:center;
+    position:relative; z-index:2; flex:1; min-height:0; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; padding:32px 24px; max-width:560px; margin:0 auto; text-align:center; overflow-y:auto;
   }
 
   .emblem{
