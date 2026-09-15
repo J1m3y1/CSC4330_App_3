@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  html, body{ height:100%; overflow:hidden; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  p{ margin:0; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .eyebrow{
+    font-family:var(--font-header); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:14px 24px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); border-radius:999px; transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+    width:100%;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+
+  .luxury-grain{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    opacity:0.04; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+  .ambient-glow{
+    position:fixed; top:-20%; left:50%; transform:translateX(-50%); width:800px; height:800px; z-index:0;
+    background:radial-gradient(circle, rgba(199,166,92,0.10), transparent 65%); pointer-events:none;
+  }
+
+  .welcome-wrap{
+    position:relative; z-index:2; height:100%; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; padding:32px 24px; max-width:560px; margin:0 auto; text-align:center;
+  }
+
+  .emblem{
+    width:120px; height:120px; border-radius:50%; border:1px solid var(--line-strong);
+    background:radial-gradient(circle at 50% 35%, rgba(199,166,92,0.08), transparent 70%), var(--noir-soft);
+    display:flex; align-items:center; justify-content:center; margin-bottom:32px; flex-shrink:0;
+    transition:border-color .5s ease;
+  }
+  .emblem svg{ color:var(--gold); opacity:0.9; transition:opacity .4s ease; }
+
+  .slide{ display:none; }
+  .slide.active{ display:block; animation:fadeUp .6s cubic-bezier(.2,.6,.2,1); }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+
+  .slide h1{ font-size:32px; margin-bottom:10px; }
+  .slide h2{ font-size:24px; margin-bottom:14px; }
+  .slide .sub{ font-family:var(--font-sans); font-size:14px; color:var(--smoke); margin-bottom:28px; }
+  .slide .body{ font-family:var(--font-sans); font-size:15px; color:var(--smoke); line-height:1.8; max-width:44ch; margin:0 auto; }
+
+  .values{ display:flex; flex-direction:column; gap:18px; text-align:left; margin-top:8px; }
+  .value-row{ display:flex; gap:14px; align-items:flex-start; }
+  .value-mark{ width:20px; height:20px; flex-shrink:0; margin-top:3px; color:var(--gold); }
+  .value-row h3{ font-family:var(--font-sans); font-size:14px; font-weight:600; color:var(--cream); margin-bottom:3px; }
+  .value-row p{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.65; }
+
+  .welcome-footer{ position:relative; z-index:2; width:100%; max-width:420px; margin:0 auto; padding:0 24px 36px; flex-shrink:0; }
+  .dots{ display:flex; gap:8px; justify-content:center; margin-bottom:20px; }
+  .dot{ width:100%; height:3px; max-width:44px; border-radius:2px; background:var(--line-strong); transition:background .3s ease; }
+  .dot.active, .dot.seen{ background:var(--gold); }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+<div class="ambient-glow"></div>
+
+<div class="welcome-wrap">
+  <div class="emblem" id="emblem">
+    <svg width="46" height="46" viewBox="0 0 30 30" fill="none" data-icon="0"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
+    <svg width="46" height="46" viewBox="0 0 30 30" fill="none" data-icon="1" style="display:none;"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    <svg width="46" height="46" viewBox="0 0 30 30" fill="none" data-icon="2" style="display:none;"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>
+    <svg width="46" height="46" viewBox="0 0 30 30" fill="none" data-icon="3" style="display:none;"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H16l-6 4.5V21H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/><path d="M10 12h10M10 16h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    <svg width="46" height="46" viewBox="0 0 30 30" fill="none" data-icon="4" style="display:none;"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
+  </div>
+
+  <!-- slide 0 — welcome / values -->
+  <div class="slide active" data-slide="0">
+    <span class="eyebrow">Welcome</span>
+    <h1 style="margin-top:10px;">You're in.</h1>
+    <p class="sub">A few things worth knowing before you start.</p>
+    <div class="values">
+      <div class="value-row">
+        <svg class="value-mark" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="9" rx="0.5" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 9V6.5a3.5 3.5 0 0 1 7 0V9" stroke="currentColor" stroke-width="1.3"/></svg>
+        <div><h3>Discretion, always</h3><p>Control exactly what's shown, and to whom, from Privacy &amp; Discretion.</p></div>
+      </div>
+      <div class="value-row">
+        <svg class="value-mark" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4L16 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><h3>Consent is non-negotiable</h3><p>Every connection here runs on mutual respect and clear consent.</p></div>
+      </div>
+      <div class="value-row">
+        <svg class="value-mark" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <div><h3>Go at your own pace</h3><p>No pressure. Explore and define what you're looking for on your terms.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- slide 1 — discover / search / interests -->
+  <div class="slide" data-slide="1">
+    <h2>Curate Your Introductions</h2>
+    <p class="body">Discover handpicks members by compatibility. Search lets you filter for exactly what you want. Like who catches your eye — it's how we learn what matters to you.</p>
+  </div>
+
+  <!-- slide 2 — messages -->
+  <div class="slide" data-slide="2">
+    <h2>Message With Confidence</h2>
+    <p class="body">Start real conversations from Messages. Black members can also set messages to disappear automatically — total discretion for time-sensitive plans.</p>
+  </div>
+
+  <!-- slide 3 — forum / chatrooms -->
+  <div class="slide" data-slide="3">
+    <h2>Beyond the Profile</h2>
+    <p class="body">Join the conversation in Forum, or drop into a Chatroom gated by membership tier. Fantasi is a community, not just a next profile to swipe past.</p>
+  </div>
+
+  <!-- slide 4 — membership -->
+  <div class="slide" data-slide="4">
+    <h2>Your Fantasi Awaits</h2>
+    <p class="body">Silver, Gold, and Black each unlock more of the experience — from detailed filters to custom kinks to complete discretion. Explore Membership anytime.</p>
+  </div>
+</div>
+
+<div class="welcome-footer">
+  <div class="dots" id="welcome-dots"></div>
+  <button type="button" class="btn btn-gold" id="welcome-next">Next</button>
+</div>
+
+<script>
+(async () => {
+  if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+  const { requireSession, api } = window.FantasiAPI;
+
+  // Deliberately uses requireSession() directly, not initDashboard() — this
+  // page has no sidebar/topbar to populate (a distraction-free full-screen
+  // takeover, same idea as FetLife's own welcome interstitial), and
+  // initDashboard() is what redirects an unwelcomed member HERE in the
+  // first place, so calling it again on this page would just loop.
+  const user = await requireSession('/SignInProcess/SignIn.html');
+  if (!user) return;
+
+  const TOTAL = 5;
+  let active = 0;
+
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const icons  = Array.from(document.querySelectorAll('.emblem svg'));
+  const nextBtn = document.getElementById('welcome-next');
+  const dotsWrap = document.getElementById('welcome-dots');
+
+  const dots = [];
+  for (let i = 0; i < TOTAL; i++) {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'dot';
+    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+    dot.addEventListener('click', () => showSlide(i));
+    dotsWrap.appendChild(dot);
+    dots.push(dot);
+  }
+
+  function showSlide(i) {
+    active = i;
+    slides.forEach(s => s.classList.toggle('active', Number(s.dataset.slide) === i));
+    icons.forEach(icon => icon.style.display = Number(icon.dataset.icon) === i ? '' : 'none');
+    dots.forEach((d, idx) => {
+      d.classList.toggle('active', idx === i);
+      d.classList.toggle('seen', idx < i);
+    });
+    nextBtn.textContent = i === TOTAL - 1 ? 'Enter Fantasi' : 'Next';
+  }
+  showSlide(0);
+
+  nextBtn.addEventListener('click', async () => {
+    if (active < TOTAL - 1) { showSlide(active + 1); return; }
+    nextBtn.disabled = true;
+    nextBtn.textContent = 'Entering…';
+    await api.auth.markWelcomeSeen();
+    window.location.href = '/Dashboard/Discover.html';
+  });
+})();
+</script>
+
+</body>
+</html>

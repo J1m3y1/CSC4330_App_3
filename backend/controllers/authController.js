@@ -418,7 +418,7 @@ async function changePassword(req, res) {
 async function me(req, res) {
   try {
     const { rows } = await query(
-      `SELECT u.id, u.email, u.role, u.membership_tier, u.is_approved,
+      `SELECT u.id, u.email, u.role, u.membership_tier, u.is_approved, u.welcome_seen_at,
               p.display_name, p.avatar_url, p.is_complete
        FROM users u
        LEFT JOIN profiles p ON p.user_id = u.id
@@ -433,4 +433,24 @@ async function me(req, res) {
   }
 }
 
-module.exports = { register, login, refresh, logout, forgotPassword, resetPassword, changePassword, me };
+// ── POST /api/auth/welcome-seen ─────────────────────────────────────────────
+// Marks the first-sign-in welcome interstitial (Dashboard/Welcome.html) as
+// shown, permanently — idempotent, since a member landing there twice
+// (back button, direct URL) shouldn't error.
+async function markWelcomeSeen(req, res) {
+  try {
+    await query(
+      'UPDATE users SET welcome_seen_at = COALESCE(welcome_seen_at, NOW()) WHERE id = $1',
+      [req.user.id]
+    );
+    res.json({ message: 'Welcome marked as seen.' });
+  } catch (err) {
+    console.error('[markWelcomeSeen]', err.message);
+    res.status(500).json({ error: 'Could not update.' });
+  }
+}
+
+module.exports = {
+  register, login, refresh, logout, forgotPassword, resetPassword, changePassword, me,
+  markWelcomeSeen,
+};

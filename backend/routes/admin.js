@@ -9,6 +9,7 @@ const {
   listPending, approveUser, rejectUser, getIdentityDocument, listReports, resolveReport,
   listPrivacyRequests, resolvePrivacyRequest,
   listMembershipRequests, resolveMembershipRequest,
+  listPhotoVerifications, getPhotoVerificationSelfie, resolvePhotoVerification,
   listUsers, suspendUser, reactivateUser, updateUserRole,
   getStats, listAllChatrooms,
 } = require('../controllers/adminController');
@@ -59,6 +60,19 @@ router.post('/membership-requests/:id/resolve', [
   param('id').isUUID().withMessage('Invalid request ID.'),
   body('status').isIn(['granted', 'declined']).withMessage('Status must be granted or declined.'),
 ], validate, resolveMembershipRequest);
+
+router.get('/photo-verifications', [
+  qv('status').optional().isIn(['pending', 'approved', 'rejected']),
+], validate, listPhotoVerifications);
+
+router.get('/photo-verifications/:id/selfie', [
+  param('id').isUUID().withMessage('Invalid request ID.'),
+], validate, getPhotoVerificationSelfie);
+
+router.post('/photo-verifications/:id/resolve', [
+  param('id').isUUID().withMessage('Invalid request ID.'),
+  body('status').isIn(['approved', 'rejected']).withMessage('Status must be approved or rejected.'),
+], validate, resolvePhotoVerification);
 
 router.get('/stats', getStats);
 

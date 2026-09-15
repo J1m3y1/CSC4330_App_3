@@ -86,6 +86,7 @@ const api = {
     reset:    (token, password) => api.post('/auth/reset-password', { token, password }),
     changePassword: (currentPassword, newPassword) =>
       api.post('/auth/change-password', { current_password: currentPassword, new_password: newPassword }),
+    markWelcomeSeen: () => api.post('/auth/welcome-seen'),
   },
 
   // ── Phone verification (Twilio Verify) ──────────────────────────────────────
@@ -169,6 +170,22 @@ const api = {
         const form = new FormData();
         form.append('photo', file);
         const res = await fetch(`${_base}/profile/photos`, {
+          method: 'POST', credentials: 'include', body: form,
+        });
+        const data = await res.json().catch(() => null);
+        return { ok: res.ok, status: res.status, data };
+      },
+    },
+
+    // ── Photo verification (live selfie vs. own profile photos) ──────────────
+    photoVerification: {
+      challenge: () => api.get('/profile/photo-verification/challenge'),
+      status:    () => api.get('/profile/photo-verification/status'),
+      async submit(selfieBlob, challengeCode) {
+        const form = new FormData();
+        form.append('selfie', selfieBlob, 'selfie.jpg');
+        form.append('challenge_code', challengeCode);
+        const res = await fetch(`${_base}/profile/photo-verification`, {
           method: 'POST', credentials: 'include', body: form,
         });
         const data = await res.json().catch(() => null);
@@ -266,6 +283,10 @@ const api = {
     resolvePrivacyRequest:(id, status)   => api.post(`/admin/privacy-requests/${id}/resolve`, { status }),
     membershipRequests:      (status)    => api.get(`/admin/membership-requests?status=${status || 'pending'}`),
     resolveMembershipRequest:(id, status)=> api.post(`/admin/membership-requests/${id}/resolve`, { status }),
+
+    photoVerifications:       (status)    => api.get(`/admin/photo-verifications?status=${status || 'pending'}`),
+    photoVerificationSelfieUrl: (id)      => `${_base}/admin/photo-verifications/${id}/selfie`,
+    resolvePhotoVerification: (id, status)=> api.post(`/admin/photo-verifications/${id}/resolve`, { status }),
 
     stats:      ()          => api.get('/admin/stats'),
     users:      (params = {}) => {
@@ -832,10 +853,21 @@ function injectMobileNavDrawer(topbar) {
  * live in the page itself. See any dashboard page's boot script for the
  * exact pattern. Returns the logged-in user, or null after already
  * redirecting to sign-in — callers should stop their own init on null.
+ *
+ * Also redirects a member who hasn't seen the first-sign-in welcome
+ * interstitial (users.welcome_seen_at is NULL) to Dashboard/Welcome.html
+ * before they reach any real dashboard page. Welcome.html itself calls
+ * requireSession() directly instead of this function — bypassing this
+ * check entirely — so it can't redirect to itself.
  */
 async function initDashboard(redirectTo = '/SignInProcess/SignIn.html') {
   const user = await requireSession(redirectTo);
-  if (user) populateSidebarAccount(user);
+  if (!user) return null;
+  if (!user.welcome_seen_at) {
+    window.location.href = '/Dashboard/Welcome.html';
+    return null;
+  }
+  populateSidebarAccount(user);
   return user;
 }
 

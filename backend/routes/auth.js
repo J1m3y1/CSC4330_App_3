@@ -10,6 +10,7 @@ const { idUpload }                  = require('../middleware/upload');
 const {
   register, login, refresh, logout,
   forgotPassword, resetPassword, changePassword, me,
+  markWelcomeSeen,
 } = require('../controllers/authController');
 
 // ── Validation chains ─────────────────────────────────────────────────────────
@@ -89,6 +90,7 @@ router.post('/refresh', refresh);
 // Requires valid access token cookie
 router.post('/logout', requireAuth, logout);
 router.get('/me',      requireAuth, me);
+router.post('/welcome-seen', requireAuth, markWelcomeSeen);
 router.post('/change-password', requireAuth, changePasswordRules, validate, changePassword);
 
 module.exports = router;

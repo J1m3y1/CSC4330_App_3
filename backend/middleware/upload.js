@@ -14,11 +14,17 @@ const UPLOAD_DIR = path.join(__dirname, '..', process.env.UPLOAD_DIR || 'uploads
 // GET /api/admin/users/:id/id-document route.
 const ID_UPLOAD_DIR = path.join(__dirname, '..', 'private-uploads', 'identity');
 const VIDEO_UPLOAD_DIR = path.join(__dirname, '..', 'private-uploads', 'intro-videos');
+// Photo-verification selfies are private for the same reason as ID scans —
+// only the member who submitted one and an admin reviewing it should ever
+// see it. Read back only via the admin-only GET
+// /api/admin/photo-verifications/:id/selfie route.
+const SELFIE_UPLOAD_DIR = path.join(__dirname, '..', 'private-uploads', 'photo-verification');
 
 // Ensure upload directories exist
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 fs.mkdirSync(ID_UPLOAD_DIR, { recursive: true });
 fs.mkdirSync(VIDEO_UPLOAD_DIR, { recursive: true });
+fs.mkdirSync(SELFIE_UPLOAD_DIR, { recursive: true });
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
@@ -135,4 +141,29 @@ function introVideoUpload(req, res, next) {
   });
 }
 
-module.exports = { avatarUpload, photoUpload, idUpload, introVideoUpload, ID_UPLOAD_DIR, VIDEO_UPLOAD_DIR };
+// ── Photo verification selfie ───────────────────────────────────────────────
+const selfieStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, SELFIE_UPLOAD_DIR),
+  filename: (_req, file, cb) => cb(null, `${crypto.randomBytes(16).toString('hex')}${path.extname(file.originalname).toLowerCase()}`),
+});
+const MAX_SELFIE_MB = 8;
+const uploadSelfie = multer({
+  storage: selfieStorage,
+  fileFilter: (_req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    cb(allowed.includes(file.mimetype) ? null : new Error('Selfie must be a JPEG, PNG, or WebP image.'), allowed.includes(file.mimetype));
+  },
+  limits: { fileSize: MAX_SELFIE_MB * 1024 * 1024, files: 1 },
+}).single('selfie');
+function selfieUpload(req, res, next) {
+  uploadSelfie(req, res, (err) => {
+    if (!err) return next();
+    if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: `Selfie must be under ${MAX_SELFIE_MB}MB.` });
+    return res.status(400).json({ error: err.message || 'Selfie upload failed.' });
+  });
+}
+
+module.exports = {
+  avatarUpload, photoUpload, idUpload, introVideoUpload, selfieUpload,
+  ID_UPLOAD_DIR, VIDEO_UPLOAD_DIR, SELFIE_UPLOAD_DIR,
+};

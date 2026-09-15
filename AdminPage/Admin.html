@@ -71,6 +71,14 @@
   .card-body{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); line-height:1.6; max-width:60ch; }
   .card-actions{ display:flex; gap:8px; flex-shrink:0; }
 
+  .pv-compare{ display:flex; gap:20px; margin-top:12px; flex-wrap:wrap; }
+  .pv-compare-col span{
+    display:block; font-family:var(--font-sans); font-size:10px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--smoke-dim); margin-bottom:6px;
+  }
+  .pv-compare-col img{ width:90px; height:90px; object-fit:cover; border-radius:4px; border:1px solid var(--line-strong); }
+  .pv-compare-photos{ display:flex; gap:6px; flex-wrap:wrap; }
+
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:9px 16px;
     font-family:var(--font-sans); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-weight:500;
@@ -206,6 +214,7 @@
     <button type="button" class="tab-btn" data-tab="reports">Reports<span class="tab-count" id="count-reports"></span></button>
     <button type="button" class="tab-btn" data-tab="privacy">Privacy requests<span class="tab-count" id="count-privacy"></span></button>
     <button type="button" class="tab-btn" data-tab="membership">Membership requests<span class="tab-count" id="count-membership"></span></button>
+    <button type="button" class="tab-btn" data-tab="photo-verify">Photo verifications<span class="tab-count" id="count-photo-verify"></span></button>
     <button type="button" class="tab-btn" data-tab="chatrooms">Chatrooms</button>
     <button type="button" class="tab-btn" data-tab="grant">Grant membership</button>
   </div>
@@ -280,6 +289,10 @@
       </select>
     </div>
     <div id="membership-list"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-photo-verify">
+    <div id="photo-verify-list"></div>
   </div>
 
   <div class="tab-panel" id="panel-chatrooms">
@@ -430,6 +443,7 @@
     reports: document.getElementById('panel-reports'),
     privacy: document.getElementById('panel-privacy'),
     membership: document.getElementById('panel-membership'),
+    'photo-verify': document.getElementById('panel-photo-verify'),
     chatrooms: document.getElementById('panel-chatrooms'),
     grant: document.getElementById('panel-grant'),
   };
@@ -646,6 +660,79 @@
     });
   }
   document.getElementById('membership-status').addEventListener('change', loadMembershipRequests);
+
+  // ---- photo verification ----
+  // A live selfie holding a one-time code, shown next to the member's own
+  // (already-public) profile photos so an admin can visually confirm they
+  // match — see migration 025 and photoVerificationController.js.
+  async function loadPhotoVerifications() {
+    const { ok, data } = await api.admin.photoVerifications('pending');
+    const list = document.getElementById('photo-verify-list');
+    list.innerHTML = '';
+    if (!ok) { list.innerHTML = '<p class="empty">Could not load photo verification requests.</p>'; return; }
+    document.getElementById('count-photo-verify').textContent = data.length || '';
+    if (!data.length) { list.innerHTML = '<p class="empty">No pending photo verifications.</p>'; return; }
+
+    data.forEach(req => {
+      const el = document.createElement('div');
+      el.className = 'card';
+
+      const main = document.createElement('div');
+      main.className = 'card-main';
+      const title = document.createElement('div');
+      title.className = 'card-title';
+      title.textContent = `${req.display_name} — ${req.email}`;
+      const meta = document.createElement('div');
+      meta.className = 'card-meta';
+      meta.textContent = `Requested ${new Date(req.created_at).toLocaleString()} · Code held up: ${req.challenge_code}`;
+      main.append(title, meta);
+
+      const compare = document.createElement('div');
+      compare.className = 'pv-compare';
+
+      const selfieCol = document.createElement('div');
+      selfieCol.className = 'pv-compare-col';
+      selfieCol.innerHTML = '<span>Submitted selfie</span>';
+      const selfieImg = document.createElement('img');
+      selfieImg.src = api.admin.photoVerificationSelfieUrl(req.id);
+      selfieImg.alt = 'Submitted selfie';
+      selfieCol.appendChild(selfieImg);
+
+      const photosCol = document.createElement('div');
+      photosCol.className = 'pv-compare-col';
+      photosCol.innerHTML = '<span>Existing profile photos</span>';
+      const photosRow = document.createElement('div');
+      photosRow.className = 'pv-compare-photos';
+      (req.profile_photo_urls || []).forEach(url => {
+        const img = document.createElement('img');
+        img.src = url; img.alt = 'Profile photo';
+        photosRow.appendChild(img);
+      });
+      photosCol.appendChild(photosRow);
+
+      compare.append(selfieCol, photosCol);
+      main.appendChild(compare);
+      el.appendChild(main);
+
+      const actions = document.createElement('div');
+      actions.className = 'card-actions';
+      actions.append(
+        actionBtn('Approve', 'btn-gold', async () => {
+          const { ok: resOk, data: res } = await api.admin.resolvePhotoVerification(req.id, 'approved');
+          if (resOk) { showToast('Photo verification approved.', 'info'); loadPhotoVerifications(); }
+          else showToast(res?.error || 'Could not update.', 'error');
+        }),
+        actionBtn('Reject', 'btn-bordeaux', async () => {
+          const { ok: resOk, data: res } = await api.admin.resolvePhotoVerification(req.id, 'rejected');
+          if (resOk) { showToast('Photo verification rejected.', 'info'); loadPhotoVerifications(); }
+          else showToast(res?.error || 'Could not update.', 'error');
+        }),
+      );
+      el.appendChild(actions);
+
+      list.appendChild(el);
+    });
+  }
 
   // ---- overview ----
   async function loadOverview() {
@@ -878,7 +965,7 @@
     if (ok) document.getElementById('grant-user-id').value = '';
   });
 
-  await Promise.all([loadOverview(), loadPending(), loadReports(), loadPrivacy(), loadMembershipRequests()]);
+  await Promise.all([loadOverview(), loadPending(), loadReports(), loadPrivacy(), loadMembershipRequests(), loadPhotoVerifications()]);
 })();
 </script>
 

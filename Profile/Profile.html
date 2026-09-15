@@ -391,6 +391,26 @@
   .confirm-modal .req-field input:focus{ border-color:var(--gold); }
   .confirm-modal .req-hint{ font-family:var(--font-sans); font-size:10.5px; color:var(--smoke-dim); margin-top:6px; text-align:left; line-height:1.5; }
 
+  /* ---- photo verification modal ---- */
+  .pv-code{
+    font-family:var(--font-display); font-style:italic; font-weight:300; font-size:34px; letter-spacing:0.12em;
+    color:var(--gold-bright); background:rgba(199,166,92,0.08); border:1px solid var(--line-strong); border-radius:6px;
+    padding:14px; margin-bottom:20px;
+  }
+  .pv-video-wrap{
+    position:relative; width:100%; aspect-ratio:4/3; border-radius:8px; overflow:hidden;
+    background:var(--noir); margin-bottom:14px; border:1px solid var(--line-strong);
+  }
+  .pv-video-wrap video{ width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+  .pv-video-code{
+    position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:2;
+    font-family:var(--font-sans); font-size:12px; letter-spacing:0.1em; font-weight:600; color:var(--gold-bright);
+    background:rgba(11,10,12,0.75); border:1px solid var(--line-strong); border-radius:20px; padding:5px 14px;
+  }
+  .pv-error{ font-family:var(--font-sans); font-size:12px; color:#ef91a3; margin-bottom:14px; }
+  .pv-error:empty{ display:none; }
+  #pv-preview{ width:100%; border-radius:8px; margin-bottom:16px; border:1px solid var(--line-strong); transform:scaleX(-1); }
+
   @media (max-width:900px){
     .sidebar{ display:none; }
     .main{ padding:32px 22px 60px; }
@@ -867,6 +887,17 @@
               <button type="button" class="link-btn" id="intro-video-remove" style="display:none; margin-left:10px;">Remove</button>
             </div>
           </div>
+          <div class="verify-card" id="photo-verify-card">
+            <div class="verify-icon">
+              <svg width="15" height="15" viewBox="0 0 30 30" fill="none"><rect x="4" y="10" width="22" height="15" rx="1" stroke="currentColor" stroke-width="1"/><path d="M11 10l1.8-3h4.4l1.8 3" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="17.5" r="4.5" stroke="currentColor" stroke-width="1"/></svg>
+            </div>
+            <div>
+              <h4>Photo verified</h4>
+              <p>A live selfie holding a one-time code, checked by our team against your profile photos — proves the person behind your account matches your pictures.</p>
+              <span class="verify-status" id="photo-verify-status" style="display:none;"></span>
+              <button type="button" class="btn btn-line btn-small" id="photo-verify-action">Verify My Photos</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -949,6 +980,51 @@
     <div class="confirm-actions">
       <button type="button" class="btn btn-gold btn-full" id="email-submit">Submit Request</button>
       <button type="button" class="btn btn-line btn-full" id="email-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- photo verification — live selfie holding a one-time code, reviewed by
+     an admin against the member's own profile photos -->
+<div class="confirm-overlay" id="photo-verify-overlay">
+  <div class="confirm-modal" style="width:min(440px, 100%);">
+    <h3>Verify your photos</h3>
+
+    <div id="photo-verify-noPhotos" style="display:none;">
+      <p>Add at least one profile photo before requesting photo verification.</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-line btn-full" id="photo-verify-close-1">Close</button>
+      </div>
+    </div>
+
+    <div id="photo-verify-intro">
+      <p>Write this code on paper, hold it next to your face, and take a photo. This proves the photo is really you, taken just now.</p>
+      <div class="pv-code" id="pv-code">------</div>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-gold btn-full" id="photo-verify-open-camera">Open Camera</button>
+        <button type="button" class="btn btn-line btn-full" id="photo-verify-close-2">Cancel</button>
+      </div>
+    </div>
+
+    <div id="photo-verify-camera" style="display:none;">
+      <div class="pv-video-wrap">
+        <video id="pv-video" autoplay playsinline muted></video>
+        <div class="pv-video-code" id="pv-video-code"></div>
+      </div>
+      <canvas id="pv-canvas" hidden></canvas>
+      <p class="pv-error" id="pv-camera-error"></p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-gold btn-full" id="pv-capture">Capture</button>
+        <button type="button" class="btn btn-line btn-full" id="photo-verify-close-3">Cancel</button>
+      </div>
+    </div>
+
+    <div id="photo-verify-review" style="display:none;">
+      <img id="pv-preview" alt="Captured selfie">
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-gold btn-full" id="pv-submit">Submit for Review</button>
+        <button type="button" class="btn btn-line btn-full" id="pv-retake">Retake</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1199,6 +1275,126 @@
     if (!ok) return showToast(data?.error || 'Could not remove video.', 'error');
     introAction.textContent = 'Upload video'; introRemove.style.display = 'none'; showToast('Introduction video removed.', 'info');
   });
+
+  // ---- photo verification — live selfie holding a one-time code, reviewed
+  // by an admin against the member's own profile_photos (see migration 025
+  // and photoVerificationController.js). ----
+  (function() {
+    const card        = document.getElementById('photo-verify-card');
+    const statusEl     = document.getElementById('photo-verify-status');
+    const actionBtn    = document.getElementById('photo-verify-action');
+    const overlay      = document.getElementById('photo-verify-overlay');
+    const stepNoPhotos = document.getElementById('photo-verify-noPhotos');
+    const stepIntro    = document.getElementById('photo-verify-intro');
+    const stepCamera   = document.getElementById('photo-verify-camera');
+    const stepReview   = document.getElementById('photo-verify-review');
+    const codeEl       = document.getElementById('pv-code');
+    const videoCodeEl  = document.getElementById('pv-video-code');
+    const videoEl      = document.getElementById('pv-video');
+    const canvasEl     = document.getElementById('pv-canvas');
+    const cameraError  = document.getElementById('pv-camera-error');
+    const previewImg   = document.getElementById('pv-preview');
+
+    let challengeCode = null;
+    let mediaStream = null;
+    let capturedBlob = null;
+
+    function showStep(step) {
+      [stepNoPhotos, stepIntro, stepCamera, stepReview].forEach(s => s.style.display = 'none');
+      step.style.display = 'block';
+    }
+
+    function stopCamera() {
+      if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    }
+
+    function closeModal() {
+      stopCamera();
+      overlay.classList.remove('show');
+    }
+
+    async function renderStatus() {
+      const { ok, data } = await api.profile.photoVerification.status();
+      if (!ok) return;
+      if (data.photo_verified) {
+        card.classList.add('done');
+        statusEl.style.display = '';
+        statusEl.textContent = 'Verified';
+        actionBtn.style.display = 'none';
+      } else if (data.latest_request?.status === 'pending') {
+        statusEl.style.display = '';
+        statusEl.textContent = 'Pending review';
+        actionBtn.disabled = true;
+        actionBtn.textContent = 'Pending Review';
+      } else if (data.latest_request?.status === 'rejected') {
+        statusEl.style.display = '';
+        statusEl.textContent = 'Not approved';
+        actionBtn.disabled = false;
+        actionBtn.textContent = 'Try Again';
+      }
+    }
+    renderStatus();
+
+    async function openCamera() {
+      cameraError.textContent = '';
+      showStep(stepCamera);
+      videoCodeEl.textContent = challengeCode;
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+        videoEl.srcObject = mediaStream;
+      } catch (err) {
+        cameraError.textContent = 'Could not access your camera. Check your browser’s camera permission and try again.';
+      }
+    }
+
+    actionBtn.addEventListener('click', async () => {
+      capturedBlob = null;
+      const { ok, data } = await api.profile.photos.list();
+      if (!ok || !data.length) {
+        showStep(stepNoPhotos);
+      } else {
+        const { ok: challengeOk, data: challengeData } = await api.profile.photoVerification.challenge();
+        challengeCode = challengeOk ? challengeData.code : '------';
+        codeEl.textContent = challengeCode;
+        showStep(stepIntro);
+      }
+      overlay.classList.add('show');
+    });
+
+    document.getElementById('photo-verify-open-camera').addEventListener('click', openCamera);
+
+    document.getElementById('pv-capture').addEventListener('click', () => {
+      if (!mediaStream) return;
+      canvasEl.width = videoEl.videoWidth;
+      canvasEl.height = videoEl.videoHeight;
+      canvasEl.getContext('2d').drawImage(videoEl, 0, 0);
+      canvasEl.toBlob(blob => {
+        capturedBlob = blob;
+        previewImg.src = URL.createObjectURL(blob);
+        stopCamera();
+        showStep(stepReview);
+      }, 'image/jpeg', 0.9);
+    });
+
+    document.getElementById('pv-retake').addEventListener('click', openCamera);
+
+    document.getElementById('pv-submit').addEventListener('click', async (e) => {
+      if (!capturedBlob) return;
+      const btn = e.currentTarget;
+      btn.disabled = true; btn.textContent = 'Submitting…';
+      const { ok, data } = await api.profile.photoVerification.submit(capturedBlob, challengeCode);
+      btn.disabled = false; btn.textContent = 'Submit for Review';
+      if (!ok) return showToast(data?.error || 'Could not submit photo verification.', 'error');
+      closeModal();
+      showToast('Photo verification submitted for review.', 'info');
+      renderStatus();
+    });
+
+    ['photo-verify-close-1', 'photo-verify-close-2', 'photo-verify-close-3'].forEach(id => {
+      document.getElementById(id).addEventListener('click', closeModal);
+    });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  })();
 
   // ---- avatar band click — jumps straight to the gallery's "add" slot ----
   const avatarEl = document.getElementById('profile-avatar');

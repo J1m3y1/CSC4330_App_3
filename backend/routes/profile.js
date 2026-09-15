@@ -5,7 +5,7 @@ const { body, param } = require('express-validator');
 
 const { requireAuth, requireApproved, requireTier } = require('../middleware/auth');
 const { validate }                     = require('../middleware/validate');
-const { avatarUpload, photoUpload, introVideoUpload } = require('../middleware/upload');
+const { avatarUpload, photoUpload, introVideoUpload, selfieUpload } = require('../middleware/upload');
 const {
   getMyProfile, updateMyProfile, uploadAvatar, uploadIntroVideo, deleteIntroVideo, streamIntroVideo,
   getProfile, blockUser, unblockUser, reportUser, listBlocked,
@@ -22,6 +22,9 @@ const { ETHNICITIES, DRINKING, CHILDREN, LANGUAGES } = require('../config/profil
 const {
   listMyPhotos, addPhoto, deletePhoto, setPrimaryPhoto, reorderPhotos,
 } = require('../controllers/photosController');
+const {
+  getChallenge, submitPhotoVerification, getPhotoVerificationStatus,
+} = require('../controllers/photoVerificationController');
 
 // All profile routes require authentication + approval
 router.use(requireAuth, requireApproved);
@@ -107,6 +110,16 @@ router.delete('/photos/:photoId', [
 router.patch('/photos/:photoId/primary', [
   param('photoId').isUUID().withMessage('Invalid photo ID.'),
 ], validate, setPrimaryPhoto);
+
+// ── Photo verification ────────────────────────────────────────────────────────
+// A live selfie holding a one-time code, manually compared by an admin
+// against the member's own profile_photos — see migration 025. Registered
+// before the /:id catch-all for the same reason as photos above.
+router.get('/photo-verification/challenge', getChallenge);
+router.get('/photo-verification/status', getPhotoVerificationStatus);
+router.post('/photo-verification', selfieUpload, [
+  body('challenge_code').trim().isLength({ min: 4, max: 12 }).withMessage('Missing verification code.'),
+], validate, submitPhotoVerification);
 
 // ── Blocked members list ──────────────────────────────────────────────────────
 // Registered before the /:id catch-all for the same reason as the photo and

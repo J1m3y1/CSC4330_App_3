@@ -5,7 +5,7 @@ const fs   = require('fs');
 const { query, withTransaction } = require('../config/db');
 const { sendMail } = require('../utils/mailer');
 const { grantMembership } = require('./membershipController');
-const { ID_UPLOAD_DIR } = require('../middleware/upload');
+const { ID_UPLOAD_DIR, SELFIE_UPLOAD_DIR } = require('../middleware/upload');
 const crypto = require('crypto');
 
 // ── GET /api/admin/pending ────────────────────────────────────────────────────
@@ -290,6 +290,84 @@ async function resolveMembershipRequest(req, res) {
   }
 }
 
+// ── GET /api/admin/photo-verifications ────────────────────────────────────────
+// The member's existing profile photo URLs are included directly — they're
+// already public (served from /uploads, see photosController.js), so there's
+// no reason to make the admin UI fetch them separately per applicant.
+async function listPhotoVerifications(req, res) {
+  const status = ['pending', 'approved', 'rejected'].includes(req.query.status)
+    ? req.query.status
+    : 'pending';
+
+  try {
+    const { rows } = await query(
+      `SELECT pvr.id, pvr.challenge_code, pvr.status, pvr.created_at,
+              pvr.user_id, u.email, p.display_name,
+              COALESCE(
+                (SELECT array_agg(url ORDER BY position) FROM profile_photos WHERE user_id = pvr.user_id),
+                '{}'
+              ) AS profile_photo_urls
+       FROM photo_verification_requests pvr
+       JOIN users u ON u.id = pvr.user_id
+       JOIN profiles p ON p.user_id = pvr.user_id
+       WHERE pvr.status = $1
+       ORDER BY pvr.created_at ASC`,
+      [status]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('[admin.listPhotoVerifications]', err.message);
+    res.status(500).json({ error: 'Could not fetch photo verification requests.' });
+  }
+}
+
+// ── GET /api/admin/photo-verifications/:id/selfie ─────────────────────────────
+async function getPhotoVerificationSelfie(req, res) {
+  const { id } = req.params;
+  try {
+    const { rows } = await query(
+      'SELECT storage_key FROM photo_verification_requests WHERE id = $1',
+      [id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Request not found.' });
+
+    // storage_key is a server-generated random filename (see upload.js),
+    // never user input, so joining it directly onto SELFIE_UPLOAD_DIR is safe.
+    const filePath = path.join(SELFIE_UPLOAD_DIR, rows[0].storage_key);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Selfie file is missing from storage.' });
+
+    res.sendFile(filePath);
+  } catch (err) {
+    console.error('[admin.getPhotoVerificationSelfie]', err.message);
+    res.status(500).json({ error: 'Could not fetch selfie.' });
+  }
+}
+
+// ── POST /api/admin/photo-verifications/:id/resolve ────────────────────────────
+async function resolvePhotoVerification(req, res) {
+  const { id } = req.params;
+  const { status } = req.body; // 'approved' | 'rejected'
+
+  try {
+    const { rows } = await query(
+      `UPDATE photo_verification_requests SET status = $1, reviewed_by = $2, reviewed_at = NOW()
+       WHERE id = $3 AND status = 'pending'
+       RETURNING user_id`,
+      [status, req.user.id, id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Request not found or already resolved.' });
+
+    if (status === 'approved') {
+      await query('UPDATE profiles SET photo_verified = TRUE WHERE user_id = $1', [rows[0].user_id]);
+    }
+
+    res.json({ message: 'Request updated.' });
+  } catch (err) {
+    console.error('[admin.resolvePhotoVerification]', err.message);
+    res.status(500).json({ error: 'Could not update request.' });
+  }
+}
+
 // ── GET /api/admin/users ──────────────────────────────────────────────────────
 // The all-members directory. Status here is derived from is_approved/is_active
 // rather than stored directly — there's no separate "status" column, so the
@@ -494,6 +572,7 @@ module.exports = {
   listPending, approveUser, rejectUser, getIdentityDocument, listReports, resolveReport,
   listPrivacyRequests, resolvePrivacyRequest,
   listMembershipRequests, resolveMembershipRequest,
+  listPhotoVerifications, getPhotoVerificationSelfie, resolvePhotoVerification,
   listUsers, suspendUser, reactivateUser, updateUserRole,
   getStats, listAllChatrooms,
 };
