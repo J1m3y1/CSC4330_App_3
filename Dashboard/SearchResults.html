@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --online: #7FBF8F;
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  h1,h2{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  h3{ font-family:var(--font-serif); font-weight:400; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .eyebrow{
+    font-family:var(--font-header); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold); font-weight:500;
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); border-radius:999px; transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .btn-small{ padding:8px 16px; font-size:10px; }
+
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none;
+    opacity:0.04; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  .shell{ display:flex; min-height:100vh; }
+
+  .sidebar{
+    width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  }
+  .sidebar-section{ padding:22px 20px; border-bottom:1px solid var(--line); }
+  .sidebar-section h4{
+    font-family:var(--font-sans); font-size:10px; letter-spacing:0.09em; text-transform:uppercase;
+    color:var(--gold-dim); font-weight:500; margin-bottom:14px;
+  }
+  .cat-list{ display:flex; flex-direction:column; gap:2px; }
+  .cat-item{
+    display:flex; align-items:center; justify-content:space-between; padding:9px 10px; border-radius:5px;
+    font-family:var(--font-sans); font-size:13px; color:var(--smoke); cursor:pointer; transition:background .2s ease, color .2s ease;
+  }
+  .cat-item:hover{ background:rgba(199,166,92,0.05); color:var(--cream); }
+  .cat-item.active{ background:rgba(199,166,92,0.09); color:var(--gold-bright); }
+  .cat-count{ font-size:11px; color:var(--smoke-dim); }
+  .cat-item.active .cat-count{ color:var(--gold-dim); }
+
+  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); margin-top:auto; }
+  .mini-account{ display:flex; align-items:center; gap:11px; }
+  .mini-avatar{
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--noir);
+  }
+  .mini-account-name{ font-family:var(--font-sans); font-size:13px; color:var(--cream); }
+  .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
+
+  .main{ flex:1; min-width:0; padding:44px 56px 80px; }
+  .main-inner{ max-width:1000px; }
+
+  .page-head{ margin-bottom:28px; }
+  .page-head h1{ font-size:28px; margin-bottom:6px; word-break:break-word; }
+  .page-head p{ font-family:var(--font-sans); font-size:13.5px; color:var(--smoke); }
+
+  .empty{ font-family:var(--font-sans); font-size:13px; color:var(--smoke-dim); padding:40px 0; text-align:center; }
+
+  .result-section{ margin-bottom:36px; }
+  .result-section-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .result-section-head h2{ font-size:19px; }
+  .result-section-head a{ font-family:var(--font-sans); font-size:11.5px; color:var(--gold); }
+  .result-section-head a:hover{ text-decoration:underline; }
+
+  .result-row{
+    display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--line); cursor:pointer;
+  }
+  .result-row:last-child{ border-bottom:none; }
+  .result-avatar{
+    width:40px; height:40px; border-radius:50%; flex-shrink:0; background-size:cover; background-position:center;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:16px; color:var(--noir);
+  }
+  .result-body{ min-width:0; flex:1; }
+  .result-title{ font-size:15px; color:var(--cream); }
+  .result-meta{ font-family:var(--font-sans); font-size:12px; color:var(--smoke); margin-top:2px; }
+  .result-snippet{
+    font-family:var(--font-sans); font-size:12px; color:var(--smoke-dim); margin-top:3px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  .load-more{ display:flex; justify-content:center; margin-top:14px; }
+
+  @media (max-width:900px){
+    .sidebar{ display:none; }
+    .main{ padding:32px 22px 60px; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h4>Categories</h4>
+      <div class="cat-list" id="cat-list">
+        <div class="cat-item active" data-cat="">All results<span class="cat-count" id="count-all"></span></div>
+        <div class="cat-item" data-cat="members">Members<span class="cat-count" id="count-members"></span></div>
+        <div class="cat-item" data-cat="groups">Groups<span class="cat-count" id="count-groups"></span></div>
+        <div class="cat-item" data-cat="events">Events<span class="cat-count" id="count-events"></span></div>
+        <div class="cat-item" data-cat="posts">Forum Posts<span class="cat-count" id="count-posts"></span></div>
+        <div class="cat-item" data-cat="resources">Dictionary<span class="cat-count" id="count-resources"></span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="mini-account">
+        <div class="mini-avatar"></div>
+        <div>
+          <div class="mini-account-name">Loading…</div>
+          <div class="mini-account-tier"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+
+      <div class="page-head">
+        <span class="eyebrow">Search</span>
+        <h1 id="page-title" style="margin-top:10px;">Results</h1>
+        <p id="page-sub"></p>
+      </div>
+
+      <div id="results-root"></div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(async () => {
+  if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+  const { api, initDashboard, showToast, initials } = window.FantasiAPI;
+
+  const user = await initDashboard();
+  if (!user) return;
+
+  const CATEGORY_LABELS = { members: 'Members', groups: 'Groups', events: 'Events', posts: 'Forum Posts', resources: 'Dictionary' };
+  const params = new URLSearchParams(window.location.search);
+  let q = params.get('q') || '';
+  let category = params.get('category') || '';
+  let page = 1;
+
+  document.getElementById('page-title').textContent = q ? `Results for "${q}"` : 'Search';
+  document.getElementById('page-sub').textContent = q ? 'Across members, groups, events, posts, and the dictionary.' : 'Enter a search term to get started.';
+
+  document.querySelectorAll('.cat-item').forEach(item => {
+    if (item.dataset.cat === category) item.classList.add('active'); else item.classList.remove('active');
+    item.addEventListener('click', () => {
+      category = item.dataset.cat;
+      page = 1;
+      const url = new URL(window.location);
+      if (category) url.searchParams.set('category', category); else url.searchParams.delete('category');
+      window.history.replaceState({}, '', url);
+      document.querySelectorAll('.cat-item').forEach(i => i.classList.toggle('active', i === item));
+      render();
+    });
+  });
+
+  function rowForMember(m) {
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.addEventListener('click', () => { window.location.href = `/Profile/ViewProfile.html?id=${m.user_id}`; });
+    const avatar = document.createElement('div'); avatar.className = 'result-avatar';
+    if (m.avatar_url) avatar.style.backgroundImage = `url(${m.avatar_url})`; else avatar.textContent = initials(m.display_name);
+    const body = document.createElement('div'); body.className = 'result-body';
+    body.innerHTML = `<div class="result-title"></div><div class="result-meta"></div>`;
+    body.querySelector('.result-title').textContent = m.display_name;
+    body.querySelector('.result-meta').textContent = m.membership_tier ? m.membership_tier[0].toUpperCase() + m.membership_tier.slice(1) + ' member' : '';
+    row.append(avatar, body);
+    return row;
+  }
+  function rowForGroup(g) {
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.addEventListener('click', () => { window.location.href = `/Dashboard/Group.html?id=${g.id}`; });
+    const avatar = document.createElement('div'); avatar.className = 'result-avatar'; avatar.textContent = (g.name || '?').charAt(0).toUpperCase();
+    const body = document.createElement('div'); body.className = 'result-body';
+    body.innerHTML = `<div class="result-title"></div><div class="result-meta"></div>`;
+    body.querySelector('.result-title').textContent = g.name;
+    body.querySelector('.result-meta').textContent = [g.category, g.location].filter(Boolean).join(' · ');
+    row.append(avatar, body);
+    return row;
+  }
+  function rowForEvent(ev) {
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.addEventListener('click', () => { window.location.href = `/Dashboard/Event.html?id=${ev.id}`; });
+    const d = new Date(ev.event_date);
+    const avatar = document.createElement('div'); avatar.className = 'result-avatar'; avatar.textContent = d.getDate();
+    const body = document.createElement('div'); body.className = 'result-body';
+    body.innerHTML = `<div class="result-title"></div><div class="result-meta"></div>`;
+    body.querySelector('.result-title').textContent = ev.title;
+    body.querySelector('.result-meta').textContent = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + (ev.location ? ' · ' + ev.location : '');
+    row.append(avatar, body);
+    return row;
+  }
+  function rowForPost(p) {
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.addEventListener('click', () => { window.location.href = `/Dashboard/Forum.html?post=${p.id}`; });
+    const avatar = document.createElement('div'); avatar.className = 'result-avatar';
+    if (p.author_avatar) avatar.style.backgroundImage = `url(${p.author_avatar})`; else avatar.textContent = initials(p.author_name);
+    const body = document.createElement('div'); body.className = 'result-body';
+    body.innerHTML = `<div class="result-title"></div><div class="result-snippet"></div>`;
+    body.querySelector('.result-title').textContent = p.author_name;
+    body.querySelector('.result-snippet').textContent = p.body;
+    row.append(avatar, body);
+    return row;
+  }
+  function rowForResource(r) {
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.addEventListener('click', () => { window.location.href = `/Resources/Dictionary.html?term=${encodeURIComponent(r.slug)}`; });
+    const avatar = document.createElement('div'); avatar.className = 'result-avatar'; avatar.textContent = (r.term || '?').charAt(0).toUpperCase();
+    const body = document.createElement('div'); body.className = 'result-body';
+    body.innerHTML = `<div class="result-title"></div><div class="result-snippet"></div>`;
+    body.querySelector('.result-title').textContent = r.term;
+    body.querySelector('.result-snippet').textContent = r.definition;
+    row.append(avatar, body);
+    return row;
+  }
+  const ROW_BUILDERS = { members: rowForMember, groups: rowForGroup, events: rowForEvent, posts: rowForPost, resources: rowForResource };
+
+  const root = document.getElementById('results-root');
+
+  async function renderOverview() {
+    root.innerHTML = '';
+    if (!q) { root.innerHTML = '<p class="empty">Enter a search term above to get started.</p>'; return; }
+    const { ok, data } = await api.search.run(q);
+    if (!ok) { root.innerHTML = `<p class="empty">${data?.error || 'Search failed.'}</p>`; return; }
+
+    let anyResults = false;
+    Object.entries(CATEGORY_LABELS).forEach(([cat, label]) => {
+      const bucket = data[cat];
+      document.getElementById(`count-${cat}`).textContent = bucket.total || '';
+      if (!bucket.items.length) return;
+      anyResults = true;
+
+      const section = document.createElement('div');
+      section.className = 'result-section';
+      const head = document.createElement('div'); head.className = 'result-section-head';
+      head.innerHTML = `<h2>${label}</h2>`;
+      if (bucket.total > bucket.items.length) {
+        const viewAll = document.createElement('a');
+        viewAll.textContent = `View all ${bucket.total} →`;
+        viewAll.href = '#';
+        viewAll.addEventListener('click', (e) => { e.preventDefault(); category = cat; document.querySelector(`.cat-item[data-cat="${cat}"]`).click(); });
+        head.appendChild(viewAll);
+      }
+      section.appendChild(head);
+      bucket.items.forEach(item => section.appendChild(ROW_BUILDERS[cat](item)));
+      root.appendChild(section);
+    });
+    let totalAll = 0;
+    Object.values(data).forEach(b => totalAll += (b.total || 0));
+    document.getElementById('count-all').textContent = totalAll || '';
+    if (!anyResults) root.innerHTML = '<p class="empty">No results found. Try a different search term.</p>';
+  }
+
+  let totalPages = 1;
+  async function renderCategory(reset) {
+    if (reset) { page = 1; root.innerHTML = ''; }
+    if (!q) { root.innerHTML = '<p class="empty">Enter a search term above to get started.</p>'; return; }
+    const { ok, data } = await api.search.run(q, { category, page, limit: 20 });
+    if (!ok) { root.innerHTML = `<p class="empty">${data?.error || 'Search failed.'}</p>`; return; }
+
+    totalPages = data.pagination.pages;
+    document.getElementById(`count-${category}`).textContent = data.pagination.total || '';
+
+    let list = document.getElementById('cat-result-list');
+    if (!list) {
+      root.innerHTML = `<div class="result-section"><div class="result-section-head"><h2>${CATEGORY_LABELS[category]}</h2></div><div id="cat-result-list"></div></div><div class="load-more"><button type="button" class="btn btn-line btn-small" id="cat-load-more" hidden>Load More</button></div>`;
+      list = document.getElementById('cat-result-list');
+      document.getElementById('cat-load-more').addEventListener('click', () => { page += 1; renderCategory(false); });
+    }
+    const items = data[category] || [];
+    if (!items.length && page === 1) { list.innerHTML = '<p class="empty">No results found.</p>'; }
+    items.forEach(item => list.appendChild(ROW_BUILDERS[category](item)));
+    document.getElementById('cat-load-more').hidden = page >= totalPages;
+  }
+
+  function render() {
+    if (category) renderCategory(true); else renderOverview();
+  }
+
+  render();
+
+  // Reflect Enter-to-search from anywhere the header search box might already
+  // be pointing here via ?q= — no in-page search box duplicated here since
+  // the global header owns search input (see fantasi-api.js injectTopbar).
+})();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>

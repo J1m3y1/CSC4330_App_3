@@ -12,6 +12,7 @@ const {
   listPhotoVerifications, getPhotoVerificationSelfie, resolvePhotoVerification,
   listUsers, suspendUser, reactivateUser, updateUserRole,
   getStats, listAllChatrooms,
+  listDictionaryTermsAdmin, createDictionaryTerm, updateDictionaryTerm, deleteDictionaryTerm,
 } = require('../controllers/adminController');
 
 // Every route here requires an authenticated admin. Deliberately does not
@@ -77,6 +78,23 @@ router.post('/photo-verifications/:id/resolve', [
 router.get('/stats', getStats);
 
 router.get('/chatrooms', listAllChatrooms);
+
+// ── Dictionary terms (admin-authored, no review queue) ─────────────────────────
+router.get('/dictionary-terms', listDictionaryTermsAdmin);
+router.post('/dictionary-terms', [
+  body('term').trim().isLength({ min: 1, max: 80 }).withMessage('Term is required.'),
+  body('definition').trim().isLength({ min: 1, max: 2000 }).withMessage('Definition is required.'),
+  body('category').optional({ checkFalsy: true }).trim().isLength({ max: 60 }),
+], validate, createDictionaryTerm);
+router.patch('/dictionary-terms/:id', [
+  param('id').isUUID().withMessage('Invalid term ID.'),
+  body('term').optional().trim().isLength({ min: 1, max: 80 }),
+  body('definition').optional().trim().isLength({ min: 1, max: 2000 }),
+  body('category').optional({ checkFalsy: true }).trim().isLength({ max: 60 }),
+], validate, updateDictionaryTerm);
+router.delete('/dictionary-terms/:id', [
+  param('id').isUUID().withMessage('Invalid term ID.'),
+], validate, deleteDictionaryTerm);
 
 router.get('/users', [
   qv('role').optional().isIn(['member', 'admin']),

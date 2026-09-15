@@ -19,6 +19,7 @@ const {
 } = require('../controllers/profileController');
 const { INTEREST_LEVELS } = require('../config/interestTags');
 const { ETHNICITIES, DRINKING, CHILDREN, LANGUAGES } = require('../config/profileOptions');
+const { US_STATES } = require('../config/usStates');
 const {
   listMyPhotos, addPhoto, deletePhoto, setPrimaryPhoto, reorderPhotos,
 } = require('../controllers/photosController');
@@ -39,6 +40,10 @@ router.patch('/me', [
   body('bio').optional().isLength({ max: 4000 })
     .withMessage('About you must be 4000 characters or fewer.'),
   body('location').optional().trim().isLength({ max: 100 }),
+  // Normalized alongside the freeform `location` string — wireLocationSelects()
+  // on the client sends both from the same state/city picker (see Meet.html's
+  // state-based discovery, which filters on this exact column).
+  body('state').optional({ checkFalsy: true }).isIn(US_STATES).withMessage('Invalid state.'),
   body('interests').optional().isArray({ max: 20 })
     .withMessage('Interests must be an array of up to 20 items.'),
   body('interests.*').optional().trim().isLength({ min: 1, max: 50 }),

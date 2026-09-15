@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Group — Fantasi</title>
+
+<link rel="stylesheet" href="https://use.typekit.net/ija6lho.css">
+
+<style>
+  :root{
+    --noir:#0B0A0C; --noir-soft:#100E11; --emerald:#0F241C;
+    --gold:#C7A65C; --gold-bright:#E4C687; --gold-dim:#7C6636;
+    --silver:#A6ABB1; --silver-bright:#D4D7DB; --silver-dim:#5E6267;
+    --bordeaux:#4E1220; --bordeaux-bright:#711A2E;
+    --cream:#F2ECDF; --smoke:#8D8579; --smoke-dim:#5C564C;
+    --line: rgba(199,166,92,0.14); --line-strong: rgba(199,166,92,0.30);
+    --online: #7FBF8F;
+    --font-serif: elina, sans-serif;
+    --font-display: the-seasons, sans-serif;
+    --font-header: garamond-premier-pro-display, serif;
+    --font-sans: garamond-premier-pro-display, serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--noir); color:var(--cream);
+    font-family:var(--font-serif); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  h1,h2{ font-family:var(--font-display); font-style:italic; font-weight:300; margin:0; }
+  h3{ font-family:var(--font-serif); font-weight:400; margin:0; }
+  p{ margin:0; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; background:none; border:none; color:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold-dim); color:var(--noir); }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:500;
+    border:1px solid var(--gold); border-radius:999px; transition:transform .3s ease, background .3s ease, border-color .3s ease, color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-gold{ background:var(--gold); color:var(--noir); }
+  .btn-gold:hover{ background:var(--gold-bright); border-color:var(--gold-bright); }
+  .btn-line{ background:transparent; color:var(--cream); border-color:var(--line-strong); }
+  .btn-line:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .btn-bordeaux{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .btn-bordeaux:hover{ background:rgba(113,26,46,0.12); }
+  .btn-small{ padding:8px 16px; font-size:10px; }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+
+  .luxury-grain{
+    position:fixed; inset:0; z-index:9990; pointer-events:none;
+    opacity:0.04; mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  .shell{ display:flex; min-height:100vh; }
+
+  .sidebar{
+    width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  }
+  .sidebar-section{ padding:22px 20px; border-bottom:1px solid var(--line); }
+  .sidebar-section h4{
+    font-family:var(--font-sans); font-size:10px; letter-spacing:0.09em; text-transform:uppercase;
+    color:var(--gold-dim); font-weight:500; margin-bottom:14px;
+  }
+  .sidebar-stat{ display:flex; justify-content:space-between; font-family:var(--font-sans); font-size:12.5px; color:var(--smoke); margin-bottom:8px; }
+  .sidebar-stat strong{ color:var(--cream); }
+  .roster-item{ display:flex; align-items:center; gap:9px; padding:6px 0; }
+  .roster-avatar{
+    width:28px; height:28px; border-radius:50%; flex-shrink:0; background-size:cover; background-position:center;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:12px; color:var(--noir);
+  }
+  .roster-name{ font-family:var(--font-sans); font-size:12px; color:var(--cream); }
+  .roster-role{ font-family:var(--font-sans); font-size:9.5px; color:var(--gold-dim); text-transform:uppercase; letter-spacing:0.05em; margin-left:auto; }
+
+  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); margin-top:auto; }
+  .mini-account{ display:flex; align-items:center; gap:11px; }
+  .mini-avatar{
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--noir);
+  }
+  .mini-account-name{ font-family:var(--font-sans); font-size:13px; color:var(--cream); }
+  .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
+
+  .main{ flex:1; min-width:0; padding:44px 56px 80px; }
+  .main-inner{ max-width:900px; }
+
+  .group-hero{
+    border:1px solid var(--line-strong); border-radius:10px; overflow:hidden; margin-bottom:28px;
+    background:var(--noir-soft);
+  }
+  .group-hero-cover{
+    height:140px; background:linear-gradient(135deg, rgba(199,166,92,0.18), rgba(15,36,28,0.6));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .group-hero-cover span{ font-family:var(--font-display); font-style:italic; font-size:44px; color:var(--gold-dim); }
+  .group-hero-body{ padding:24px 28px 28px; }
+  .group-hero-cat{ font-family:var(--font-sans); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+  .group-hero-name{ font-size:28px; margin-bottom:8px; }
+  .group-hero-meta{ font-family:var(--font-sans); font-size:13px; color:var(--smoke); margin-bottom:16px; }
+  .group-hero-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+
+  .section{ margin-bottom:32px; }
+  .section h2{ font-size:19px; margin-bottom:12px; }
+  .group-desc{ font-family:var(--font-sans); font-size:14px; color:var(--smoke); line-height:1.7; }
+
+  .empty{ font-family:var(--font-sans); font-size:13px; color:var(--smoke-dim); padding:16px 0; }
+
+  @media (max-width:900px){
+    .sidebar{ display:none; }
+    .main{ padding:32px 22px 60px; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<meta name="api-base" content="/api">
+<script src="/js/fantasi-api.js"></script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fantasi">
+<link rel="apple-touch-icon" href="/LandingPage/videos/fantasi-logo-gold.png">
+</head>
+<body>
+
+<div class="luxury-grain"></div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h4>About</h4>
+      <div class="sidebar-stat"><span>Members</span><strong id="sb-member-count">—</strong></div>
+      <div class="sidebar-stat"><span>Category</span><strong id="sb-category">—</strong></div>
+      <div class="sidebar-stat"><span>Location</span><strong id="sb-location">—</strong></div>
+    </div>
+    <div class="sidebar-section">
+      <h4>Members</h4>
+      <div id="roster-preview"></div>
+    </div>
+    <div class="sidebar-section" id="owner-tools-section" hidden>
+      <h4>Owner Tools</h4>
+      <button type="button" class="btn btn-line btn-small" id="edit-group-btn" style="width:100%; margin-bottom:8px;">Edit Group</button>
+      <button type="button" class="btn btn-bordeaux btn-small" id="delete-group-btn" style="width:100%;">Delete Group</button>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="mini-account">
+        <div class="mini-avatar"></div>
+        <div>
+          <div class="mini-account-name">Loading…</div>
+          <div class="mini-account-tier"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner" id="group-main">
+      <p class="empty">Loading group…</p>
+    </div>
+  </main>
+</div>
+
+<script>
+(async () => {
+  if (!window.FantasiAPI) { window.location.href = '/SignInProcess/SignIn.html'; return; }
+  const { api, initDashboard, showToast, initials, capitalize } = window.FantasiAPI;
+
+  const user = await initDashboard();
+  if (!user) return;
+
+  const groupId = new URLSearchParams(window.location.search).get('id');
+  const mainEl = document.getElementById('group-main');
+  if (!groupId) { mainEl.innerHTML = '<p class="empty">No group specified.</p>'; return; }
+
+  const { ok, data: group } = await api.groups.get(groupId);
+  if (!ok) { mainEl.innerHTML = `<p class="empty">${group?.error || 'Group not found.'}</p>`; return; }
+
+  document.title = `${group.name} — Fantasi`;
+  document.getElementById('sb-member-count').textContent = group.member_count;
+  document.getElementById('sb-category').textContent = group.category || '—';
+  document.getElementById('sb-location').textContent = group.location || group.state || '—';
+
+  mainEl.innerHTML = '';
+
+  const hero = document.createElement('div');
+  hero.className = 'group-hero';
+  const cover = document.createElement('div');
+  cover.className = 'group-hero-cover';
+  cover.innerHTML = `<span>${(group.name || '?').charAt(0).toUpperCase()}</span>`;
+  const body = document.createElement('div');
+  body.className = 'group-hero-body';
+
+  if (group.category) {
+    const cat = document.createElement('div'); cat.className = 'group-hero-cat'; cat.textContent = group.category;
+    body.appendChild(cat);
+  }
+  const name = document.createElement('h1'); name.className = 'group-hero-name'; name.textContent = group.name;
+  body.appendChild(name);
+
+  const meta = document.createElement('div'); meta.className = 'group-hero-meta';
+  meta.textContent = `${group.member_count} member${group.member_count === 1 ? '' : 's'}${group.location ? ' · ' + group.location : (group.state ? ' · ' + group.state : '')}`;
+  body.appendChild(meta);
+
+  const actions = document.createElement('div'); actions.className = 'group-hero-actions';
+  if (group.my_role === 'owner') {
+    const badge = document.createElement('span');
+    badge.className = 'btn btn-line btn-small';
+    badge.style.cursor = 'default';
+    badge.textContent = 'You own this group';
+    actions.appendChild(badge);
+    document.getElementById('owner-tools-section').hidden = false;
+  } else {
+    const joinBtn = document.createElement('button');
+    joinBtn.type = 'button';
+    joinBtn.className = 'btn btn-small ' + (group.is_member ? 'btn-line' : 'btn-gold');
+    joinBtn.textContent = group.is_member ? 'Leave Group' : 'Join Group';
+    joinBtn.addEventListener('click', async () => {
+      joinBtn.disabled = true;
+      if (group.is_member) {
+        const { ok, data } = await api.groups.leave(groupId);
+        if (ok) { group.is_member = false; joinBtn.textContent = 'Join Group'; joinBtn.className = 'btn btn-small btn-gold'; }
+        else showToast(data?.error || 'Could not leave group.', 'error');
+      } else {
+        const { ok, data } = await api.groups.join(groupId);
+        if (ok) { group.is_member = true; joinBtn.textContent = 'Leave Group'; joinBtn.className = 'btn btn-small btn-line'; }
+        else showToast(data?.error || 'Could not join group.', 'error');
+      }
+      joinBtn.disabled = false;
+    });
+    actions.appendChild(joinBtn);
+  }
+  body.appendChild(actions);
+
+  hero.append(cover, body);
+  mainEl.appendChild(hero);
+
+  const descSection = document.createElement('div');
+  descSection.className = 'section';
+  descSection.innerHTML = `<h2>About this group</h2><p class="group-desc"></p>`;
+  descSection.querySelector('p').textContent = group.description || 'No description has been written for this group yet.';
+  mainEl.appendChild(descSection);
+
+  const eventsSection = document.createElement('div');
+  eventsSection.className = 'section';
+  eventsSection.innerHTML = `<h2>Upcoming events</h2><div id="group-events"></div>`;
+  mainEl.appendChild(eventsSection);
+
+  const { ok: evOk, data: evData } = await api.events.list({ group_id: groupId, limit: 5 });
+  const evList = document.getElementById('group-events');
+  if (evOk && evData.events.length) {
+    evData.events.forEach(ev => {
+      const row = document.createElement('a');
+      row.href = `/Dashboard/Event.html?id=${ev.id}`;
+      row.style.cssText = 'display:block; padding:12px 0; border-bottom:1px solid var(--line); font-family:var(--font-sans); font-size:13px;';
+      const dateStr = new Date(ev.event_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      row.innerHTML = `<strong style="color:var(--cream);">${ev.title}</strong><br><span style="color:var(--smoke); font-size:12px;">${dateStr}${ev.location ? ' · ' + ev.location : ''}</span>`;
+      evList.appendChild(row);
+    });
+  } else {
+    evList.innerHTML = '<p class="empty">No upcoming events hosted by this group yet.</p>';
+  }
+
+  // ── Roster preview (sidebar) ─────────────────────────────────────────────
+  const { ok: memOk, data: memData } = await api.groups.members(groupId, 1);
+  const rosterEl = document.getElementById('roster-preview');
+  if (memOk && memData.members.length) {
+    memData.members.slice(0, 8).forEach(m => {
+      const row = document.createElement('div');
+      row.className = 'roster-item';
+      const avatar = document.createElement('div');
+      avatar.className = 'roster-avatar';
+      if (m.avatar_url) { avatar.style.backgroundImage = `url(${m.avatar_url})`; }
+      else avatar.textContent = initials(m.display_name);
+      const nm = document.createElement('span'); nm.className = 'roster-name'; nm.textContent = m.display_name;
+      row.appendChild(avatar); row.appendChild(nm);
+      if (m.role === 'owner') { const r = document.createElement('span'); r.className = 'roster-role'; r.textContent = 'Owner'; row.appendChild(r); }
+      rosterEl.appendChild(row);
+    });
+  } else {
+    rosterEl.innerHTML = '<p class="empty">No members yet.</p>';
+  }
+
+  // ── Owner tools ───────────────────────────────────────────────────────────
+  document.getElementById('delete-group-btn').addEventListener('click', async () => {
+    if (!window.confirm('Delete this group? This cannot be undone.')) return;
+    const { ok, data } = await api.groups.remove(groupId);
+    if (ok) window.location.href = '/Dashboard/Groups.html';
+    else showToast(data?.error || 'Could not delete group.', 'error');
+  });
+  document.getElementById('edit-group-btn').addEventListener('click', () => {
+    const newName = window.prompt('Group name:', group.name);
+    if (newName === null || !newName.trim()) return;
+    api.groups.update(groupId, { name: newName.trim() }).then(({ ok, data }) => {
+      if (ok) window.location.reload();
+      else showToast(data?.error || 'Could not update group.', 'error');
+    });
+  });
+})();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>

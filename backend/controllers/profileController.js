@@ -109,7 +109,7 @@ async function getMyProfile(req, res) {
 // ── PATCH /api/profile/me ────────────────────────────────────────────────────
 async function updateMyProfile(req, res) {
   const {
-    display_name, bio, location,
+    display_name, bio, location, state,
     interests,
     show_location, show_last_active, allow_messages_from,
     blur_photos, incognito, black_only_visibility,
@@ -142,6 +142,7 @@ async function updateMyProfile(req, res) {
     if (display_name       !== undefined) set('display_name',       display_name);
     if (bio                !== undefined) set('bio',                bio);
     if (location           !== undefined) set('location',           location);
+    if (state              !== undefined) set('state',              state);
     if (interests          !== undefined) set('interests',          interests);
     if (show_location      !== undefined) set('show_location',      show_location);
     if (show_last_active   !== undefined) set('show_last_active',   show_last_active);

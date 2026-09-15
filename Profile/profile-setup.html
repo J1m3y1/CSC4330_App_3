@@ -749,6 +749,7 @@
       height_label: selectedText('[data-picker="height"] .picker-item.selected'),
       height_unit: document.querySelector('[data-toggle="height-unit"] button.active')?.dataset.value || 'ft',
       location: currentLocation() || undefined,
+      state: document.getElementById('loc-state')?.value || undefined,
       education: selectedText('[data-select="education"] .select-list-btn.selected'),
       relationship_status: selectedText('[data-select="relationship"] .select-list-btn.selected'),
       smoking: selectedText('[data-select="smoking"] .select-list-btn.selected'),

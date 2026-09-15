@@ -5,6 +5,7 @@ const fs   = require('fs');
 const { query, withTransaction } = require('../config/db');
 const { sendMail } = require('../utils/mailer');
 const { grantMembership } = require('./membershipController');
+const { slugify } = require('./resourcesController');
 const { ID_UPLOAD_DIR, SELFIE_UPLOAD_DIR } = require('../middleware/upload');
 const crypto = require('crypto');
 
@@ -568,6 +569,70 @@ async function listAllChatrooms(req, res) {
   }
 }
 
+// ── Dictionary terms (admin-authored, no review queue — see resourcesController.js) ──
+async function listDictionaryTermsAdmin(_req, res) {
+  try {
+    const { rows } = await query('SELECT id, term, slug, definition, category, created_at FROM dictionary_terms ORDER BY term ASC');
+    res.json(rows);
+  } catch (err) {
+    console.error('[admin.listDictionaryTermsAdmin]', err.message);
+    res.status(500).json({ error: 'Could not fetch dictionary terms.' });
+  }
+}
+
+async function createDictionaryTerm(req, res) {
+  const { term, definition, category } = req.body;
+  try {
+    let slug = slugify(term);
+    const clash = await query('SELECT 1 FROM dictionary_terms WHERE slug = $1', [slug]);
+    if (clash.rows.length) slug = `${slug}-${crypto.randomBytes(3).toString('hex')}`;
+
+    const { rows } = await query(
+      `INSERT INTO dictionary_terms (term, slug, definition, category, created_by)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, term, slug, definition, category`,
+      [term, slug, definition, category || null, req.user.id]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error('[admin.createDictionaryTerm]', err.message);
+    res.status(500).json({ error: 'Could not create term.' });
+  }
+}
+
+async function updateDictionaryTerm(req, res) {
+  const { id } = req.params;
+  const { term, definition, category } = req.body;
+  try {
+    const { rows } = await query(
+      `UPDATE dictionary_terms SET
+         term = COALESCE($1, term),
+         definition = COALESCE($2, definition),
+         category = COALESCE($3, category),
+         updated_at = NOW()
+       WHERE id = $4
+       RETURNING id, term, slug, definition, category`,
+      [term || null, definition || null, category || null, id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Term not found.' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('[admin.updateDictionaryTerm]', err.message);
+    res.status(500).json({ error: 'Could not update term.' });
+  }
+}
+
+async function deleteDictionaryTerm(req, res) {
+  const { id } = req.params;
+  try {
+    await query('DELETE FROM dictionary_terms WHERE id = $1', [id]);
+    res.json({ message: 'Term deleted.' });
+  } catch (err) {
+    console.error('[admin.deleteDictionaryTerm]', err.message);
+    res.status(500).json({ error: 'Could not delete term.' });
+  }
+}
+
 module.exports = {
   listPending, approveUser, rejectUser, getIdentityDocument, listReports, resolveReport,
   listPrivacyRequests, resolvePrivacyRequest,
@@ -575,4 +640,5 @@ module.exports = {
   listPhotoVerifications, getPhotoVerificationSelfie, resolvePhotoVerification,
   listUsers, suspendUser, reactivateUser, updateUserRole,
   getStats, listAllChatrooms,
+  listDictionaryTermsAdmin, createDictionaryTerm, updateDictionaryTerm, deleteDictionaryTerm,
 };

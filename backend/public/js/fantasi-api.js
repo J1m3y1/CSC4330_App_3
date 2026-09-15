@@ -227,7 +227,13 @@ const api = {
 
   // ── Messages ──────────────────────────────────────────────────────────────
   messages: {
-    conversations: ()                 => api.get('/messages/conversations'),
+    conversations: (view)             => api.get(`/messages/conversations${view ? '?view=' + encodeURIComponent(view) : ''}`),
+    requests:      ()                 => api.get('/messages/requests'),
+    unreadCount:   ()                 => api.get('/messages/unread-count'),
+    acceptRequest: (partnerId)        => api.post(`/messages/${partnerId}/accept-request`),
+    declineRequest:(partnerId)        => api.post(`/messages/${partnerId}/decline-request`),
+    archive:       (partnerId)        => api.post(`/messages/${partnerId}/archive`),
+    unarchive:     (partnerId)        => api.delete(`/messages/${partnerId}/archive`),
     thread:        (partnerId, page)  => api.get(`/messages/${partnerId}?page=${page || 1}`),
     send:          (partnerId, body)  => api.post(`/messages/${partnerId}`, { body }),
     delete:        (messageId)        => api.delete(`/messages/${messageId}`),
@@ -302,6 +308,65 @@ const api = {
     chatrooms:       ()                                  => api.get('/admin/chatrooms'),
     createChatroom:  (name, description, min_tier)       => api.post('/chatrooms', { name, description, min_tier }),
     updateChatroom:  (id, fields)                        => api.patch(`/chatrooms/${id}`, fields),
+
+    dictionaryTerms:      ()               => api.get('/admin/dictionary-terms'),
+    createDictionaryTerm: (data)           => api.post('/admin/dictionary-terms', data),
+    updateDictionaryTerm: (id, data)       => api.patch(`/admin/dictionary-terms/${id}`, data),
+    deleteDictionaryTerm: (id)             => api.delete(`/admin/dictionary-terms/${id}`),
+  },
+
+  // ── Groups ────────────────────────────────────────────────────────────────
+  groups: {
+    list: (params = {}) => {
+      const qs = new URLSearchParams(
+        Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''))
+      ).toString();
+      return api.get(`/groups${qs ? '?' + qs : ''}`);
+    },
+    get:     (id)       => api.get(`/groups/${id}`),
+    create:  (data)     => api.post('/groups', data),
+    update:  (id, data) => api.patch(`/groups/${id}`, data),
+    remove:  (id)        => api.delete(`/groups/${id}`),
+    join:    (id)        => api.post(`/groups/${id}/join`),
+    leave:   (id)        => api.post(`/groups/${id}/leave`),
+    members: (id, page)  => api.get(`/groups/${id}/members?page=${page || 1}`),
+  },
+
+  // ── Events ────────────────────────────────────────────────────────────────
+  events: {
+    list: (params = {}) => {
+      const qs = new URLSearchParams(
+        Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''))
+      ).toString();
+      return api.get(`/events${qs ? '?' + qs : ''}`);
+    },
+    get:        (id)          => api.get(`/events/${id}`),
+    create:     (data)        => api.post('/events', data),
+    update:     (id, data)    => api.patch(`/events/${id}`, data),
+    remove:     (id)          => api.delete(`/events/${id}`),
+    rsvp:       (id, status)  => api.post(`/events/${id}/rsvp`, { status }),
+    cancelRsvp: (id)          => api.delete(`/events/${id}/rsvp`),
+    attendees:  (id, page)    => api.get(`/events/${id}/attendees?page=${page || 1}`),
+  },
+
+  // ── Resources (Kink Dictionary) ──────────────────────────────────────────────
+  resources: {
+    dictionary: (params = {}) => {
+      const qs = new URLSearchParams(
+        Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''))
+      ).toString();
+      return api.get(`/resources/dictionary${qs ? '?' + qs : ''}`);
+    },
+    dictionaryTerm: (slug) => api.get(`/resources/dictionary/${encodeURIComponent(slug)}`),
+  },
+
+  // ── Global search ─────────────────────────────────────────────────────────
+  search: {
+    run: (q, params = {}) => {
+      const qs = new URLSearchParams({ q, ...params }).toString();
+      return api.get(`/search?${qs}`);
+    },
+    typeahead: (q) => api.get(`/search/typeahead?q=${encodeURIComponent(q)}`),
   },
 };
 
@@ -406,26 +471,24 @@ function populateSidebarAccount(user) {
   injectAdminNavItem(user);
 }
 
-// Admin Panel link in the sidebar — shown only when the server-confirmed
-// `user.role` (from requireAuth's DB lookup in middleware/auth.js, never
-// trusted from the client) is 'admin'. This is a pure UI convenience: every
-// /api/admin/* route is independently gated by requireAdmin server-side
-// (routes/admin.js), and Admin.html itself re-checks role and shows a
-// "denied" screen if it doesn't match — so hiding/showing this link can
-// never be the only thing standing between a non-admin and admin data.
+// Admin Panel link in the topbar's More▾ menu — shown only when the
+// server-confirmed `user.role` (from requireAuth's DB lookup in
+// middleware/auth.js, never trusted from the client) is 'admin'. This is a
+// pure UI convenience: every /api/admin/* route is independently gated by
+// requireAdmin server-side (routes/admin.js), and Admin.html itself
+// re-checks role and shows a "denied" screen if it doesn't match — so
+// hiding/showing this link can never be the only thing standing between a
+// non-admin and admin data.
 function injectAdminNavItem(user) {
   if (user.role !== 'admin') return;
-  const nav = document.querySelector('.sidebar-nav');
-  if (!nav || nav.querySelector('.nav-item[href="/AdminPage/Admin.html"]')) return;
+  const menu = document.querySelector('#fantasi-nav-more .fantasi-am-menu');
+  if (!menu || menu.querySelector('a[href="/AdminPage/Admin.html"]')) return;
 
   const link = document.createElement('a');
-  link.className = 'nav-item';
+  link.className = 'fantasi-am-item';
   link.href = '/AdminPage/Admin.html';
-  link.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/><path d="M11 15l3 3 6-6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Admin Panel
-  `;
-  nav.appendChild(link);
+  link.textContent = 'Admin Panel';
+  menu.appendChild(link);
 }
 
 // ── Account dropdown (self-contained, like watermarkPhoto above) ──────────────
@@ -506,7 +569,82 @@ function injectAdminNavItem(user) {
     }
     .fantasi-topbar-logo{ display:flex; align-items:center; flex-shrink:0; }
     .fantasi-topbar-logo img{ height:65px; width:auto; }
-    .fantasi-topbar-actions{ display:flex; align-items:center; gap:16px; flex-shrink:0; margin-left:auto; }
+    .fantasi-topbar-actions{ display:flex; align-items:center; gap:14px; flex-shrink:0; margin-left:auto; }
+
+    /* ---- primary nav row (Home/Explore/Meet/Groups/Events/More) ---- */
+    .fantasi-primary-nav{ display:flex; align-items:center; gap:4px; flex-shrink:0; }
+    .fantasi-nav-link{
+      position:relative; display:flex; align-items:center; padding:9px 13px; border-radius:20px;
+      font-family:var(--font-sans, sans-serif); font-size:12.5px; letter-spacing:0.02em; color:var(--smoke, #8D8579);
+      transition:background .2s ease, color .2s ease; cursor:pointer; white-space:nowrap;
+    }
+    .fantasi-nav-link:hover{ background:rgba(199,166,92,0.06); color:var(--cream, #F2ECDF); }
+    .fantasi-nav-link.active{ background:rgba(199,166,92,0.1); color:var(--gold-bright, #E4C687); }
+    .fantasi-nav-link.fantasi-am-trigger.open{ background:rgba(199,166,92,0.1); color:var(--gold-bright, #E4C687); }
+    .fantasi-nav-link .fantasi-am-chevron{ margin-left:5px; }
+    .fantasi-nav-more .fantasi-am-panel-down{ min-width:200px; }
+    .fantasi-create-trigger{ font-size:17px; padding:8px 15px; line-height:1; color:var(--gold-bright, #E4C687); border:1px solid var(--line-strong, rgba(199,166,92,0.30)); }
+    .fantasi-create-trigger:hover{ border-color:var(--gold, #C7A65C); }
+
+    /* ---- search box + typeahead flyout ---- */
+    .fantasi-topbar-search{ position:relative; flex:1 1 auto; min-width:0; max-width:340px; }
+    .fantasi-search-input{
+      width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--line-strong, rgba(199,166,92,0.30));
+      border-radius:20px; padding:10px 16px 10px 36px; color:var(--cream, #F2ECDF);
+      font-family:var(--font-sans, sans-serif); font-size:13px; outline:none; transition:border-color .25s ease, background .25s ease;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none'%3E%3Ccircle cx='9' cy='9' r='6.5' stroke='%238D8579' stroke-width='1.3'/%3E%3Cpath d='M14 14l4.5 4.5' stroke='%238D8579' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:12px center;
+    }
+    .fantasi-search-input:focus{ border-color:var(--gold, #C7A65C); background-color:rgba(199,166,92,0.05); }
+    .fantasi-search-input::placeholder{ color:var(--smoke-dim, #5C564C); }
+    .fantasi-search-flyout{
+      display:none; position:absolute; top:calc(100% + 10px); left:0; right:0; max-height:70vh; overflow-y:auto;
+      background:var(--noir-soft, #100E11); border:1px solid var(--line-strong, rgba(199,166,92,0.30)); border-radius:8px;
+      box-shadow:0 24px 60px rgba(0,0,0,0.5); z-index:200; padding:8px;
+    }
+    .fantasi-search-flyout.show{ display:block; }
+    .fantasi-search-group-label{
+      font-family:var(--font-sans, sans-serif); font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase;
+      color:var(--gold-dim, #7C6636); padding:10px 10px 4px;
+    }
+    .fantasi-search-item{
+      display:flex; align-items:center; gap:9px; width:100%; padding:8px 10px; border-radius:5px;
+      font-family:var(--font-sans, sans-serif); font-size:12.5px; color:var(--cream, #F2ECDF); text-align:left; transition:background .2s ease;
+    }
+    .fantasi-search-item:hover{ background:rgba(199,166,92,0.08); }
+    .fantasi-search-item .meta{ color:var(--smoke, #8D8579); font-size:11px; margin-left:auto; flex-shrink:0; }
+    .fantasi-search-empty{ padding:16px 10px; font-family:var(--font-sans, sans-serif); font-size:12px; color:var(--smoke-dim, #5C564C); text-align:center; }
+    .fantasi-search-toggle{ display:none; }
+
+    /* ---- inbox icon + unread badge ---- */
+    .fantasi-topbar-inbox{
+      position:relative; width:38px; height:38px; border-radius:50%; border:1px solid var(--line-strong, rgba(199,166,92,0.30));
+      display:flex; align-items:center; justify-content:center; color:var(--smoke, #8D8579); flex-shrink:0;
+      transition:border-color .25s ease, color .25s ease;
+    }
+    .fantasi-topbar-inbox:hover{ border-color:var(--gold, #C7A65C); color:var(--gold-bright, #E4C687); }
+    .fantasi-inbox-badge{
+      position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 4px; border-radius:9px;
+      background:var(--gold, #C7A65C); color:var(--noir, #0B0A0C); font-family:var(--font-sans, sans-serif);
+      font-size:9.5px; font-weight:600; display:flex; align-items:center; justify-content:center;
+    }
+
+    @media (max-width:1150px){
+      .fantasi-topbar-search{ max-width:220px; }
+      .fantasi-nav-link{ padding:9px 10px; }
+    }
+    @media (max-width:980px){
+      .fantasi-primary-nav{ display:none; }
+      .fantasi-topbar-search{ display:none; }
+      .fantasi-topbar-search.mobile-open{
+        display:block; position:fixed; top:var(--fantasi-topbar-h, 96px); left:0; right:0; max-width:none;
+        padding:12px 14px; background:var(--noir-soft, #100E11); border-bottom:1px solid var(--line-strong, rgba(199,166,92,0.30)); z-index:210;
+      }
+      .fantasi-search-toggle{
+        display:flex; width:38px; height:38px; border-radius:50%; border:1px solid var(--line-strong, rgba(199,166,92,0.30));
+        align-items:center; justify-content:center; color:var(--smoke, #8D8579); flex-shrink:0;
+      }
+    }
     .fantasi-topbar-upgrade{
       padding:14px 28px; border-radius:24px; background:var(--gold, #C7A65C); color:var(--noir, #0B0A0C);
       font-family:var(--font-sans, sans-serif); font-size:13px; letter-spacing:0.04em; text-transform:uppercase; font-weight:500;
@@ -531,10 +669,22 @@ function injectAdminNavItem(user) {
       font-family:var(--font-display, serif); font-style:italic; font-size:20px; color:var(--noir, #0B0A0C);
     }
     .fantasi-topbar-account-name{ font-family:var(--font-sans, sans-serif); font-size:16px; color:var(--cream, #F2ECDF); }
-    @media (max-width:760px){
-      .fantasi-topbar{ gap:10px; padding:0 14px; }
+    /* Matches the 980px breakpoint where the primary nav row and search box
+       already collapse (see .fantasi-primary-nav/.fantasi-topbar-search
+       above) — the action-row buttons need to be this compact everywhere
+       that's true, tablet widths included, not just phones. */
+    @media (max-width:980px){
+      .fantasi-topbar{ gap:8px; padding:0 12px; }
       .fantasi-topbar-account-name{ display:none; }
       .fantasi-topbar-upgrade{ display:none; }
+      .fantasi-topbar-actions{ gap:6px; }
+      .fantasi-topbar-boost{ padding:8px 12px; font-size:10px; }
+      .fantasi-topbar-account{ padding:4px; gap:2px; }
+      .fantasi-topbar-account .fantasi-am-chevron{ display:none; }
+      .fantasi-topbar-avatar{ width:34px; height:34px; font-size:14px; }
+      .fantasi-create-trigger{ padding:6px 11px; font-size:14px; }
+      .fantasi-topbar-inbox{ width:32px; height:32px; }
+      .fantasi-topbar-logo img{ height:44px; }
     }
 
     /* ---- mobile nav drawer (stands in for the sidebar below 980px, where
@@ -641,6 +791,29 @@ function buildAccountPanel(user) {
   return panel;
 }
 
+// Builds a simple flyout menu (unattached) from a flat list of items — the
+// same trigger/panel mechanism and CSS classes as buildAccountPanel above,
+// reused for the topbar's More▾ and Create(+) menus so nothing new has to be
+// styled. Each item is `{ label, href? , onClick?, danger? }`; items with an
+// `href` render as links, everything else as buttons.
+function buildMenuPanel(items) {
+  const panel = document.createElement('div');
+  panel.className = 'fantasi-am-panel';
+  const menu = document.createElement('div');
+  menu.className = 'fantasi-am-menu';
+  items.forEach(it => {
+    const el = document.createElement(it.href ? 'a' : 'button');
+    el.className = 'fantasi-am-item' + (it.danger ? ' danger' : '');
+    if (it.href) el.href = it.href;
+    else el.type = 'button';
+    el.textContent = it.label;
+    if (it.onClick) el.addEventListener('click', it.onClick);
+    menu.appendChild(el);
+  });
+  panel.appendChild(menu);
+  return panel;
+}
+
 // Wires a trigger element to open/close a given panel, inserted just before
 // the trigger (flyout upward — the sidebar's mini-account sits at the very
 // bottom of the page) or just after it (dropdown downward — the topbar's
@@ -688,15 +861,137 @@ function injectAccountMenu(user) {
   wireAccountTrigger(trigger, panel, foot, 'up');
 }
 
+// ── Primary navigation (Home/Explore/Meet/Groups/Events/More▾) ────────────────
+// The topbar's own nav row — the single place these six destinations are
+// defined. injectMobileNavDrawer() clones this same element for the mobile
+// drawer instead of keeping a second list in sync by hand.
+const PRIMARY_NAV_LINKS = [
+  { label: 'Home',    href: '/Dashboard/Discover.html' },
+  { label: 'Explore',  href: '/Dashboard/Search.html' },
+  { label: 'Meet',    href: '/Dashboard/Meet.html' },
+  { label: 'Groups',  href: '/Dashboard/Groups.html' },
+  { label: 'Events',  href: '/Dashboard/Events.html' },
+];
+const MORE_MENU_LINKS = [
+  { label: 'Forum',              href: '/Dashboard/Forum.html' },
+  { label: 'Chatrooms',          href: '/Dashboard/Chatrooms.html' },
+  { label: 'Interests',          href: '/Dashboard/Interests.html' },
+  { label: 'Kink Dictionary',    href: '/Resources/Dictionary.html' },
+  { label: 'Privacy & Data',     href: '/Dashboard/Privacy.html' },
+  { label: 'Membership',         href: '/Dashboard/Membership.html' },
+  { label: 'Safety Guidelines',  href: '/LandingPage/Safety.html' },
+  { label: 'Privacy Policy',     href: '/LandingPage/PrivacyPolicy.html' },
+  { label: 'Terms',              href: '/LandingPage/Terms.html' },
+  { label: 'Contact Support',    href: 'mailto:support@fantasi.app' },
+];
+
+function buildPrimaryNav(navEl) {
+  const currentPath = window.location.pathname;
+  PRIMARY_NAV_LINKS.forEach(link => {
+    const a = document.createElement('a');
+    a.className = 'fantasi-nav-link' + (currentPath === link.href ? ' active' : '');
+    a.href = link.href;
+    a.textContent = link.label;
+    navEl.appendChild(a);
+  });
+
+  const moreTrigger = document.createElement('div');
+  moreTrigger.className = 'fantasi-nav-link fantasi-nav-more';
+  moreTrigger.id = 'fantasi-nav-more';
+  moreTrigger.textContent = 'More';
+  navEl.appendChild(moreTrigger);
+  const morePanel = buildMenuPanel(MORE_MENU_LINKS);
+  wireAccountTrigger(moreTrigger, morePanel, moreTrigger, 'down');
+}
+
+// ── Global search: debounced typeahead flyout + Enter-to-search ───────────────
+function wireSearchBox(bar) {
+  const wrap   = bar.querySelector('#fantasi-topbar-search');
+  const input  = bar.querySelector('#fantasi-search-input');
+  const flyout = bar.querySelector('#fantasi-search-flyout');
+  const toggle = bar.querySelector('#fantasi-search-toggle');
+
+  toggle.addEventListener('click', () => {
+    wrap.classList.toggle('mobile-open');
+    if (wrap.classList.contains('mobile-open')) input.focus();
+  });
+
+  const CATEGORY_LABELS = { members: 'Members', groups: 'Groups', events: 'Events', posts: 'Forum Posts', resources: 'Dictionary' };
+  const RESULT_LINK = {
+    members:   (m)  => `/Profile/ViewProfile.html?id=${m.user_id}`,
+    groups:    (g)  => `/Dashboard/Group.html?id=${g.id}`,
+    events:    (ev) => `/Dashboard/Event.html?id=${ev.id}`,
+    posts:     (p)  => `/Dashboard/Forum.html?post=${p.id}`,
+    resources: (r)  => `/Resources/Dictionary.html?term=${encodeURIComponent(r.slug)}`,
+  };
+  const RESULT_LABEL = {
+    members: (m) => m.display_name,
+    groups: (g) => g.name,
+    events: (ev) => ev.title,
+    posts: (p) => p.body,
+    resources: (r) => r.term,
+  };
+
+  function closeFlyout() { flyout.classList.remove('show'); }
+
+  async function runTypeahead(q) {
+    const { ok, data } = await api.search.typeahead(q);
+    if (!ok) { closeFlyout(); return; }
+    flyout.innerHTML = '';
+    let any = false;
+    Object.entries(CATEGORY_LABELS).forEach(([cat, label]) => {
+      const items = data[cat] || [];
+      if (!items.length) return;
+      any = true;
+      const heading = document.createElement('div');
+      heading.className = 'fantasi-search-group-label';
+      heading.textContent = label;
+      flyout.appendChild(heading);
+      items.forEach(item => {
+        const row = document.createElement('a');
+        row.className = 'fantasi-search-item';
+        row.href = RESULT_LINK[cat](item);
+        row.textContent = RESULT_LABEL[cat](item);
+        flyout.appendChild(row);
+      });
+    });
+    if (!any) {
+      const empty = document.createElement('div');
+      empty.className = 'fantasi-search-empty';
+      empty.textContent = 'No matches yet — keep typing.';
+      flyout.appendChild(empty);
+    }
+    flyout.classList.add('show');
+  }
+
+  let debounceTimer;
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const q = input.value.trim();
+    if (q.length < 2) { closeFlyout(); return; }
+    debounceTimer = setTimeout(() => runTypeahead(q), 300);
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const q = input.value.trim();
+      if (q.length < 2) return;
+      window.location.href = `/Dashboard/SearchResults.html?q=${encodeURIComponent(q)}`;
+    } else if (e.key === 'Escape') {
+      closeFlyout();
+      input.blur();
+    }
+  });
+  document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) closeFlyout(); });
+}
+
 // ── Top header bar ──────────────────────────────────────────────────────────────
 // Sits above the sidebar (not instead of it) on every logged-in page — an
 // Upgrade CTA, real Boost (temporary top-of-Discover placement, see
 // profileController.js — no payment processor exists to gate it behind, so
 // it's open to every tier and rationed by a 24h cooldown instead), and a
 // second account trigger sharing buildAccountPanel with the sidebar's.
-// Carries no nav links of its own (that used to duplicate three of the
-// sidebar's ten items) — full navigation lives in the sidebar on desktop and
-// in injectMobileNavDrawer()'s clone of it on mobile.
+// Owns primary navigation (Home/Explore/Meet/Groups/Events/More▾) plus
+// global search — injectMobileNavDrawer() clones the nav for mobile.
 function injectTopbar(user) {
   if (document.getElementById('fantasi-topbar')) return;
 
@@ -707,12 +1002,54 @@ function injectTopbar(user) {
     <a class="fantasi-topbar-logo" href="/Dashboard/Discover.html">
       <img src="/LandingPage/videos/fantasi-logo-gold.png" alt="Fantasi">
     </a>
+    <nav class="fantasi-primary-nav" id="fantasi-primary-nav"></nav>
+    <div class="fantasi-topbar-search" id="fantasi-topbar-search">
+      <input type="search" class="fantasi-search-input" id="fantasi-search-input" placeholder="Search members, groups, events…" autocomplete="off">
+      <div class="fantasi-search-flyout" id="fantasi-search-flyout"></div>
+    </div>
+    <button type="button" class="fantasi-search-toggle" id="fantasi-search-toggle" aria-label="Search">
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M14 14l4.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
     <div class="fantasi-topbar-actions"></div>
   `;
   document.body.insertBefore(bar, document.body.firstChild);
 
+  buildPrimaryNav(bar.querySelector('#fantasi-primary-nav'));
+  wireSearchBox(bar);
+
   const actions = bar.querySelector('.fantasi-topbar-actions');
   const tier = user.membership_tier || 'free';
+
+  if (['gold', 'black'].includes(tier)) {
+    const createTrigger = document.createElement('div');
+    createTrigger.className = 'fantasi-nav-link fantasi-create-trigger';
+    createTrigger.textContent = '+';
+    createTrigger.title = 'Create';
+    const createPanel = buildMenuPanel([
+      { label: 'Create Post',  href: '/Dashboard/Forum.html?compose=1' },
+      { label: 'Create Group', href: '/Dashboard/Groups.html?create=1' },
+      { label: 'Create Event', href: '/Dashboard/Events.html?create=1' },
+    ]);
+    actions.appendChild(createTrigger);
+    wireAccountTrigger(createTrigger, createPanel, createTrigger, 'down');
+  }
+
+  const inboxLink = document.createElement('a');
+  inboxLink.className = 'fantasi-topbar-inbox';
+  inboxLink.href = '/Dashboard/Messages.html';
+  inboxLink.title = 'Messages';
+  inboxLink.innerHTML = '<svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>';
+  actions.appendChild(inboxLink);
+  api.messages.unreadCount().then(({ ok, data }) => {
+    if (!ok) return;
+    const total = (data.unread || 0) + (data.pending_requests || 0);
+    if (!total) return;
+    const badge = document.createElement('span');
+    badge.className = 'fantasi-inbox-badge';
+    badge.textContent = total > 99 ? '99+' : String(total);
+    inboxLink.appendChild(badge);
+  });
+
   if (tier !== 'black') {
     const upgradeLink = document.createElement('a');
     upgradeLink.className = 'fantasi-topbar-upgrade';
@@ -802,8 +1139,8 @@ function injectTopbar(user) {
 // injectAdminNavItem appends — the clone happens at open time, not here, so
 // it always reflects the current DOM regardless of call order).
 function injectMobileNavDrawer(topbar) {
-  const sidebarNav = document.querySelector('.sidebar-nav');
-  if (!sidebarNav || document.getElementById('fantasi-mnav-toggle')) return;
+  const primaryNav = document.getElementById('fantasi-primary-nav');
+  if (!primaryNav || document.getElementById('fantasi-mnav-toggle')) return;
 
   const toggle = document.createElement('button');
   toggle.type = 'button';
@@ -829,9 +1166,23 @@ function injectMobileNavDrawer(topbar) {
     toggle.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('fantasi-mnav-open');
   }
+  // Clones the topbar's plain nav links (Home/Explore/Meet/Groups/Events) as-is
+  // — cloneNode carries their href but not JS listeners, which is fine since
+  // they're real links needing none. The More▾ trigger is a JS-driven flyout
+  // that wouldn't work cloned, so it's rebuilt here as a flattened list of
+  // real links instead (including the admin link, when the More▾ menu has one
+  // — read fresh at open time, same as the old sidebar-nav clone did, so it
+  // reflects whatever injectAdminNavItem has already added).
   function openDrawer() {
     drawer.innerHTML = '';
-    drawer.appendChild(sidebarNav.cloneNode(true));
+    const nav = document.createElement('div');
+    nav.className = 'sidebar-nav';
+    primaryNav.querySelectorAll(':scope > a').forEach(a => nav.appendChild(a.cloneNode(true)));
+    const moreLinks = document.querySelectorAll('#fantasi-nav-more .fantasi-am-menu > a, #fantasi-nav-more .fantasi-am-menu > button');
+    moreLinks.forEach(el => {
+      if (el.tagName === 'A') { nav.appendChild(el.cloneNode(true)); return; }
+    });
+    drawer.appendChild(nav);
     drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeDrawer));
     drawer.classList.add('open');
     backdrop.classList.add('open');

@@ -60,33 +60,6 @@
 
   .shell{ display:flex; min-height:100vh; }
 
-  .sidebar{
-    width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
-    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
-  }
-
-  .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; }
-  .nav-item{
-    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
-    font-family:var(--font-sans); font-size:13.5px; letter-spacing:0.02em; color:var(--smoke);
-    transition:background .25s ease, color .25s ease;
-  }
-  .nav-item svg{ flex-shrink:0; opacity:0.75; }
-  .nav-item:hover{ background:rgba(199,166,92,0.05); color:var(--cream); }
-  .nav-item.active{ background:rgba(199,166,92,0.09); color:var(--gold-bright); }
-  .nav-item.active svg{ opacity:1; }
-
-  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); }
-  .mini-account{ display:flex; align-items:center; gap:11px; }
-  .mini-avatar{
-    width:36px; height:36px; border-radius:50%; flex-shrink:0;
-    background:linear-gradient(135deg, #3D3D3D, #0A0A0A); border:1px solid rgba(228,198,135,0.3);
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--gold-bright);
-  }
-  .mini-account-name{ font-family:var(--font-sans); font-size:13px; color:var(--cream); }
-  .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold-bright); margin-top:1px; }
-
   .main{ flex:1; min-width:0; padding:44px 56px 80px; }
   .main-inner{ max-width:900px; }
 
@@ -224,7 +197,6 @@
   .report-confirm strong{ color:var(--cream); }
 
   @media (max-width:900px){
-    .sidebar{ display:none; }
     .main{ padding:32px 22px 60px; }
     .scope-options{ flex-direction:column; }
   }
@@ -244,62 +216,6 @@
 <div class="luxury-grain"></div>
 
 <div class="shell">
-
-  <aside class="sidebar">
-
-    <nav class="sidebar-nav">
-      <a class="nav-item" href="/Dashboard/Discover.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        Discover
-      </a>
-      <a class="nav-item" href="/Dashboard/Search.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="13" cy="13" r="8" stroke="currentColor" stroke-width="1"/><path d="M19 19l6 6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        Search
-      </a>
-      <a class="nav-item" href="/Dashboard/Interests.html">
-        <svg width="16" height="16" viewBox="0 0 20 18" fill="none"><path d="M10 17s-6.5-4.2-8.4-8.7C.4 5.6 2.2 2 5.4 2c1.8 0 3.3 1 4.2 2.4C10.4 3 11.9 2 13.7 2c3.2 0 5 3.6 3.8 6.3C15.5 12.8 10 17 10 17z" stroke="currentColor" stroke-width="1"/></svg>
-        Interests
-      </a>
-      <a class="nav-item" href="/Dashboard/Messages.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>
-        Messages
-      </a>
-      <a class="nav-item active" href="/Dashboard/Chatrooms.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M6 14a9 9 0 1 0 18 0 9 9 0 0 0-18 0z" stroke="currentColor" stroke-width="1"/><path d="M6 20a9 9 0 0 0 12 5.5M24 20a9 9 0 0 1-12 5.5" stroke="currentColor" stroke-width="1"/></svg>
-        Chatrooms
-      </a>
-      <a class="nav-item" href="/Dashboard/Forum.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H16l-6 4.5V21H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/><path d="M10 12h10M10 16h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        Forum
-      </a>
-      <a class="nav-item" href="/Profile/Profile.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        My Profile
-      </a>
-      <a class="nav-item" href="/Dashboard/Privacy.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1"/></svg>
-        Privacy &amp; Data
-      </a>
-      <a class="nav-item" href="/Dashboard/Membership.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
-        Membership
-      </a>
-      <a class="nav-item" href="/LandingPage/Safety.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
-        Safety
-      </a>
-    </nav>
-
-    <div class="sidebar-foot">
-      <div class="mini-account">
-        <div class="mini-avatar"></div>
-        <div>
-          <div class="mini-account-name">Loading…</div>
-          <div class="mini-account-tier"></div>
-        </div>
-      </div>
-    </div>
-  </aside>
 
   <main class="main">
     <div class="main-inner">

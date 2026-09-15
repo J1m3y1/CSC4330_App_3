@@ -216,6 +216,7 @@
     <button type="button" class="tab-btn" data-tab="membership">Membership requests<span class="tab-count" id="count-membership"></span></button>
     <button type="button" class="tab-btn" data-tab="photo-verify">Photo verifications<span class="tab-count" id="count-photo-verify"></span></button>
     <button type="button" class="tab-btn" data-tab="chatrooms">Chatrooms</button>
+    <button type="button" class="tab-btn" data-tab="dictionary">Dictionary</button>
     <button type="button" class="tab-btn" data-tab="grant">Grant membership</button>
   </div>
 
@@ -317,6 +318,25 @@
       <button type="button" class="btn btn-gold" id="room-create-submit">Create room</button>
     </div>
     <div id="chatrooms-list"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-dictionary">
+    <div class="create-room-form">
+      <div class="field">
+        <label for="dict-term">Term</label>
+        <input type="text" id="dict-term" placeholder="e.g. Munch" style="width:200px;">
+      </div>
+      <div class="field">
+        <label for="dict-category">Category</label>
+        <input type="text" id="dict-category" placeholder="Optional" style="width:180px;">
+      </div>
+      <div class="field" style="flex:1 1 320px;">
+        <label for="dict-definition">Definition</label>
+        <input type="text" id="dict-definition" placeholder="Plain-language definition" style="width:100%;">
+      </div>
+      <button type="button" class="btn btn-gold" id="dict-create-submit">Add term</button>
+    </div>
+    <div id="dictionary-list"></div>
   </div>
 
   <div class="tab-panel" id="panel-grant">
@@ -445,12 +465,13 @@
     membership: document.getElementById('panel-membership'),
     'photo-verify': document.getElementById('panel-photo-verify'),
     chatrooms: document.getElementById('panel-chatrooms'),
+    dictionary: document.getElementById('panel-dictionary'),
     grant: document.getElementById('panel-grant'),
   };
   // Lazy-load a tab's data the first time it's opened, rather than firing
   // every query up front — members/chatrooms in particular aren't needed
   // until an admin actually clicks over to them.
-  const lazyLoaders = { members: () => loadMembers(), chatrooms: () => loadChatrooms() };
+  const lazyLoaders = { members: () => loadMembers(), chatrooms: () => loadChatrooms(), dictionary: () => loadDictionary() };
   const loadedTabs = new Set();
   tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -952,6 +973,48 @@
       loadChatrooms();
     } else {
       showToast(data?.error || 'Could not create chatroom.', 'error');
+    }
+  });
+
+  // ---- dictionary terms ----
+  async function loadDictionary() {
+    const list = document.getElementById('dictionary-list');
+    const { ok, data } = await api.admin.dictionaryTerms();
+    list.innerHTML = '';
+    if (!ok) { list.innerHTML = '<p class="empty">Could not load dictionary terms.</p>'; return; }
+    if (!data.length) { list.innerHTML = '<p class="empty">No terms yet — add one above.</p>'; return; }
+
+    data.forEach(term => {
+      list.appendChild(card({
+        title: term.term,
+        meta: term.category || undefined,
+        body: term.definition,
+        actions: [
+          actionBtn('Delete', 'btn-bordeaux', async () => {
+            if (!window.confirm(`Delete "${term.term}"?`)) return;
+            const { ok, data: res } = await api.admin.deleteDictionaryTerm(term.id);
+            if (ok) { showToast('Term deleted.', 'info'); loadDictionary(); }
+            else showToast(res?.error || 'Could not delete term.', 'error');
+          }),
+        ],
+      }));
+    });
+  }
+
+  document.getElementById('dict-create-submit').addEventListener('click', async () => {
+    const term = document.getElementById('dict-term').value.trim();
+    const category = document.getElementById('dict-category').value.trim();
+    const definition = document.getElementById('dict-definition').value.trim();
+    if (!term || !definition) { showToast('Enter both a term and a definition.', 'warning'); return; }
+    const { ok, data } = await api.admin.createDictionaryTerm({ term, definition, category: category || undefined });
+    if (ok) {
+      showToast('Term added.', 'info');
+      document.getElementById('dict-term').value = '';
+      document.getElementById('dict-category').value = '';
+      document.getElementById('dict-definition').value = '';
+      loadDictionary();
+    } else {
+      showToast(data?.error || 'Could not add term.', 'error');
     }
   });
 

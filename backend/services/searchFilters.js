@@ -2,8 +2,11 @@
 
 const { GENERIC_TAGS } = require('../config/interestTags');
 const { ETHNICITIES, DRINKING, CHILDREN, LANGUAGES } = require('../config/profileOptions');
+const { US_STATES } = require('../config/usStates');
 
-const BASIC = new Set(['q', 'location', 'age_min', 'age_max', 'photos', 'sort', 'page', 'limit']);
+// `state` is BASIC (tier-open, not Gold+-gated) — Meet is a discovery hub
+// every tier can use, unlike the detailed filters below it.
+const BASIC = new Set(['q', 'location', 'state', 'age_min', 'age_max', 'photos', 'sort', 'page', 'limit']);
 const NUMBERS = {
   age_min: [18, 100], age_max: [18, 100], distance_miles: [1, 500],
   height_min: [100, 250], height_max: [100, 250], weight_min: [50, 700], weight_max: [50, 700],
@@ -12,7 +15,7 @@ const NUMBERS = {
 const BOOLEANS = ['photos', 'online', 'id_verified', 'viewed', 'unviewed', 'viewed_me', 'liked', 'liked_me'];
 const LISTS = ['interests', 'looking_for', 'exclude_looking_for', 'kinks', 'languages'];
 const TEXT = { q: 100, location: 100, education: 60, relationship_status: 60, smoking: 30, profile_text: 100 };
-const ENUMS = { tier: ['free', 'silver', 'gold', 'black'], sort: ['active', 'newest'], kink_match: ['any', 'all'], ethnicity: ETHNICITIES, drinking: DRINKING, children: CHILDREN };
+const ENUMS = { tier: ['free', 'silver', 'gold', 'black'], sort: ['active', 'newest'], kink_match: ['any', 'all'], ethnicity: ETHNICITIES, drinking: DRINKING, children: CHILDREN, state: US_STATES };
 const ALLOWED = new Set([...BASIC, ...Object.keys(NUMBERS), ...BOOLEANS, ...LISTS, ...Object.keys(TEXT), ...Object.keys(ENUMS)]);
 
 function invalid(message, status = 422) {
@@ -81,10 +84,11 @@ function buildFilterSql(f, params) {
   const bind = value => { params.push(value); return `$${params.length}`; };
   const list = key => f[key].split(',');
   const literal = value => `%${value.replace(/[\\%_]/g, '\\$&')}%`;
-  const privateFields = ['interests', 'looking_for', 'exclude_looking_for', 'kinks', 'profile_text', 'education', 'relationship_status', 'smoking', 'ethnicity', 'drinking', 'children', 'languages', 'age_min', 'age_max', 'height_min', 'height_max', 'weight_min', 'weight_max', 'location', 'distance_miles', 'online'];
+  const privateFields = ['interests', 'looking_for', 'exclude_looking_for', 'kinks', 'profile_text', 'education', 'relationship_status', 'smoking', 'ethnicity', 'drinking', 'children', 'languages', 'age_min', 'age_max', 'height_min', 'height_max', 'weight_min', 'weight_max', 'location', 'state', 'distance_miles', 'online'];
   if (privateFields.some(k => f[k] !== undefined)) clauses.push(VISIBLE_PROFILE);
   if (f.q && f.q.length >= 2) clauses.push(`p.display_name ILIKE ${bind(literal(f.q))}`);
   if (f.location) clauses.push(`p.show_location = TRUE AND p.location ILIKE ${bind(literal(f.location))}`);
+  if (f.state) clauses.push(`p.show_location = TRUE AND p.state = ${bind(f.state)}`);
   if (f.tier) clauses.push(`u.membership_tier = ${bind(f.tier)}`);
   for (const key of ['education', 'relationship_status', 'smoking', 'ethnicity', 'drinking', 'children']) {
     if (f[key]) clauses.push(`p.${key} = ${bind(f[key])}`);

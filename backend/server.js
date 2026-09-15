@@ -25,6 +25,10 @@ const interestsRoutes  = require('./routes/interests');
 const phoneRoutes      = require('./routes/phone');
 const forumRoutes      = require('./routes/forum');
 const veriffRoutes     = require('./routes/veriff');
+const groupsRoutes     = require('./routes/groups');
+const eventsRoutes     = require('./routes/events');
+const resourcesRoutes  = require('./routes/resources');
+const searchRoutes     = require('./routes/search');
 const { purgeExpiredMessages } = require('./controllers/messagesController');
 
 const app  = express();
@@ -126,7 +130,7 @@ app.use('/uploads', express.static(path.join(__dirname, process.env.UPLOAD_DIR |
 // SameSite=strict auth cookies (which never cross origins) actually reach
 // the API. Each folder is mounted individually rather than the whole repo
 // root, which would otherwise also serve backend/.env and source over HTTP.
-const FRONTEND_DIRS = ['LandingPage', 'Dashboard', 'Profile', 'SignInProcess', 'SignUpProcess', 'AdminPage'];
+const FRONTEND_DIRS = ['LandingPage', 'Dashboard', 'Profile', 'SignInProcess', 'SignUpProcess', 'AdminPage', 'Resources'];
 for (const dir of FRONTEND_DIRS) {
   app.use(`/${dir}`, express.static(path.join(FRONTEND_ROOT, dir), {
     dotfiles: 'deny',
@@ -156,6 +160,10 @@ app.use('/api/interests',  interestsRoutes);
 app.use('/api/phone',      phoneRoutes);
 app.use('/api/forum',      forumRoutes);
 app.use('/api/veriff',     veriffRoutes);
+app.use('/api/groups',     groupsRoutes);
+app.use('/api/events',     eventsRoutes);
+app.use('/api/resources',  resourcesRoutes);
+app.use('/api/search',     searchRoutes);
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));

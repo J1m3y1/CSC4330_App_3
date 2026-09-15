@@ -8,12 +8,33 @@ const { validate }                     = require('../middleware/validate');
 const {
   getConversations, getThread, sendMessage, deleteMessage,
   getConversationSettings, setConversationSettings,
+  getMessageRequests, acceptMessageRequest, declineMessageRequest,
+  archiveConversation, unarchiveConversation, getUnreadCount,
 } = require('../controllers/messagesController');
 
 router.use(requireAuth, requireApproved);
 
 // ── GET /api/messages/conversations ──────────────────────────────────────────
-router.get('/conversations', getConversations);
+router.get('/conversations', [
+  qv('view').optional().isIn(['inbox', 'archived']),
+], validate, getConversations);
+
+// ── Message Requests + unread counts — registered before the /:partnerId
+// catch-alls for the same reason as every other literal-segment route below.
+router.get('/requests', getMessageRequests);
+router.get('/unread-count', getUnreadCount);
+router.post('/:partnerId/accept-request', [
+  param('partnerId').isUUID().withMessage('Invalid partner ID.'),
+], validate, acceptMessageRequest);
+router.post('/:partnerId/decline-request', [
+  param('partnerId').isUUID().withMessage('Invalid partner ID.'),
+], validate, declineMessageRequest);
+router.post('/:partnerId/archive', [
+  param('partnerId').isUUID().withMessage('Invalid partner ID.'),
+], validate, archiveConversation);
+router.delete('/:partnerId/archive', [
+  param('partnerId').isUUID().withMessage('Invalid partner ID.'),
+], validate, unarchiveConversation);
 
 // ── Disappearing messages (Black tier to change; either side can view) ───────
 // Registered before the /:partnerId catch-alls for the same reason as the

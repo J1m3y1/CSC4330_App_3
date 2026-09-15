@@ -63,41 +63,36 @@
 
   .shell{ display:flex; height:100vh; overflow:hidden; }
 
-  .sidebar{
-    width:240px; flex-shrink:0; background:var(--noir-soft); border-right:1px solid var(--line);
-    display:flex; flex-direction:column; height:100vh;
-  }
-  .sidebar-nav{ flex:1; padding:20px 14px; display:flex; flex-direction:column; gap:2px; overflow-y:auto; }
-  .nav-item{
-    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:4px;
-    font-family:var(--font-sans); font-size:13.5px; letter-spacing:0.02em; color:var(--smoke);
-    transition:background .25s ease, color .25s ease;
-  }
-  .nav-item svg{ flex-shrink:0; opacity:0.75; }
-  .nav-item:hover{ background:rgba(199,166,92,0.05); color:var(--cream); }
-  .nav-item.active{ background:rgba(199,166,92,0.09); color:var(--gold-bright); }
-  .nav-item.active svg{ opacity:1; }
-  .nav-item.locked{ opacity:0.45; cursor:not-allowed; pointer-events:none; }
-  .nav-lock-badge{
-    margin-left:auto; font-family:var(--font-sans); font-size:8px; letter-spacing:0.05em; text-transform:uppercase;
-    color:var(--gold-dim); border:1px solid var(--line-strong); padding:2px 7px; border-radius:10px; flex-shrink:0;
-  }
-  .sidebar-foot{ padding:18px 16px; border-top:1px solid var(--line); }
-  .mini-account{ display:flex; align-items:center; gap:11px; }
-  .mini-avatar{
-    width:36px; height:36px; border-radius:50%; flex-shrink:0;
-    background:linear-gradient(135deg, var(--gold-bright), var(--gold-dim));
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-display); font-style:italic; font-size:15px; color:var(--noir);
-  }
-  .mini-account-name{ font-family:var(--font-sans); font-size:13px; color:var(--cream); }
-  .mini-account-tier{ font-family:var(--font-sans); font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--gold); margin-top:1px; }
-
   /* ---------------- conversation list ---------------- */
   .convo-list{ width:320px; flex-shrink:0; border-right:1px solid var(--line); display:flex; flex-direction:column; height:100vh; }
   .convo-head{ padding:24px 22px 18px; border-bottom:1px solid var(--line); }
   .convo-head h1{ font-size:24px; }
+
+  .convo-tabs{ display:flex; border-bottom:1px solid var(--line); flex-shrink:0; }
+  .convo-tab{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:13px 4px;
+    font-family:var(--font-sans); font-size:11px; letter-spacing:0.03em; color:var(--smoke);
+    border-bottom:2px solid transparent; transition:color .25s ease, border-color .25s ease;
+  }
+  .convo-tab.active{ color:var(--gold-bright); border-color:var(--gold); }
+  .convo-tab-badge{
+    font-family:var(--font-sans); font-size:9.5px; background:var(--gold); color:var(--noir);
+    border-radius:10px; padding:1px 6px; min-width:15px; text-align:center;
+  }
+
   .convo-items{ flex:1; overflow-y:auto; }
+  .request-actions{ display:flex; gap:6px; margin-top:8px; }
+  .request-actions button{
+    font-family:var(--font-sans); font-size:10px; letter-spacing:0.04em; text-transform:uppercase;
+    padding:6px 12px; border-radius:16px; border:1px solid var(--line-strong); transition:border-color .25s ease, color .25s ease, background .25s ease;
+  }
+  .request-actions .accept-btn{ border-color:var(--gold); color:var(--gold-bright); }
+  .request-actions .accept-btn:hover{ background:rgba(199,166,92,0.1); }
+  .request-actions .decline-btn:hover{ border-color:var(--bordeaux-bright); color:var(--bordeaux-bright); }
+  .accept-decline-bar{
+    display:flex; align-items:center; justify-content:center; gap:10px; padding:14px 28px; border-bottom:1px solid var(--line);
+    font-family:var(--font-sans); font-size:12.5px; color:var(--smoke);
+  }
   .convo-item{
     display:flex; align-items:center; gap:12px; padding:16px 22px; border-bottom:1px solid var(--line);
     cursor:pointer; transition:background .2s ease;
@@ -230,7 +225,6 @@
   .send-btn:hover{ background:var(--gold-bright); transform:scale(1.05); }
 
   @media (max-width:980px){
-    .sidebar{ display:none; }
     .convo-list{ width:260px; }
     .msg-bubble{ max-width:78%; }
   }
@@ -242,66 +236,17 @@
 
 <div class="shell">
 
-  <aside class="sidebar">
-    <nav class="sidebar-nav">
-      <a class="nav-item" href="/Dashboard/Discover.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="currentColor" stroke-width="1"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        Discover
-      </a>
-      <a class="nav-item" href="/Dashboard/Search.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="13" cy="13" r="8" stroke="currentColor" stroke-width="1"/><path d="M19 19l6 6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        Search
-      </a>
-      <a class="nav-item" href="/Dashboard/Interests.html">
-        <svg width="16" height="16" viewBox="0 0 20 18" fill="none"><path d="M10 17s-6.5-4.2-8.4-8.7C.4 5.6 2.2 2 5.4 2c1.8 0 3.3 1 4.2 2.4C10.4 3 11.9 2 13.7 2c3.2 0 5 3.6 3.8 6.3C15.5 12.8 10 17 10 17z" stroke="currentColor" stroke-width="1"/></svg>
-        Interests
-      </a>
-      <a class="nav-item active" href="/Dashboard/Messages.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12l-5 4v-4H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/></svg>
-        Messages
-      </a>
-      <a class="nav-item locked" href="/Dashboard/Chatrooms.html" title="Black tier only">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M6 14a9 9 0 1 0 18 0 9 9 0 0 0-18 0z" stroke="currentColor" stroke-width="1"/><path d="M6 20a9 9 0 0 0 12 5.5M24 20a9 9 0 0 1-12 5.5" stroke="currentColor" stroke-width="1"/></svg>
-        Chatrooms
-        <span class="nav-lock-badge">Black</span>
-      </a>
-      <a class="nav-item" href="/Dashboard/Forum.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M5 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H16l-6 4.5V21H7a2 2 0 0 1-2-2V8z" stroke="currentColor" stroke-width="1"/><path d="M10 12h10M10 16h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        Forum
-      </a>
-      <a class="nav-item" href="/Profile/Profile.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="11" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5.5 25c1.5-6 5.5-9 9.5-9s8 3 9.5 9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        My Profile
-      </a>
-      <a class="nav-item" href="/Dashboard/Privacy.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><rect x="7" y="13" width="16" height="12" rx="0.5" stroke="currentColor" stroke-width="1"/><path d="M10.5 13V9.5a4.5 4.5 0 0 1 9 0V13" stroke="currentColor" stroke-width="1"/></svg>
-        Privacy &amp; Data
-      </a>
-      <a class="nav-item" href="/Dashboard/Membership.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13.5" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="15" r="9" stroke="currentColor" stroke-width="1"/><text x="15" y="20" text-anchor="middle" font-family="Libre Caslon Display, serif" font-style="italic" font-size="14" fill="currentColor">F</text></svg>
-        Membership
-      </a>
-      <a class="nav-item" href="/LandingPage/Safety.html">
-        <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
-        Safety
-      </a>
-    </nav>
-    <div class="sidebar-foot">
-      <div class="mini-account">
-        <div class="mini-avatar"></div>
-        <div>
-          <div class="mini-account-name">Loading…</div>
-          <div class="mini-account-tier"></div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
   <!-- ============ CONVERSATION LIST ============ -->
   <div class="convo-list">
     <div class="convo-head">
       <span class="eyebrow">Messages</span>
       <h1 style="margin-top:8px;">Connect</h1>
+    </div>
+    <div class="convo-tabs" id="convo-tabs">
+      <button type="button" class="convo-tab active" data-view="inbox">Inbox<span class="convo-tab-badge" id="badge-inbox" hidden></span></button>
+      <button type="button" class="convo-tab" data-view="requests">Requests<span class="convo-tab-badge" id="badge-requests" hidden></span></button>
+      <button type="button" class="convo-tab" data-view="unread">Unread</button>
+      <button type="button" class="convo-tab" data-view="archived">Archived</button>
     </div>
     <div class="convo-items" id="convo-items">
       <p id="convo-empty" style="display:none; padding:20px 22px; font-family:var(--font-sans); font-size:13px; color:var(--smoke);">
@@ -339,10 +284,19 @@
             <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="4" r="1.3" fill="currentColor"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/><circle cx="10" cy="16" r="1.3" fill="currentColor"/></svg>
           </button>
           <div class="dropdown-menu" id="chat-more-menu">
+            <button type="button" class="dropdown-item" id="chat-menu-archive">Archive conversation</button>
             <button type="button" class="dropdown-item" id="chat-menu-block">Block member</button>
             <button type="button" class="dropdown-item danger" id="chat-menu-report">Report member</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="accept-decline-bar" id="accept-decline-bar" style="display:none;">
+      <span>Accept messages from this member?</span>
+      <div class="request-actions">
+        <button type="button" class="accept-btn" id="inline-accept-btn">Accept</button>
+        <button type="button" class="decline-btn" id="inline-decline-btn">Decline</button>
       </div>
     </div>
 
@@ -425,7 +379,7 @@
     return `${Math.round(hours / 24)}d`;
   }
 
-  function buildConvoItem(convo) {
+  function buildConvoItem(convo, isRequest) {
     const item = document.createElement('div');
     item.className = 'convo-item' + (convo.unread_count > 0 ? ' unread' : '');
     item.dataset.partnerId = convo.partner_id;
@@ -462,18 +416,91 @@
     preview.textContent = convo.last_body;
     body.append(nameRow, preview);
 
+    if (isRequest) {
+      const actions = document.createElement('div');
+      actions.className = 'request-actions';
+      const acceptBtn = document.createElement('button');
+      acceptBtn.type = 'button'; acceptBtn.className = 'accept-btn'; acceptBtn.textContent = 'Accept';
+      acceptBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const { ok, data } = await api.messages.acceptRequest(convo.partner_id);
+        if (ok) { showToast('Request accepted.', 'info'); loadTabCounts(); switchView('inbox'); openConversation(convo.partner_id, convo.partner_name, convo.partner_avatar); }
+        else showToast(data?.error || 'Could not accept request.', 'error');
+      });
+      const declineBtn = document.createElement('button');
+      declineBtn.type = 'button'; declineBtn.className = 'decline-btn'; declineBtn.textContent = 'Decline';
+      declineBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const { ok, data } = await api.messages.declineRequest(convo.partner_id);
+        if (ok) { item.remove(); loadTabCounts(); checkEmpty(); }
+        else showToast(data?.error || 'Could not decline request.', 'error');
+      });
+      actions.append(acceptBtn, declineBtn);
+      body.appendChild(actions);
+    }
+
     item.append(avatar, body);
-    item.addEventListener('click', () => openConversation(convo.partner_id, convo.partner_name, convo.partner_avatar));
+    item.addEventListener('click', () => openConversation(convo.partner_id, convo.partner_name, convo.partner_avatar, isRequest));
     return item;
   }
 
-  async function loadConversations() {
-    const { ok, data } = await api.messages.conversations();
-    if (!ok) { showToast(data?.error || 'Could not load conversations.', 'error'); return; }
+  let currentView = 'inbox';
+
+  function checkEmpty() {
+    convoEmpty.style.display = convoItemsEl.querySelector('.convo-item') ? 'none' : 'block';
+  }
+
+  async function loadConversations(view) {
     convoItemsEl.querySelectorAll('.convo-item').forEach(el => el.remove());
-    data.forEach(c => convoItemsEl.appendChild(buildConvoItem(c)));
-    convoEmpty.style.display = data.length ? 'none' : 'block';
-    return data;
+    convoEmpty.textContent = 'No conversations yet — message someone from Discover or Search to start one.';
+
+    if (view === 'requests') {
+      const { ok, data } = await api.messages.requests();
+      if (!ok) { showToast(data?.error || 'Could not load message requests.', 'error'); return; }
+      convoEmpty.textContent = 'No pending message requests.';
+      data.forEach(c => convoItemsEl.appendChild(buildConvoItem(c, true)));
+      checkEmpty();
+      return data;
+    }
+
+    const { ok, data } = await api.messages.conversations(view === 'archived' ? 'archived' : undefined);
+    if (!ok) { showToast(data?.error || 'Could not load conversations.', 'error'); return; }
+    let rows = data;
+    if (view === 'unread') { rows = data.filter(c => c.unread_count > 0); convoEmpty.textContent = 'No unread conversations.'; }
+    if (view === 'archived') convoEmpty.textContent = 'No archived conversations.';
+    rows.forEach(c => convoItemsEl.appendChild(buildConvoItem(c, false)));
+    checkEmpty();
+    return rows;
+  }
+
+  async function loadTabCounts() {
+    const { ok, data } = await api.messages.unreadCount();
+    if (!ok) return;
+    const inboxBadge = document.getElementById('badge-inbox');
+    const reqBadge = document.getElementById('badge-requests');
+    inboxBadge.hidden = !data.unread;
+    inboxBadge.textContent = data.unread;
+    reqBadge.hidden = !data.pending_requests;
+    reqBadge.textContent = data.pending_requests;
+  }
+
+  function switchView(view) {
+    currentView = view;
+    document.querySelectorAll('.convo-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+    closeConversation();
+    loadConversations(view);
+  }
+  document.querySelectorAll('.convo-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchView(tab.dataset.view));
+  });
+
+  function closeConversation() {
+    activePartnerId = null;
+    document.querySelectorAll('.convo-item.active').forEach(i => i.classList.remove('active'));
+    chatHeader.style.display = 'none';
+    chatInputRow.style.display = 'none';
+    document.getElementById('accept-decline-bar').style.display = 'none';
+    chatMessages.innerHTML = '<p style="font-family:var(--font-sans); font-size:13px; color:var(--smoke); text-align:center; margin-top:40px;">Select a conversation to start reading.</p>';
   }
 
   function buildMessageRow(msg) {
@@ -491,7 +518,7 @@
     return row;
   }
 
-  async function openConversation(partnerId, knownName, knownAvatar) {
+  async function openConversation(partnerId, knownName, knownAvatar, isRequest) {
     activePartnerId = partnerId;
 
     document.querySelectorAll('.convo-item').forEach(i => {
@@ -501,7 +528,8 @@
     });
 
     chatHeader.style.display = 'flex';
-    chatInputRow.style.display = 'flex';
+    chatInputRow.style.display = isRequest ? 'none' : 'flex';
+    document.getElementById('accept-decline-bar').style.display = isRequest ? 'flex' : 'none';
     chatName.textContent = knownName || '…';
     chatAvatar.textContent = '';
     chatAvatar.style.backgroundImage = knownAvatar ? `url(${knownAvatar})` : '';
@@ -612,6 +640,38 @@
     else showToast(data?.error || 'Could not block member.', 'error');
   });
 
+  document.getElementById('chat-menu-archive').addEventListener('click', async () => {
+    moreMenu.classList.remove('show');
+    if (!activePartnerId) return;
+    const archiving = currentView !== 'archived';
+    const { ok, data } = archiving
+      ? await api.messages.archive(activePartnerId)
+      : await api.messages.unarchive(activePartnerId);
+    if (!ok) { showToast(data?.error || 'Could not update archive state.', 'error'); return; }
+    showToast(archiving ? 'Conversation archived.' : 'Conversation restored to Inbox.', 'info');
+    closeConversation();
+    loadConversations(currentView);
+    loadTabCounts();
+  });
+
+  document.getElementById('inline-accept-btn').addEventListener('click', async () => {
+    if (!activePartnerId) return;
+    const { ok, data } = await api.messages.acceptRequest(activePartnerId);
+    if (!ok) { showToast(data?.error || 'Could not accept request.', 'error'); return; }
+    showToast('Request accepted.', 'info');
+    document.getElementById('accept-decline-bar').style.display = 'none';
+    chatInputRow.style.display = 'flex';
+    loadTabCounts();
+  });
+  document.getElementById('inline-decline-btn').addEventListener('click', async () => {
+    if (!activePartnerId) return;
+    const { ok, data } = await api.messages.declineRequest(activePartnerId);
+    if (!ok) { showToast(data?.error || 'Could not decline request.', 'error'); return; }
+    closeConversation();
+    loadConversations(currentView);
+    loadTabCounts();
+  });
+
   const reportOverlay = document.getElementById('report-overlay');
   const reportConfirm = document.getElementById('report-confirm');
   document.getElementById('chat-menu-report').addEventListener('click', () => {
@@ -639,14 +699,15 @@
     else showToast(data?.error || 'Could not submit report.', 'error');
   });
 
-  await loadConversations();
+  await loadConversations('inbox');
+  loadTabCounts();
 
   // Deep link from Discover/Search: /Dashboard/Messages.html?to=<user_id>
   const toId = new URLSearchParams(window.location.search).get('to');
   if (toId) {
     const existing = document.querySelector(`.convo-item[data-partner-id="${toId}"]`);
     if (existing) existing.click();
-    else openConversation(toId, null, null);
+    else openConversation(toId, null, null, false);
   }
 })();
 </script>
