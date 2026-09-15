@@ -45,6 +45,9 @@ function validateEnv() {
   if (!process.env.SMTP_HOST) {
     console.warn('[fantasi] SMTP_HOST not set — password reset emails will only be logged, not sent.');
   }
+  if (!process.env.VERIFF_API_KEY || !process.env.VERIFF_SECRET_KEY) {
+    console.warn('[fantasi] VERIFF_API_KEY/VERIFF_SECRET_KEY not set — sign-up falls back to manual ID upload + admin review instead of automated Veriff verification.');
+  }
 }
 
 module.exports = { validateEnv };

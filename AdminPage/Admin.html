@@ -506,7 +506,7 @@
         ? Math.floor((Date.now() - new Date(applicant.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
         : null;
       const actions = [];
-      if (applicant.id_document_id) {
+      if (applicant.id_document_id && !applicant.id_verified_via_veriff) {
         actions.push(actionBtn('View ID', 'btn-line', () => {
           window.open(`/api/admin/users/${applicant.id}/id-document`, '_blank');
         }));
@@ -526,9 +526,13 @@
         }),
       );
 
+      const idStatus = applicant.id_verified_via_veriff
+        ? ' · Identity verified via Veriff'
+        : (applicant.id_document_id ? '' : ' · No ID on file');
+
       list.appendChild(card({
         title: `${applicant.display_name} — ${applicant.email}`,
-        meta: `Applied ${new Date(applicant.created_at).toLocaleDateString()}${age ? ` · ${age} years old` : ''}${applicant.id_document_id ? '' : ' · No ID on file'}`,
+        meta: `Applied ${new Date(applicant.created_at).toLocaleDateString()}${age ? ` · ${age} years old` : ''}${idStatus}`,
         body: applicant.bio || '',
         actions,
       }));

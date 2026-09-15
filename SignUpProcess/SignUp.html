@@ -558,9 +558,22 @@
         <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><path d="M15 3L26 7v8c0 8-5 13-11 16-6-3-11-8-11-16V7l11-4z" stroke="currentColor" stroke-width="1"/></svg>
       </div>
       <h1 class="step-title">Verify your identity</h1>
-      <span class="step-sub">Kept strictly confidential. Never shown on your profile.</span>
+      <span class="step-sub">A quick automated document + selfie check via Veriff. Kept strictly confidential. Never shown on your profile.</span>
 
-      <div class="upload" id="upload" role="button" tabindex="0" aria-describedby="upload-dim">
+      <!-- Real Veriff flow — a popup to Veriff's own hosted verification page,
+           its result relayed back here by polling GET /veriff/session/:id/status
+           (driven by Veriff's decision webhook, see backend/controllers/veriffController.js).
+           Hidden and replaced with the plain upload widget below if Veriff
+           isn't configured server-side (503), same graceful-degradation
+           pattern as phone verification elsewhere in this file. -->
+      <div class="upload" id="veriff-panel" style="cursor:default;">
+        <div class="mark" id="veriff-icon">+</div>
+        <div class="lbl" id="veriff-label">Verify with Veriff</div>
+        <div class="dim" id="veriff-dim">Opens in a new window — takes about a minute</div>
+        <button type="button" class="btn btn-line" id="veriff-start" style="margin-top:14px;">Start Verification</button>
+      </div>
+
+      <div class="upload" id="upload" role="button" tabindex="0" aria-describedby="upload-dim" hidden>
         <div class="mark">+</div>
         <div class="lbl" id="upload-label">Upload government-issued ID</div>
         <div class="dim" id="upload-dim">JPG, PNG, or PDF · max 10MB</div>
@@ -570,9 +583,9 @@
 
       <div class="check-row">
         <input type="checkbox" id="p-consent">
-        <label for="p-consent">I consent to a confidential background review as part of my application.</label>
+        <label for="p-consent">I consent to identity verification as part of my application.</label>
       </div>
-      <button class="btn btn-gold full-btn step-next" data-next="step-preferences" data-cursor="Continue">Continue</button>
+      <button class="btn btn-gold full-btn step-next" id="verify-continue" data-next="step-preferences" data-cursor="Continue" disabled>Continue</button>
       <div class="legal"><br>For consenting adults 18 and older only.</div>
     </div>
 
@@ -1113,6 +1126,8 @@
     uploadBox.classList.remove('has-file');
     uploadLabel.textContent = 'Upload government-issued ID';
     uploadDim.textContent = 'JPG, PNG, or PDF · max 10MB';
+    const continueBtn = document.getElementById('verify-continue');
+    if (continueBtn) continueBtn.disabled = true;
   }
   if (uploadInput) {
     const openPicker = () => uploadInput.click();
@@ -1140,6 +1155,11 @@
       uploadBox.classList.add('has-file');
       uploadLabel.textContent = file.name;
       uploadDim.textContent = 'Selected — click to change';
+      // Only reachable via fallBackToManualUpload() below, when Veriff isn't
+      // configured — the button lives in markup further down this file, so
+      // this can't reference it directly until the DOM is fully parsed;
+      // by the time a user can select a file here, it already is.
+      document.getElementById('verify-continue').disabled = false;
     });
   }
 
@@ -1203,8 +1223,9 @@
   const apiUnavailable = async () => ({ ok: false, status: 0, data: { error: 'API unavailable — check that the backend is running.' } });
   const { api, showFieldError, clearFieldError, showToast } = window.FantasiAPI || {
     api: {
-      auth:  { register: apiUnavailable },
-      phone: { sendCode: apiUnavailable, verifyCode: apiUnavailable },
+      auth:   { register: apiUnavailable },
+      phone:  { sendCode: apiUnavailable, verifyCode: apiUnavailable },
+      veriff: { createSession: apiUnavailable, status: apiUnavailable },
     },
     showFieldError: (el, msg) => { if (el) alert(msg); },
     clearFieldError: () => {},
@@ -1311,14 +1332,123 @@
     showStep(document.getElementById('step-form'));
   });
 
+  // ---- identity verification (real — Veriff via the backend) ----
+  // A real automated document + selfie/liveness check, replacing the old
+  // "upload a file, an admin eyeballs it later" flow — see migration 024
+  // and veriffController.js. Like phone verification, this runs before any
+  // account exists, so its result travels as an opaque session id the
+  // server itself re-checks (status must be 'approved' and unconsumed) at
+  // POST /auth/register — never something this client could just assert.
+  let veriffSessionId = null;
+  let veriffPollTimer = null;
+
+  const veriffPanel = document.getElementById('veriff-panel');
+  const veriffIcon  = document.getElementById('veriff-icon');
+  const veriffLabel = document.getElementById('veriff-label');
+  const veriffDim   = document.getElementById('veriff-dim');
+  const veriffStartBtn = document.getElementById('veriff-start');
+  const verifyContinueBtn = document.getElementById('verify-continue');
+
+  function setVeriffState(icon, label, dim) {
+    veriffIcon.textContent = icon;
+    veriffLabel.textContent = label;
+    veriffDim.textContent = dim;
+  }
+
+  function fallBackToManualUpload(message) {
+    clearInterval(veriffPollTimer);
+    veriffPanel.hidden = true;
+    document.getElementById('upload').hidden = false;
+    if (message) showToast(message, 'warning');
+  }
+
+  function stopVeriffPolling() {
+    clearInterval(veriffPollTimer);
+    veriffPollTimer = null;
+  }
+
+  function pollVeriffStatus(sessionId) {
+    stopVeriffPolling();
+    veriffPollTimer = setInterval(async () => {
+      const { ok, data } = await api.veriff.status(sessionId);
+      if (!ok) return; // transient error — try again on the next tick rather than giving up
+
+      if (data.status === 'submitted') {
+        setVeriffState('…', 'Processing your verification…', 'This usually takes under a minute.');
+        return;
+      }
+      if (data.status === 'approved') {
+        stopVeriffPolling();
+        veriffSessionId = sessionId;
+        setVeriffState('✓', 'Identity verified', 'You can continue.');
+        verifyContinueBtn.disabled = false;
+        return;
+      }
+      if (data.terminal) {
+        // declined / abandoned / expired — let them try again rather than
+        // dead-ending the application here.
+        stopVeriffPolling();
+        veriffSessionId = null;
+        const retryCopy = data.status === 'declined'
+          ? 'We couldn’t verify your identity. You can try again below.'
+          : 'That verification didn’t finish. You can try again below.';
+        setVeriffState('!', 'Verification unsuccessful', retryCopy);
+        veriffStartBtn.hidden = false;
+        veriffStartBtn.disabled = false;
+        veriffStartBtn.textContent = 'Try Again';
+      }
+      // status === 'resubmission_requested' keeps polling — Veriff's own
+      // hosted flow lets the applicant retry document capture in the same
+      // popup without us having to start an entirely new session.
+    }, 3000);
+  }
+
+  veriffStartBtn.addEventListener('click', async () => {
+    veriffStartBtn.onclick = null; // clear any popup-blocked fallback from a previous attempt
+    const email = document.getElementById('p-email')?.value.trim();
+    const fullName = document.getElementById('p-name')?.value.trim();
+    if (!email || !fullName) {
+      showToast('Please fill in your name and email first.', 'error');
+      showStep(document.getElementById('step-form'));
+      return;
+    }
+
+    veriffStartBtn.disabled = true;
+    veriffStartBtn.textContent = 'Starting…';
+
+    const { ok, status, data } = await api.veriff.createSession(email, fullName);
+
+    if (status === 503) {
+      fallBackToManualUpload('Identity verification isn’t set up yet — please upload your ID instead.');
+      return;
+    }
+    if (!ok) {
+      veriffStartBtn.disabled = false;
+      veriffStartBtn.textContent = 'Start Verification';
+      showToast(data?.error || 'Could not start verification. Please try again.', 'error');
+      return;
+    }
+
+    const popup = window.open(data.url, 'veriff_verification', 'width=480,height=760');
+    veriffStartBtn.hidden = true;
+    if (!popup) {
+      // Popup blocked — Veriff's own hosted page still works as a plain
+      // link, it just won't auto-open.
+      setVeriffState('!', 'Pop-up blocked', 'Open the verification link your browser blocked, then come back here.');
+      veriffStartBtn.hidden = false;
+      veriffStartBtn.disabled = false;
+      veriffStartBtn.textContent = 'Open Verification';
+      veriffStartBtn.onclick = () => window.open(data.url, '_blank');
+      pollVeriffStatus(data.session_id);
+      return;
+    }
+    setVeriffState('…', 'Verification opened in a new window', 'Complete it there, then come back to this tab.');
+    pollVeriffStatus(data.session_id);
+  });
+
   // "Submit Application" — the actual registration call now fires at the END of
   // the whole application (after preferences + optional referral), not partway
-  // through. On success, this is where the real backend would kick off the
-  // Checkr Trust background check server-side (POST /checks with first_name,
-  // last_name, dob — see the Checkr Trust integration notes) alongside queuing
-  // the application for personal review. That call belongs entirely in the
-  // backend controller, never in this client-side file — Checkr Trust
-  // credentials must never be exposed to the browser.
+  // through.
   document.getElementById('submit-application').addEventListener('click', async (e) => {
     e.preventDefault();
 
@@ -1343,10 +1473,11 @@
     require(birthdayInput, 'Date of birth is required.');
 
     const idFile = document.getElementById('id-document-input')?.files[0];
+    const identityDone = Boolean(veriffSessionId) || Boolean(idFile);
 
     if (!ageCheck?.checked)     { showToast('You must confirm you are 18 or older.', 'error');      valid = false; }
-    if (!consentCheck?.checked) { showToast('You must consent to the background review.', 'error'); valid = false; }
-    if (!idFile)                { showToast('A government-issued ID is required.', 'error');        valid = false; }
+    if (!consentCheck?.checked) { showToast('You must consent to identity verification.', 'error'); valid = false; }
+    if (!identityDone)          { showToast('Please complete identity verification.', 'error');     valid = false; }
     if (!termsCheck?.checked)   { showToast('You must agree to the Terms of Service and Privacy Policy.', 'error'); valid = false; }
     if (!valid) {
       // send them back to step-form on an age/consent failure (existing
@@ -1354,7 +1485,7 @@
       // visible, so those failures just stay put — no need to jump anywhere.
       if (!ageCheck?.checked || !consentCheck?.checked) {
         showStep(document.getElementById('step-form'));
-      } else if (!idFile) {
+      } else if (!identityDone) {
         showStep(document.getElementById('step-verify'));
       }
       return;
@@ -1374,15 +1505,19 @@
       // Only sent once phone-verify actually succeeded — the backend rejects
       // a phone without a valid verification_token, so an unverified number
       // here would just fail registration outright rather than silently
-      // being stored as unverified.
+      // being stored as unverified. Same idea for identity: veriff_session_id
+      // is only sent when the Veriff flow actually reached 'approved' (see
+      // pollVeriffStatus above) — the backend re-checks that session's real
+      // status itself rather than trusting this client's say-so.
       ...(phoneVerificationToken ? { phone: verifiedPhone, phone_verification_token: phoneVerificationToken } : {}),
+      ...(veriffSessionId ? { veriff_session_id: veriffSessionId } : {}),
       // Additional fields collected in this flow — occupation, LinkedIn,
       // the preference sliders, and the optional referral — are not yet part
       // of the /auth/register contract we verified against routes/auth.js.
       // Sending them here is harmless (unvalidated fields typically pass
       // through unless a controller explicitly rejects unknown keys), but
       // they won't be PERSISTED until the backend is extended to accept them.
-    }, idFile);
+    }, veriffSessionId ? undefined : idFile);
 
     if (ok) {
       showStep(stepSubmitted);
@@ -1396,6 +1531,18 @@
       const first = data.errors[0];
       showToast(first.msg, 'error');
       showStep(document.getElementById('step-form'));
+    } else if (status === 422 && /identity verification/i.test(data?.error || '')) {
+      // Session got consumed elsewhere, decision flipped after the poll
+      // stopped, etc. — let them redo verification rather than sending
+      // them to step-form, where nothing about this error is fixable.
+      veriffSessionId = null;
+      verifyContinueBtn.disabled = true;
+      setVeriffState('!', 'Verification needs to be redone', data.error);
+      veriffStartBtn.hidden = false;
+      veriffStartBtn.disabled = false;
+      veriffStartBtn.textContent = 'Start Verification';
+      showToast(data.error, 'error');
+      showStep(document.getElementById('step-verify'));
     } else if (status === 422) {
       showToast(data?.error || 'Please check your details and try again.', 'error');
       showStep(document.getElementById('step-form'));

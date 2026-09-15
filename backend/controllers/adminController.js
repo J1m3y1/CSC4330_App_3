@@ -15,11 +15,12 @@ async function listPending(req, res) {
     const { rows } = await query(
       `SELECT u.id, u.email, u.created_at,
               p.display_name, p.full_name, p.date_of_birth, p.bio,
-              idoc.id AS id_document_id, idoc.status AS id_document_status
+              idoc.id AS id_document_id, idoc.status AS id_document_status,
+              idoc.veriff_session_id IS NOT NULL AS id_verified_via_veriff
        FROM users u
        JOIN profiles p ON p.user_id = u.id
        LEFT JOIN LATERAL (
-         SELECT id, status FROM identity_documents
+         SELECT id, status, veriff_session_id FROM identity_documents
          WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1
        ) idoc ON TRUE
        WHERE u.is_approved = FALSE AND u.is_active = TRUE
@@ -41,11 +42,20 @@ async function getIdentityDocument(req, res) {
   const { id } = req.params;
   try {
     const { rows } = await query(
-      `SELECT storage_key, mime_type, original_filename FROM identity_documents
+      `SELECT storage_key, mime_type, original_filename, veriff_session_id FROM identity_documents
        WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
       [id]
     );
     if (!rows.length) return res.status(404).json({ error: 'No ID on file for this applicant.' });
+
+    // A Veriff-checked applicant has no file at all by design — Veriff's own
+    // hosted flow captured and verified the document+selfie directly, never
+    // relayed through our server (see migration 024). That's the expected,
+    // correct state, not missing data — the plain "missing from storage"
+    // message below is reserved for the legacy raw-upload path.
+    if (rows[0].veriff_session_id) {
+      return res.status(409).json({ error: 'This applicant was verified automatically via Veriff — there is no uploaded file to view.' });
+    }
 
     const { storage_key, mime_type, original_filename } = rows[0];
     // storage_key is a server-generated random filename (see upload.js), never

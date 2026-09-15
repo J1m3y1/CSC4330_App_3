@@ -68,7 +68,10 @@ const api = {
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== null) form.append(key, value);
       });
-      form.append('id_document', idFile);
+      // Only present in the fallback path (Veriff not configured) — a
+      // Veriff-verified applicant sends veriff_session_id in `data` above
+      // instead, and no file at all (see authController.register).
+      if (idFile) form.append('id_document', idFile);
       const res = await fetch(`${_base}/auth/register`, {
         method: 'POST', credentials: 'include', body: form,
       });
@@ -90,6 +93,13 @@ const api = {
   phone: {
     sendCode:   (phone)       => api.post('/phone/send-code', { phone }),
     verifyCode: (phone, code) => api.post('/phone/verify-code', { phone, code }),
+  },
+
+  // ── Identity verification (Veriff) ──────────────────────────────────────────
+  // Public endpoints — called before an account exists, during sign-up.
+  veriff: {
+    createSession: (email, full_name) => api.post('/veriff/create-session', { email, full_name }),
+    status:        (sessionId)        => api.get(`/veriff/session/${sessionId}/status`),
   },
 
   // ── Profile ────────────────────────────────────────────────────────────────

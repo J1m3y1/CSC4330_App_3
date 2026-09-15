@@ -40,6 +40,9 @@ const registerRules = [
   body('phone_verification_token')
     .if(body('phone').exists({ checkFalsy: true }))
     .notEmpty().withMessage('Phone verification is required — please verify your number again.'),
+  body('veriff_session_id')
+    .optional({ checkFalsy: true })
+    .isUUID().withMessage('Invalid identity verification session.'),
 ];
 
 const loginRules = [

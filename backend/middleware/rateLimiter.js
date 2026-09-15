@@ -77,4 +77,17 @@ const phoneLimiter = rateLimit({
   ...KEY_OPTS,
 });
 
-module.exports = { apiLimiter, authLimiter, resetLimiter, phoneLimiter };
+// ── Veriff verification limiter ─────────────────────────────────────────────
+// Public and pre-account like phoneLimiter above, but polling /session/:id
+// status is expected, frequent, free-of-cost UX (not a paid SMS send), so
+// this gets a more generous ceiling than phoneLimiter's 8.
+const veriffLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many verification requests. Please wait a few minutes.' },
+  ...KEY_OPTS,
+});
+
+module.exports = { apiLimiter, authLimiter, resetLimiter, phoneLimiter, veriffLimiter };

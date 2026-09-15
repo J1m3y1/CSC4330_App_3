@@ -7,6 +7,7 @@ const fs      = require('fs');
 const { query, withTransaction } = require('../config/db');
 const { sendMail } = require('../utils/mailer');
 const { verifyProofToken } = require('./phoneController');
+const { isConfigured: veriffConfigured } = require('../config/veriff');
 
 // ── Cookie helpers ────────────────────────────────────────────────────────────
 
@@ -66,13 +67,36 @@ function cleanupUploadedId(req) {
 
 // ── POST /api/auth/register ───────────────────────────────────────────────────
 async function register(req, res) {
-  const { email, password, display_name, full_name, date_of_birth, phone, phone_verification_token, location } = req.body;
+  const { email, password, display_name, full_name, date_of_birth, phone, phone_verification_token, location, veriff_session_id } = req.body;
 
   try {
-    // 1. A government ID is required — no exceptions. This is what actually
-    // backs the "government ID required" claim made elsewhere in the app;
-    // previously there was no real upload at all.
-    if (!req.file) {
+    // 1. Identity is required — no exceptions. When Veriff is configured
+    // this means an approved, not-yet-used verification session (real
+    // automated document+selfie check, replacing the old manual admin
+    // review — see migration 024); when it isn't configured, fall back to
+    // the original raw-file-upload path so sign-up still works without a
+    // Veriff account, same as every other optional integration here.
+    let veriffSession = null;
+    if (veriffConfigured) {
+      if (!veriff_session_id) {
+        return res.status(422).json({ error: 'Identity verification is required. Please complete the verification step.' });
+      }
+      const { rows } = await query(
+        `SELECT id, status, consumed_at FROM veriff_sessions WHERE id = $1 AND email = $2`,
+        [veriff_session_id, email]
+      );
+      veriffSession = rows[0];
+      if (!veriffSession || veriffSession.consumed_at) {
+        return res.status(422).json({ error: 'Identity verification session not found. Please verify your identity again.' });
+      }
+      if (veriffSession.status !== 'approved') {
+        return res.status(422).json({
+          error: veriffSession.status === 'declined'
+            ? 'Identity verification was declined. Please try again or contact support.'
+            : 'Identity verification is still processing. Please wait for it to finish before submitting.',
+        });
+      }
+    } else if (!req.file) {
       return res.status(422).json({ error: 'A government-issued ID (JPEG, PNG, or PDF) is required.' });
     }
 
@@ -126,11 +150,32 @@ async function register(req, res) {
         [userId, display_name, full_name || null, date_of_birth, phone || null, phoneVerified, location || null]
       );
 
-      await client.query(
-        `INSERT INTO identity_documents (user_id, storage_key, original_filename, mime_type)
-         VALUES ($1, $2, $3, $4)`,
-        [userId, req.file.filename, req.file.originalname, req.file.mimetype]
-      );
+      if (veriffSession) {
+        // Atomic consume-once, re-checked here (not just in the earlier
+        // read outside the transaction) so two concurrent submits of the
+        // same session can't both succeed — only the first UPDATE finds a
+        // still-unconsumed, still-approved row and returns one.
+        const consumed = await client.query(
+          `UPDATE veriff_sessions SET consumed_at = NOW()
+           WHERE id = $1 AND status = 'approved' AND consumed_at IS NULL
+           RETURNING id`,
+          [veriffSession.id]
+        );
+        if (!consumed.rows.length) {
+          throw Object.assign(new Error('Identity verification session was already used or is no longer valid.'), { status: 422 });
+        }
+        await client.query(
+          `INSERT INTO identity_documents (user_id, veriff_session_id, status, reviewed_at)
+           VALUES ($1, $2, 'approved', NOW())`,
+          [userId, veriffSession.id]
+        );
+      } else {
+        await client.query(
+          `INSERT INTO identity_documents (user_id, storage_key, original_filename, mime_type)
+           VALUES ($1, $2, $3, $4)`,
+          [userId, req.file.filename, req.file.originalname, req.file.mimetype]
+        );
+      }
     });
 
     // 6. New accounts need admin approval before accessing dashboard
@@ -142,6 +187,7 @@ async function register(req, res) {
   } catch (err) {
     cleanupUploadedId(req);
     console.error('[register]', err.message);
+    if (err.status === 422) return res.status(422).json({ error: err.message });
     res.status(500).json({ error: 'Registration failed. Please try again.' });
   }
 }

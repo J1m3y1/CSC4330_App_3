@@ -24,6 +24,7 @@ const adminRoutes      = require('./routes/admin');
 const interestsRoutes  = require('./routes/interests');
 const phoneRoutes      = require('./routes/phone');
 const forumRoutes      = require('./routes/forum');
+const veriffRoutes     = require('./routes/veriff');
 const { purgeExpiredMessages } = require('./controllers/messagesController');
 
 const app  = express();
@@ -88,7 +89,16 @@ app.use(cors({
 }));
 
 // ── Body parsing ─────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '50kb' }));       // Cap JSON body size
+// The `verify` callback stashes the exact raw bytes on req.rawBody — needed
+// by POST /api/veriff/webhook, which must verify Veriff's HMAC signature
+// against the literal request body it sent, not a re-serialization of the
+// parsed object (which can differ in key order/whitespace and would always
+// fail the signature check). Cheap for every other route: just a Buffer
+// reference to bytes already read off the wire, not a second parse.
+app.use(express.json({
+  limit: '50kb',
+  verify: (req, _res, buf) => { req.rawBody = buf; },
+}));
 app.use(express.urlencoded({ extended: false, limit: '50kb' }));
 app.use(cookieParser());
 
@@ -139,6 +149,7 @@ app.use('/api/admin',      adminRoutes);
 app.use('/api/interests',  interestsRoutes);
 app.use('/api/phone',      phoneRoutes);
 app.use('/api/forum',      forumRoutes);
+app.use('/api/veriff',     veriffRoutes);
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
