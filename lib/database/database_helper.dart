@@ -23,7 +23,7 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
 
   static const _dbName = 'app_users.db';
-  static const _dbVersion = 2;
+  static const _dbVersion = 4;
   static const tableUsers = 'users';
   static const tableSavedConcerts = 'saved_concerts';
 
@@ -59,6 +59,14 @@ class DatabaseHelper {
         },
         onUpgrade: (db, oldVersion, newVersion) async {
           if (oldVersion < 2) await db.execute(_createSavedConcertsTableSql);
+          if (oldVersion < 3) {
+            await db.execute(
+              'ALTER TABLE $tableSavedConcerts ADD COLUMN attended INTEGER NOT NULL DEFAULT 0',
+            );
+          }
+          if (oldVersion < 4) {
+            await db.execute('ALTER TABLE $tableSavedConcerts ADD COLUMN artist TEXT');
+          }
         },
       ),
     );
@@ -74,6 +82,8 @@ class DatabaseHelper {
     city TEXT NOT NULL,
     imageUrl TEXT,
     ticketUrl TEXT NOT NULL,
+    attended INTEGER NOT NULL DEFAULT 0,
+    artist TEXT,
     UNIQUE(userId, concertId)
   )''';
 
@@ -122,6 +132,7 @@ class DatabaseHelper {
       'city': concert.city,
       'imageUrl': concert.imageUrl,
       'ticketUrl': concert.ticketUrl,
+      'artist': concert.artist,
     }, conflictAlgorithm: ConflictAlgorithm.ignore);
   }
 
@@ -134,6 +145,20 @@ class DatabaseHelper {
     final db = await database;
     final rows = await db.query(tableSavedConcerts, columns: ['concertId'], where: 'userId = ?', whereArgs: [userId]);
     return rows.map((row) => row['concertId'] as String).toSet();
+  }
+
+  Future<void> setAttended({
+    required int userId,
+    required String concertId,
+    required bool attended,
+  }) async {
+    final db = await database;
+    await db.update(
+      tableSavedConcerts,
+      {'attended': attended ? 1 : 0},
+      where: 'userId = ? AND concertId = ?',
+      whereArgs: [userId, concertId],
+    );
   }
 
   Future<List<Concert>> getSavedConcerts({required int userId}) async {
