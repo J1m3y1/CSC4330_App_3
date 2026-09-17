@@ -134,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Row(
+            const Row(
               children: [
                 Expanded(
                   child: _StatCard(
@@ -142,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     value: '$_concertsAttended',
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: _StatCard(label: 'Artists Seen', value: '$_artistsSeen'),
                 ),

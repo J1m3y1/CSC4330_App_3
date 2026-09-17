@@ -1,4 +1,4 @@
-/// The signed-in user, as loaded from the local `users` table.
+/// The signed-in user, as loaded from the local users table.
 class AppUser {
   const AppUser({
     required this.id,

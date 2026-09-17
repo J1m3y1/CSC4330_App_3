@@ -1,4 +1,4 @@
-/// A single concert/event returned by the Ticketmaster Discovery API.
+/// A concert returned by the Ticketmaster Discovery API.
 class Concert {
   const Concert({
     required this.id,
@@ -21,18 +21,13 @@ class Concert {
   factory Concert.fromJson(Map<String, dynamic> json) {
     final venues = (json['_embedded']?['venues'] as List?) ?? const [];
     final venue = venues.isNotEmpty ? venues.first as Map<String, dynamic> : null;
-
     final images = (json['images'] as List?) ?? const [];
     final image = images.isNotEmpty ? images.first as Map<String, dynamic> : null;
-
     final localDate = json['dates']?['start']?['localDate'] as String?;
     final localTime = json['dates']?['start']?['localTime'] as String?;
-    DateTime? parsedDate;
-    if (localDate != null) {
-      parsedDate = DateTime.tryParse(
-        localTime != null ? '${localDate}T$localTime' : localDate,
-      );
-    }
+    final parsedDate = localDate == null
+        ? null
+        : DateTime.tryParse(localTime == null ? localDate : '${localDate}T$localTime');
 
     return Concert(
       id: json['id'] as String? ?? '',
@@ -45,13 +40,12 @@ class Concert {
     );
   }
 
-  /// Rebuilds a [Concert] from a `saved_concerts` table row.
   factory Concert.fromSavedRow(Map<String, Object?> row) {
     final date = row['date'] as String?;
     return Concert(
       id: row['concertId'] as String,
       name: row['name'] as String,
-      date: date != null ? DateTime.tryParse(date) : null,
+      date: date == null ? null : DateTime.tryParse(date),
       venueName: row['venueName'] as String,
       city: row['city'] as String,
       imageUrl: row['imageUrl'] as String?,
