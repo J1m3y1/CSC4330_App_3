@@ -5,7 +5,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:_csc4330_app3/database/database_helper.dart';
+import 'package:counter_demo/database/database_helper.dart';
 
 void main() {
   test('signUp then logIn succeeds on the web sqlite backend', () async {

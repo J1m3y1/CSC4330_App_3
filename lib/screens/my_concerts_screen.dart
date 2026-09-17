@@ -4,9 +4,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../database/database_helper.dart';
 import '../models/app_user.dart';
 import '../models/concert.dart';
+import '../services/ticketmaster_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/concert_card.dart';
 
-/// Shows the concerts the user has marked that they're going to.
+/// Shows the concerts the user has marked that they're going to ("Upcoming")
+/// and the ones they've attended ("Attended"). Recent past shows fetched
+/// live from Ticketmaster are auto-imported into Attended on load.
 class MyConcertsScreen extends StatefulWidget {
   const MyConcertsScreen({super.key, required this.user});
 
@@ -17,8 +21,12 @@ class MyConcertsScreen extends StatefulWidget {
 }
 
 class _MyConcertsScreenState extends State<MyConcertsScreen> {
-  List<Concert> _concerts = [];
+  final _service = TicketmasterService();
+
+  List<Concert> _upcoming = [];
+  List<Concert> _attended = [];
   bool _isLoading = true;
+  String? _pastErrorMessage;
 
   @override
   void initState() {
@@ -26,11 +34,42 @@ class _MyConcertsScreenState extends State<MyConcertsScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _service.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
-    final concerts = await DatabaseHelper.instance.getSavedConcerts(userId: widget.user.id);
+    setState(() => _isLoading = true);
+
+    var saved = await DatabaseHelper.instance.getSavedConcerts(userId: widget.user.id);
+    final savedIds = saved.map((c) => c.id).toSet();
+
+    String? pastError;
+    try {
+      final past = await _service.searchPastConcerts();
+      final newOnes = past.where((c) => !savedIds.contains(c.id));
+      for (final concert in newOnes) {
+        await DatabaseHelper.instance.saveConcert(userId: widget.user.id, concert: concert);
+        await DatabaseHelper.instance.setAttended(
+          userId: widget.user.id,
+          concertId: concert.id,
+          attended: true,
+        );
+      }
+      if (past.isNotEmpty) {
+        saved = await DatabaseHelper.instance.getSavedConcerts(userId: widget.user.id);
+      }
+    } on TicketmasterException catch (e) {
+      pastError = e.message;
+    }
+
     if (!mounted) return;
     setState(() {
-      _concerts = concerts;
+      _upcoming = saved.where((c) => !c.attended).toList();
+      _attended = saved.where((c) => c.attended).toList();
+      _pastErrorMessage = pastError;
       _isLoading = false;
     });
   }
@@ -38,7 +77,29 @@ class _MyConcertsScreenState extends State<MyConcertsScreen> {
   Future<void> _remove(Concert concert) async {
     await DatabaseHelper.instance.removeConcert(userId: widget.user.id, concertId: concert.id);
     if (!mounted) return;
-    setState(() => _concerts = _concerts.where((c) => c.id != concert.id).toList());
+    setState(() {
+      _upcoming = _upcoming.where((c) => c.id != concert.id).toList();
+      _attended = _attended.where((c) => c.id != concert.id).toList();
+    });
+  }
+
+  Future<void> _setAttended(Concert concert, bool attended) async {
+    await DatabaseHelper.instance.setAttended(
+      userId: widget.user.id,
+      concertId: concert.id,
+      attended: attended,
+    );
+    if (!mounted) return;
+    setState(() {
+      _upcoming = _upcoming.where((c) => c.id != concert.id).toList();
+      _attended = _attended.where((c) => c.id != concert.id).toList();
+      final updated = concert.copyWith(attended: attended);
+      if (attended) {
+        _attended = [..._attended, updated];
+      } else {
+        _upcoming = [..._upcoming, updated];
+      }
+    });
   }
 
   Future<void> _openTickets(String url) async {
@@ -53,24 +114,17 @@ class _MyConcertsScreenState extends State<MyConcertsScreen> {
     }
   }
 
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Date TBA';
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
-
   @override
   Widget build(BuildContext context) {
+    final hasNothing = _upcoming.isEmpty && _attended.isEmpty && _pastErrorMessage == null;
+
     return Scaffold(
       backgroundColor: AppColors.beigeLight,
       appBar: AppBar(title: const Text('My Concerts')),
       body: SafeArea(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
-            : _concerts.isEmpty
+            : hasNothing
                 ? Center(
                     child: Text(
                       "Concerts you're going to will show up here.",
@@ -78,91 +132,103 @@ class _MyConcertsScreenState extends State<MyConcertsScreen> {
                       textAlign: TextAlign.center,
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _concerts.length,
-                    itemBuilder: (context, index) {
-                      final concert = _concerts[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        color: AppColors.beige.withValues(alpha: 0.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        clipBehavior: Clip.antiAlias,
-                        child: InkWell(
-                          onTap: () => _openTickets(concert.ticketUrl),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: concert.imageUrl != null
-                                      ? Image.network(
-                                          concert.imageUrl!,
-                                          width: 64,
-                                          height: 64,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) =>
-                                              _placeholderImage(),
-                                        )
-                                      : _placeholderImage(),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        concert.name,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.textOnBeige,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        _formatDate(concert.date),
-                                        style: TextStyle(
-                                          color: AppColors.textOnBeige.withValues(alpha: 0.7),
-                                        ),
-                                      ),
-                                      Text(
-                                        [concert.venueName, concert.city]
-                                            .where((s) => s.isNotEmpty)
-                                            .join(' - '),
-                                        style: TextStyle(
-                                          color: AppColors.textOnBeige.withValues(alpha: 0.7),
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
+                : RefreshIndicator(
+                    onRefresh: _load,
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        if (_upcoming.isNotEmpty) ...[
+                          const _SectionHeader('Upcoming'),
+                          ..._upcoming.map(
+                            (concert) => ConcertCard(
+                              concert: concert,
+                              onTap: () => _openTickets(concert.ticketUrl),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    tooltip: 'Mark as attended',
+                                    icon: const Icon(
+                                      Icons.check_circle_outline,
+                                      color: AppColors.darkBrown,
+                                    ),
+                                    onPressed: () => _setAttended(concert, true),
                                   ),
-                                ),
-                                IconButton(
-                                  tooltip: 'Remove from My Concerts',
-                                  icon: const Icon(Icons.delete_outline, color: AppColors.darkBrown),
-                                  onPressed: () => _remove(concert),
-                                ),
-                              ],
+                                  IconButton(
+                                    tooltip: 'Remove from My Concerts',
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: AppColors.darkBrown,
+                                    ),
+                                    onPressed: () => _remove(concert),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                          const SizedBox(height: 8),
+                        ],
+                        if (_attended.isNotEmpty || _pastErrorMessage != null) ...[
+                          const _SectionHeader('Attended'),
+                          ..._attended.map(
+                            (concert) => ConcertCard(
+                              concert: concert,
+                              onTap: () => _openTickets(concert.ticketUrl),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    tooltip: 'Unmark as attended',
+                                    icon: const Icon(Icons.check_circle, color: AppColors.darkBrown),
+                                    onPressed: () => _setAttended(concert, false),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Remove from My Concerts',
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: AppColors.darkBrown,
+                                    ),
+                                    onPressed: () => _remove(concert),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (_pastErrorMessage != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                _pastErrorMessage!,
+                                style: const TextStyle(color: Colors.redAccent),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                        ],
+                      ],
+                    ),
                   ),
       ),
     );
   }
+}
 
-  Widget _placeholderImage() {
-    return Container(
-      width: 64,
-      height: 64,
-      color: AppColors.lightBrown,
-      child: const Icon(Icons.music_note, color: AppColors.beigeLight),
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8, top: 4),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          color: AppColors.textOnBeige,
+        ),
+      ),
     );
   }
 }

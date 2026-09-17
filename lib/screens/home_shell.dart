@@ -19,20 +19,35 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
+  // Bumped every time the My Concerts or Profile tab is opened, forcing it
+  // to remount and reload - both are kept alive by IndexedStack, so they
+  // won't otherwise notice concerts added/removed from other tabs.
+  int _myConcertsRefreshKey = 0;
+  int _profileRefreshKey = 0;
+
+  late AppUser _currentUser = widget.user;
 
   @override
   Widget build(BuildContext context) {
     final screens = [
-      ConcertsScreen(user: widget.user),
-      MyConcertsScreen(user: widget.user),
-      ProfileScreen(user: widget.user),
+      ConcertsScreen(user: _currentUser),
+      MyConcertsScreen(key: ValueKey(_myConcertsRefreshKey), user: _currentUser),
+      ProfileScreen(
+        key: ValueKey(_profileRefreshKey),
+        user: _currentUser,
+        onUserUpdated: (user) => setState(() => _currentUser = user),
+      ),
     ];
 
     return Scaffold(
       body: IndexedStack(index: _index, children: screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
-        onTap: (index) => setState(() => _index = index),
+        onTap: (index) => setState(() {
+          if (index == 1) _myConcertsRefreshKey++;
+          if (index == 2) _profileRefreshKey++;
+          _index = index;
+        }),
         backgroundColor: AppColors.beige,
         selectedItemColor: AppColors.darkBrown,
         unselectedItemColor: AppColors.textOnBeige.withValues(alpha: 0.5),

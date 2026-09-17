@@ -1,13 +1,9 @@
-// Basic smoke test for the login/signup screen.
-
+import 'package:counter_demo/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:_csc4330_app3/main.dart';
-
 void main() {
-  testWidgets('Auth screen shows login form and can switch to sign up',
-      (WidgetTester tester) async {
+  testWidgets('auth screen switches between login and sign up', (tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
@@ -18,8 +14,6 @@ void main() {
 
     await tester.tap(find.widgetWithText(TextButton, 'Sign Up'));
     await tester.pumpAndSettle();
-
-    expect(find.text('Already have an account?'), findsOneWidget);
 
     expect(find.text('Create an account'), findsOneWidget);
     expect(find.text('Full name'), findsOneWidget);

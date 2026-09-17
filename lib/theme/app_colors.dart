@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// App-wide color palette: beige primary, dark brown secondary,
-/// light brown tertiary.
 class AppColors {
   AppColors._();
 

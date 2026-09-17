@@ -31,8 +31,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.beige.withValues(alpha: 0.4),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -45,10 +44,6 @@ class AppTheme {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.darkBrown, width: 2),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
-        ),
         labelStyle: const TextStyle(color: AppColors.textOnBeige),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -56,24 +51,11 @@ class AppTheme {
           backgroundColor: AppColors.darkBrown,
           foregroundColor: AppColors.beigeLight,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.lightBrown,
-        ),
-      ),
-      textSelectionTheme: const TextSelectionThemeData(
-        cursorColor: AppColors.darkBrown,
-        selectionColor: AppColors.lightBrown,
-        selectionHandleColor: AppColors.darkBrown,
+        style: TextButton.styleFrom(foregroundColor: AppColors.lightBrown),
       ),
     );
   }

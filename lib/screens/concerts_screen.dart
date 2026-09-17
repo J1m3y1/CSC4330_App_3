@@ -6,6 +6,7 @@ import '../models/app_user.dart';
 import '../models/concert.dart';
 import '../services/ticketmaster_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/concert_card.dart';
 
 class ConcertsScreen extends StatefulWidget {
   const ConcertsScreen({super.key, required this.user});
@@ -167,11 +168,17 @@ class _ConcertsScreenState extends State<ConcertsScreen> {
                       itemBuilder: (context, index) {
                         final concert = _concerts[index];
                         final isSaved = _savedConcertIds.contains(concert.id);
-                        return _ConcertCard(
+                        return ConcertCard(
                           concert: concert,
-                          isSaved: isSaved,
                           onTap: () => _openTickets(concert.ticketUrl),
-                          onAdd: isSaved ? null : () => _addToMyConcerts(concert),
+                          trailing: IconButton(
+                            tooltip: isSaved ? 'Already in My Concerts' : 'Add to My Concerts',
+                            icon: Icon(
+                              isSaved ? Icons.check_circle : Icons.add_circle_outline,
+                              color: AppColors.darkBrown,
+                            ),
+                            onPressed: isSaved ? null : () => _addToMyConcerts(concert),
+                          ),
                         );
                       },
                     ),
@@ -179,108 +186,6 @@ class _ConcertsScreenState extends State<ConcertsScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ConcertCard extends StatelessWidget {
-  const _ConcertCard({
-    required this.concert,
-    required this.onTap,
-    required this.isSaved,
-    required this.onAdd,
-  });
-
-  final Concert concert;
-  final VoidCallback onTap;
-  final bool isSaved;
-  final VoidCallback? onAdd;
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Date TBA';
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      color: AppColors.beige.withValues(alpha: 0.5),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: concert.imageUrl != null
-                    ? Image.network(
-                        concert.imageUrl!,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => _placeholderImage(),
-                      )
-                    : _placeholderImage(),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      concert.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textOnBeige,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _formatDate(concert.date),
-                      style: TextStyle(color: AppColors.textOnBeige.withValues(alpha: 0.7)),
-                    ),
-                    Text(
-                      [concert.venueName, concert.city]
-                          .where((s) => s.isNotEmpty)
-                          .join(' - '),
-                      style: TextStyle(color: AppColors.textOnBeige.withValues(alpha: 0.7)),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                tooltip: isSaved ? 'Already in My Concerts' : 'Add to My Concerts',
-                icon: Icon(
-                  isSaved ? Icons.check_circle : Icons.add_circle_outline,
-                  color: AppColors.darkBrown,
-                ),
-                onPressed: onAdd,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _placeholderImage() {
-    return Container(
-      width: 64,
-      height: 64,
-      color: AppColors.lightBrown,
-      child: const Icon(Icons.music_note, color: AppColors.beigeLight),
     );
   }
 }
